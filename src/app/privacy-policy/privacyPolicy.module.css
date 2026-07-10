@@ -1,0 +1,228 @@
+/* Privacy Policy page — text-heavy informational page reached
+   from the BookingConfirmDialog's "refund policy" link. Layout
+   matches the live YP /privacy-policy reference exactly:
+   • No global navbar (this page deliberately stands alone).
+   • Full-width content with comfortable side padding.
+   • Plain dark background (matches the rest of the app's
+     palette but without the glass card outline used elsewhere).
+   • Body text in 14px DM Sans for comfortable long-form reading
+     while keeping the page dense enough to fit the policy in
+     a reasonable scroll distance. */
+
+/* The whole page is the scroll container so we can style its
+   scrollbar (the project's standard subtle white-on-dark
+   treatment). `height: 100vh + overflow-y: auto` is the same
+   pattern the booking-detail / event-detail scrollAreas use —
+   here it's applied at the page-wrapper level since the page
+   has no navbar above it. */
+.pagePrivacyPolicy {
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #020c19;
+  background-image:
+    radial-gradient(
+      ellipse 56% 73% at 70% -23%,
+      rgba(84, 51, 255, 0.2) 0%,
+      rgba(32, 189, 255, 0.2) 50%,
+      transparent 100%
+    );
+  background-attachment: fixed;
+  color: #ffffff;
+}
+
+/* Project-standard subtle scrollbar — same look as /booking,
+   /events, /jobs scrollAreas. Slim, white-22% thumb, hover-
+   darken to white-40%, transparent track. The
+   `-webkit-scrollbar-button` rule kills the up / down arrow
+   buttons at the ends so the bar is a clean track-only run
+   (matches every other scrollbar in the project). */
+.pagePrivacyPolicy::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pagePrivacyPolicy::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pagePrivacyPolicy::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+
+.pagePrivacyPolicy::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.pagePrivacyPolicy::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Firefox fallback — uses the same subtle thumb colour. */
+.pagePrivacyPolicy {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+
+/* Main column — full-page width with side padding. Mirrors the
+   live YP reference: content takes the full viewport width
+   minus a comfortable horizontal gutter, no max-width clamp,
+   no centered-card layout. */
+.main {
+  width: 100%;
+  padding: 25px 160px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .main {
+    padding: 24px 32px 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  .main {
+    padding: 20px 18px 32px;
+  }
+}
+
+/* Page title — large bold heading at top-left, no back-arrow
+   button (matches the live YP reference). */
+.title {
+  margin: 0 0 8px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  color: #ffffff;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+}
+
+@media (max-width: 600px) {
+  .title {
+    font-size: 28px;
+  }
+}
+
+/* Content card — thin outline + slight elevated fill, matching
+   the live YP /privacy-policy reference. A short horizontal
+   divider sits between the intro paragraph and the first
+   "Scope of Policy" heading (handled below by the heading's
+   top margin). */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 32px 36px 36px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 22px 20px 26px;
+  }
+}
+
+/* Horizontal divider line — sits between the intro paragraph
+   and the first "Scope of Policy" section, matching the live
+   reference. Implemented as a top border on the first heading
+   inside `.card` so the placement stays anchored to the section
+   break (rather than a separate <hr> element). */
+.card .heading:first-of-type {
+  margin-top: 18px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Section heading — slightly smaller than the page title, white
+   instead of cyan to match the live YP look (no blue accent
+   on the section headings there). */
+.heading {
+  margin: 18px 0 4px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.3;
+  color: #ffffff;
+  letter-spacing: 0.05px;
+}
+
+
+/* Body paragraph — DM Sans 14px / muted white. Line-height kept
+   roomy for long-form reading. */
+.body {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.body strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Bullet list — same font size as body, indented marker. */
+.list {
+  margin: 4px 0 8px;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.list li::marker {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Inline mailto link — cyan, underlined on hover. */
+.contactLink {
+  color: #20bdff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.contactLink:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* Registered-address link — cyan, always underlined to match
+   the live YP reference where the address renders as a clear
+   hyperlink (clicking opens Google Maps for the location). */
+.addressLink {
+  color: #20bdff;
+  text-decoration: underline;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.addressLink:hover {
+  color: #ffffff;
+}
+
+/* Footer line — small grey signature at the bottom of the
+   policy. Sits below the last section with a clear break. */
+.footer {
+  margin: 18px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}

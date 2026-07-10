@@ -1,0 +1,572 @@
+/* ── PostImageModal ──────────────────────────────────────────────────
+   A dialog rendered on top of the feed when the user clicks a post
+   image. Layout = two-column grid:
+     • Left pane  — large carousel (ImageCarousel component, counter variant)
+     • Right pane — author / post text / stats / actions / comment input
+                    / "most relevant comments" placeholder ("Coming soon")
+
+   All classes are CSS-module-scoped so nothing here can collide with
+   classes on the page that opened the modal. */
+
+/* Overlay: near-black + strong blur so the page content behind the
+   modal becomes a muted, dark, barely-readable texture. This is what
+   gives the modal a clear visual edge — the right pane can stay dark
+   blue + slightly transparent without blending into the page, because
+   the surface BEHIND it is now much darker than the pane itself. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Outer gutter ensures the modal never touches the viewport edges —
+     reveals a blurred strip of the page around it (matches reference SS). */
+  padding: 40px;
+  animation: imgModalFade 0.18s ease;
+}
+
+@keyframes imgModalFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Modal container is transparent — each pane paints its own background,
+   which is how we get the reference SS's subtle contrast between the
+   (solid, dark) left image pane and the (translucent, blurred) right
+   details pane. Left column is noticeably wider than right per the
+   updated design; height is taller than the earlier revision. */
+.modal {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) minmax(365px, 0.90fr);
+  width: 100%;
+  max-width: 1197px;
+  height: 100%;
+  max-height: 80vh;
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
+  /* Drop shadow gives the modal a crisp outer edge against the darkened
+     backdrop — no border, no size change, just visual separation so
+     the modal reads as a distinct floating surface. */
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  animation: imgModalRise 0.22s ease;
+}
+
+@keyframes imgModalRise {
+  from { transform: translateY(8px); opacity: 0.5; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ── Left pane (image carousel) ──
+   Solid dark charcoal with a subtle blue tint — deliberately NOT pure
+   black. Padding is applied to TOP, BOTTOM, and RIGHT only; the image
+   hugs the left edge of the modal with zero left-side padding. */
+.leftPane {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 26px 15px 26px 0;
+  background: #262a34;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Override the default ImageCarousel outer sizing so it fills the
+   padded left pane. `border-radius: 0` explicitly overrides the
+   carousel module's rounded corners — per the design the image itself
+   has sharp / square corners; only the modal's outer shell is rounded. */
+.carousel {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* ── Right pane (details) ──
+   Uses the project's signature dark-navy page color (rgb(2, 12, 25) —
+   same base used by .page in home.module.css and by every card bg),
+   with a small amount of transparency + a subtle backdrop blur so the
+   pane reads as part of the app's design system, not a plain black box. */
+.rightPane {
+  display: flex;
+  flex-direction: column;
+  /* Gap here only separates the fixed header from the scrollable body
+     below it. Section-to-section rhythm now lives on .rightBody. */
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+  /* 8px right padding creates a visible gap between the scrollbar and
+     the modal's right outer edge — the scrollbar no longer looks
+     crammed up against the border. The inner gap between body content
+     and the scrollbar is still provided by .rightBody's padding-right. */
+  padding: 10px 8px 18px 14px;
+  background: rgba(2, 12, 25, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-left: 1px solid rgba(160, 174, 192, 0.14);
+  /* IMPORTANT: right pane itself no longer scrolls — the inner
+     .rightBody does. This is what makes the scrollbar start BELOW the
+     fixed header (at the description), not at the top of the pane. */
+  overflow: hidden;
+}
+
+/* Scrollable region that holds everything below the header — post
+   description, stats, actions, comment input, comments. Its internal
+   scrollbar is the one visible on the right edge of the modal; the
+   header above stays pinned. */
+.rightBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Padding-right creates the visual gap between body content and the
+     scrollbar (which sits at the right edge of the modal). Without
+     this, content would butt up against the scrollbar track. */
+  padding-right: 10px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  /* Reduced from 14px → 6px because .rightPane now contributes 8px of
+     right padding itself. Combined = 14px from the close X to the modal
+     outer edge (same visual position as before the scrollbar fix). */
+  padding-right: 6px;
+}
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.authorAvatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #5433ff, #20bdff);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  overflow: hidden;
+  letter-spacing: 0.3px;
+}
+
+.authorAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.authorMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.authorName {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 15.5px;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.authorTime {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 12.5px;
+  color: #a0aec0;
+}
+
+/* Close button — NO background circle (transparent), just the X glyph.
+   Clickable area is preserved at 34×34 for comfortable tap targets. */
+.closeBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, opacity 0.15s ease;
+  padding: 0;
+}
+
+.closeBtn:hover {
+  opacity: 0.75;
+}
+
+/* Larger + heavier X glyph (CloseIcon itself uses strokeWidth=2.6). */
+.closeBtn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.postText {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  color: #fff;
+  /* Wider line-height gives each line of the description visible
+     breathing room (what the SS calls "sentence row spacing"). */
+  line-height: 1.75;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.postText p { margin: 0 0 8px; }
+.postText p:last-child { margin-bottom: 0; }
+.postText a { color: #20bdff; text-decoration: underline; }
+.postText strong, .postText b { font-weight: 600; }
+.postText h1, .postText h2, .postText h3 {
+  font-weight: 700;
+  font-size: 17px;
+  margin: 6px 0;
+  line-height: 1.3;
+}
+
+/* Collapsed-state clamp — renders the FULL API HTML visually trimmed
+   to 2 lines so every piece of formatting (<strong>, <h*>, links,
+   sizing) is preserved exactly as the API sent it. The "show more"
+   button appears on its own line directly below. */
+.postTextClamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Zero out paragraph / heading margins only inside the clamped box so
+   line-clamp counts real content lines, not empty margin lines. The
+   font-weight + font-size overrides stay intact from the rules above,
+   so bold & heading sizing are preserved — only the block spacing
+   normalises inside the clamp. */
+.postTextClamped p,
+.postTextClamped h1,
+.postTextClamped h2,
+.postTextClamped h3 {
+  margin: 0;
+}
+
+/* Block-level "... show more" / "show less" toggle — sits on its own
+   line directly under the collapsed preview, matching the feed style. */
+.postToggle {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: -4px;
+  color: #20bdff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.1px;
+  cursor: pointer;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.postToggle:hover {
+  text-decoration: none;
+}
+
+.postToggle:focus-visible {
+  outline: 2px solid #20bdff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-dm-sans), sans-serif;
+  /* Smaller font for "N Comments | N Shares" + likes count row. */
+  font-size: 12px;
+  color: #a0aec0;
+}
+
+.likeCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+}
+
+/* No gradient circle — the new solid-blue thumbs-up SVG stands on its
+   own. The wrapper only handles centering + sizing. */
+.likeIcon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.likeIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.statRight {
+  color: #a0aec0;
+}
+
+/* Action buttons row — no top padding so it sits tighter to the stats
+   divider above, and NO border-bottom (the previous divider between
+   actions and comment input has been removed per the design update). */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 0 2px;
+  margin-top: -2px;
+}
+
+.actionBtn {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.actionBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.actionBtn svg {
+  width: 19px;
+  height: 19px;
+}
+
+/* Comment input with the project's standard gradient border (same
+   padding-box / border-box trick used by the home search bar).
+   Padding trimmed horizontally + vertically so the pill is shorter
+   (less height) and the input field itself gets more horizontal
+   breathing room (wider). */
+.commentInput {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 7px 5px 15px;
+  border: 1px solid transparent;
+  border-radius: 100px;
+  background:
+    linear-gradient(#040f1f, #040f1f) padding-box,
+    linear-gradient(91.13deg, #5433ff 2.22%, #20bdff 97.08%) border-box;
+}
+
+.commentInputField {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  /* Typed text is a muted "shadowed" white so it doesn't glare. */
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13.7px;
+  padding: 4px 0;
+}
+
+/* Placeholder reads as bright white (inverted from the default UX —
+   intentional per the design so the prompt stands out when empty). */
+.commentInputField::placeholder {
+  color: #fff;
+  opacity: 1;
+}
+
+/* Icon buttons inside the comment pill shrunk slightly so the input
+   field itself has more horizontal room (appears wider). */
+.commentIconBtn,
+.commentSendBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #20bdff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.commentIconBtn:hover,
+.commentSendBtn:hover {
+  background: rgba(32, 189, 255, 0.15);
+}
+
+/* Icons inside the comment input's round buttons — sized to match the
+   reference SS exactly. `display: block` strips the inline baseline
+   descender gap (otherwise the glyph drifts off-centre inside the
+   circular button). 18 × 18 leaves comfortable breathing room inside
+   the 28 × 28 button so the paper-plane sits correctly centred. */
+.commentIconBtn svg,
+.commentSendBtn svg,
+.commentIconBtn img {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+
+.commentsSection {
+  margin-top: 2px;
+}
+
+/* "Most relevant comments (N)" heading — dim shadowed white + smaller
+   font AND lighter weight (no longer a bold heading, reads as subdued
+   section-label instead). */
+.commentsTitle {
+  margin: 0 0 10px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.commentsPlaceholder {
+  margin: 0;
+  padding: 24px 0;
+  text-align: center;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+/* ── Right-pane custom scrollbar (matches feed/jobs scrollbars) ── */
+.rightBody::-webkit-scrollbar { width: 4px; }
+.rightBody::-webkit-scrollbar-track { background: transparent; }
+.rightBody::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 3px;
+}
+.rightBody::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Responsive: tablet — slightly tighter gutter, same two-column
+       layout while the viewport can still hold it. ── */
+/* ── Tablet (≤1024px) ──
+   Wide two-column modal matching the user's reference SS. Sized so the
+   left image pane has comfortable room to letterbox landscape images
+   (top / bottom dark padding) and the right pane fits all post content
+   + comments without wrapping awkwardly. Height bumped to 92vh so the
+   modal feels substantial, not cramped. */
+@media (max-width: 1024px) {
+  .overlay {
+    padding: 20px;
+  }
+  .modal {
+    max-width: 780px;
+    max-height: 80vh;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 1fr);
+  }
+  .leftPane {
+    padding: 16px 16px 16px 0;
+  }
+  .rightPane {
+    padding: 10px 6px 14px 12px;
+  }
+  .header {
+    /* Tighter close-button inset on tablet — .rightPane already
+       contributes 6px of right padding. */
+    padding-right: 4px;
+  }
+}
+
+/* ── Stack to a single column once the two-column grid gets cramped.
+       Once stacked, the "no left padding" rule no longer makes sense
+       (image is no longer flush against the modal's left edge), so we
+       go back to symmetric padding on all sides. ── */
+/* Intentional gap here: 601–1024px gets the tablet rule above, NO
+   stacking. Stacking kicks in only at phone widths (see below). */
+
+/* ── Small mobile — let the modal fill the viewport edge-to-edge. ── */
+/* ── Mobile (≤600px) ──
+   Stack into a single column + full-screen modal, then pin the close X
+   to the absolute top-right corner of the modal. Without the absolute
+   positioning the close button sits at the top of the stacked right
+   pane, which is the vertical middle of the viewport — exactly what
+   the user reported ("cross shows middle center, should be right
+   corner"). */
+@media (max-width: 600px) {
+  .overlay {
+    padding: 0;
+  }
+  .modal {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(240px, 42vh) minmax(0, 58vh);
+    max-width: 100%;
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
+  }
+  .leftPane {
+    padding: 10px;
+  }
+  .rightPane {
+    border-left: none;
+    border-top: 1px solid rgba(160, 174, 192, 0.14);
+    padding: 14px 14px 14px;
+  }
+  .header {
+    /* Reset tablet's 4px inset — close X is now absolutely positioned
+       in the modal corner (see rule below) and no longer lives inside
+       the header's flex flow visually. */
+    padding-right: 0;
+  }
+  .closeBtn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    /* Semi-opaque pill so the X stays legible no matter what's behind
+       it — dark header on one side, image pane on the other. */
+    background: rgba(0, 0, 0, 0.55);
+  }
+}

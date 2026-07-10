@@ -1,0 +1,420 @@
+/* Notifications page — semi-static UI mirroring the live YP
+   /notifications page. The page chrome (background, navbar
+   offset, two-column grid, left-column mini-profile card) is
+   reused from `home/home.module.css`; this file only owns the
+   styles unique to the right-column notifications panel and the
+   per-card layout. */
+
+/* ── Page-specific overrides for the home content grid ────────── */
+.contentNotificationsPage {
+  /* Match the home / jobs / company / events content padding and
+     grid so the navbar + outer container line up pixel-for-pixel
+     across all five pages. `align-items: stretch` (the home grid's
+     default) makes the right column fill the full available
+     vertical space — so the notifications card extends all the
+     way down to the bottom of the content area instead of
+     shrinking to its own contents. */
+  align-items: stretch;
+}
+
+/* ── Right column outer container ──────────────────────────────────
+   Single bordered card holding the page heading, search bar (with
+   an inline Clear All button on the right), and the scrollable
+   notification list. Same chrome the home / jobs / company /
+   events right panels use so the four pages share one visual
+   treatment. */
+.rightOuter {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  padding: 20px 24px;
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+}
+
+/* ── Header row — heading on the left, search + Clear All on the
+   right. Same structure the jobs / company / events pages use. */
+.rightHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.rightTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #fff;
+}
+
+/* Wrapper that holds the search pill + the conditional Clear All
+   button beside it. Same flex shell as the jobs / company /
+   events listings for visual consistency. */
+.searchClearWrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.searchWrap {
+  flex: 1;
+  max-width: 380px;
+  min-width: 220px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Plain text-button beside the search pill. Resets the
+   notifications list on click — mirrors the listing pages'
+   Clear All visually. */
+.clearAllBtn {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.clearAllBtn:hover {
+  color: #20bdff;
+  opacity: 0.92;
+}
+
+/* ── Notification list — vertically scrollable column of cards.
+   Same scrollbar styling as the other right-panel lists so they
+   visually feel consistent. */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding-right: 6px;
+  min-height: 0;
+}
+
+.list::-webkit-scrollbar { width: 6px; }
+.list::-webkit-scrollbar-track { background: transparent; }
+.list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.list::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+
+/* ── Empty state ── shown when `clearAll` has wiped the list or
+   the search yields no matches. Centred glyph + caption, same
+   visual treatment as the jobs / company empty states. */
+.listEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+}
+
+.listEmpty svg {
+  width: 48px;
+  height: 48px;
+}
+
+.listEmptyText {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+}
+
+/* ── Notification card ── three-column grid: avatar | content |
+   actions. Matches the live YP /notifications card layout. */
+.notifCard {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(2, 12, 25, 0.4);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.notifCard:hover {
+  background-color: #20bdff1a;
+  border-color: #20bdff;
+}
+
+/* Square cyan-tint avatar with "YP" caps inside — matches the SS
+   logo treatment for the static notification rows. */
+.notifAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2a8db8 0%, #20bdff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.notifInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.notifTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+}
+
+.notifMessage {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.78);
+  /* Cap to one line with ellipsis so long booking titles don't
+     break the card grid (the live SS does the same — second card
+     ends with "Tec..." after truncation). */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notifTimeAgo {
+  margin: 2px 0 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Action column — View pill on top, Clear pill below. Stacked
+   vertically per the SS (View aligned to top, Clear to bottom). */
+.notifActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+/* Gradient View pill — same brand gradient the home Apply / events
+   View / company Follow buttons use, so the action set across the
+   app stays visually consistent. */
+.btnView {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 100px;
+  padding: 8px 28px;
+  color: #fff;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.btnView:hover { opacity: 0.92; }
+
+/* Clear pill — soft cyan-tinted background with cyan border and
+   cyan text. Outlined style so the two action pills read as a
+   primary (View) + secondary (Clear) pair. */
+.btnClear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #20bdff;
+  border-radius: 100px;
+  padding: 7px 28px;
+  color: #20bdff;
+  background: rgba(32, 189, 255, 0.1);
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.btnClear:hover { background: rgba(32, 189, 255, 0.2); }
+
+.btnClear:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Tablet (≤1200px) ─────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .rightOuter {
+    padding: 18px 18px;
+  }
+
+  .rightTitle {
+    font-size: 20px;
+  }
+
+  .notifCard {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .notifAvatar {
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+  }
+}
+
+/* ── Tablet portrait (641–900px) — the panel expands to the full
+   container width (the home grid stacks at this breakpoint), so
+   each card has plenty of horizontal room. Per the live SS the
+   cards KEEP their desktop 3-column layout here (avatar | info |
+   actions stacked vertically on the right) — View on top, Clear
+   below, NOT the wrapped/horizontal arrangement. The header row
+   also stays as one line: heading + compressed search pill +
+   Clear All button. The chained-class selector on `.searchWrap`
+   wins the cascade over the desktop's 0,1,0 rule. ── */
+@media (min-width: 641px) and (max-width: 900px) {
+  .rightHeader {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .searchWrap.searchWrap {
+    max-width: 280px;
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+/* ── Mobile (≤640px) ──────────────────────────────────────────────
+   Per the live SS: the "All Notifications" heading sits on its own
+   row, the search pill + Clear All button drop to a second row
+   stretched full container width, and each notification card
+   collapses to a stacked layout — avatar + info on top, then a
+   vertical action stack with View full-width on top and Clear
+   full-width below. The card-grid template gets a 2-column +
+   2-row areas mapping ("avatar info" / "actions actions") so the
+   View / Clear pair occupies its own full-width row underneath. */
+@media (max-width: 640px) {
+  .rightOuter {
+    padding: 14px 14px;
+  }
+
+  /* Stack the header: heading on row 1, search+ClearAll on row 2. */
+  .rightHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  /* Search row stays horizontal but spans the full container so
+     the pill expands edge-to-edge with Clear All trailing on the
+     right — same treatment company / events use on mobile. */
+  .searchClearWrap.searchClearWrap {
+    flex-direction: row;
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .searchWrap.searchWrap {
+    max-width: 100%;
+    min-width: 0;
+    width: 100%;
+    flex: 1;
+  }
+
+  /* Override the home `.searchBar`'s `margin-right: 10px` (which
+     exists for the desktop feed layout) so the pill ends flush
+     with the right edge of the mobile container, matching the
+     other listing pages' mobile alignment. */
+  .searchWrap > div {
+    margin-right: 0;
+    width: 100%;
+  }
+
+  /* Card: avatar + info on top, action pair on its own full-width
+     row below. Row gap controls the breathing room between the
+     info block and the View/Clear stack. */
+  .notifCard {
+    padding: 14px;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "avatar info"
+      "actions actions";
+    row-gap: 14px;
+  }
+
+  .notifAvatar {
+    grid-area: avatar;
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+    border-radius: 12px;
+  }
+
+  .notifInfo {
+    grid-area: info;
+  }
+
+  /* Action column flips to a VERTICAL stack on mobile — View pill
+     full-width on top, Clear pill full-width below, matching the
+     SS exactly. The `align-items: stretch` makes both pills span
+     the row's full width. */
+  .notifActions {
+    grid-area: actions;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .btnView,
+  .btnClear {
+    width: 100%;
+    padding: 10px 18px;
+    font-size: 13px;
+  }
+
+  .notifTitle {
+    font-size: 15px;
+  }
+
+  .notifMessage {
+    font-size: 12.5px;
+  }
+}

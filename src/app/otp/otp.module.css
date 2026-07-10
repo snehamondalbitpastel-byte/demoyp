@@ -1,0 +1,194 @@
+/* ───────────────────────────────────────────
+ * OTP page wrapper — hard viewport clamp
+ * ─────────────────────────────────────────── */
+.otpPage {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.otpPage *,
+.otpPage *::before,
+.otpPage *::after {
+  box-sizing: border-box;
+}
+
+/* ───────────────────────────────────────────
+ * OTP card container — Figma 755 × 962 exact
+ * Bottom padding = 154px per Figma (button bottom
+ * at y=867, card bottom at 1021 inside the 962
+ * card frame).
+ * ─────────────────────────────────────────── */
+.otpCard {
+  width: min(680px, 100%) !important;
+  max-width: 100% !important;
+  min-height: 560px !important;
+  height: 697px !important;
+  max-height: 697px !important;
+  padding: 22.5px 36px 12px;
+  margin-inline: auto;
+  overflow-y: auto;
+  background: rgba(4, 15, 31, 0.08) !important;
+  backdrop-filter: blur(30px) !important;
+  -webkit-backdrop-filter: blur(30px) !important;
+}
+
+/* Tablet landscape */
+@media (max-width: 1024px) {
+  .otpCard {
+    width: min(720px, 100%) !important;
+    min-height: 700px !important;
+    height: 700px !important;
+    max-height: 700px !important;
+    padding: 48px 40px 24px;
+  }
+}
+
+/* Tablet portrait */
+@media (max-width: 820px) {
+  .otpCard {
+    width: min(680px, 100%) !important;
+    min-height: 680px !important;
+    height: 680px !important;
+    max-height: 680px !important;
+    padding: 40px 34px 20px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  :global(html),
+  :global(body) {
+    overflow: hidden;
+    height: 100dvh;
+  }
+
+  .otpPage {
+    padding: 0 36px;
+    overflow: hidden;
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  .otpCard {
+    width: 100% !important;
+    min-height: 720px !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: 36px 18px 16px;
+    overflow-y: hidden;
+  }
+}
+
+/* iPhone SE */
+@media (max-width: 380px) {
+  :global(html),
+  :global(body) {
+    overflow: auto;
+    height: auto;
+  }
+
+  .otpPage {
+    padding: 0 32px;
+    overflow: visible;
+    height: auto;
+    min-height: auto;
+    align-items: flex-start;
+  }
+
+  .otpCard {
+    height: auto !important;
+    min-height: 720px !important;
+    max-height: none !important;
+    padding: 48px 16px 12px;
+    overflow-y: visible;
+  }
+}
+
+/* ───────────────────────────────────────────
+ * Top-right corner blur glow
+ * Matches Figma node 1453:650 — soft blue ellipse
+ * bleeding into the card from outside the top-right.
+ * ─────────────────────────────────────────── */
+
+/* ───────────────────────────────────────────
+ * Bottom-left corner blur glow — mirrors top-right
+ * Soft blue ellipse bleeding into the card from outside
+ * ─────────────────────────────────────────── */
+
+/* ───────────────────────────────────────────
+ * "Verify Code" title — Figma 40px
+ * Gap from logo bottom → title top = 94px (Figma)
+ * ─────────────────────────────────────────── */
+.logoProSpaced {
+  letter-spacing: 0.9px;
+  font-size: clamp(50px, 5.5vh, 75px);
+}
+
+@media (max-width: 1024px) {
+  .logoProSpaced {
+    font-size: clamp(34px, 5vh, 58px);
+  }
+}
+
+@media (max-width: 820px) {
+  .logoProSpaced {
+    font-size: clamp(30px, 4.5vh, 50px);
+  }
+}
+
+@media (max-width: 480px) {
+  .logoProSpaced {
+    font-size: clamp(36px, 5.5vh, 50px);
+  }
+}
+
+@media (max-width: 380px) {
+  .logoProSpaced {
+    font-size: clamp(52px, 7.5vh, 64px);
+  }
+}
+
+.title {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 23px;
+  line-height: 1;
+  letter-spacing: -0.4px;
+  color: #fff;
+  text-align: center;
+  margin: 105px 0 0;
+}
+
+@media (max-width: 1024px) {
+  .title {
+    font-size: 26px;
+    margin-top: 100px;
+  }
+}
+
+@media (max-width: 820px) {
+  .title {
+    font-size: 24px;
+    margin-top: 88px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 20px;
+    margin-top: 82px;
+  }
+}
+
+@media (max-width: 380px) {
+  .title {
+    font-size: 24px;
+    margin-top: 88px;
+  }
+}

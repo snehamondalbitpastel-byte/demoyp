@@ -1,0 +1,231 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 15, 31, 0.55);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 14px;
+  padding: 26px 28px 22px;
+  background: rgba(8, 20, 38, 0.72);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  animation: pop 0.18s ease;
+}
+
+.modal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(180deg, #5433FF 0%, #20BDFF 100%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.closeBtn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.title {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 19px;
+  color: #fff;
+  margin: 2px 0 8px;
+}
+
+.message {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 22px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.cancelBtn {
+  position: relative;
+  flex: 1;
+  padding: 9px 20px;
+  border: none;
+  border-radius: 50px;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.cancelBtn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(180deg, #5433FF 0%, #20BDFF 100%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirmBtn {
+  flex: 1;
+  padding: 9px 20px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.confirmBtn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.confirmBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.modalLarge {
+  max-width: 720px;
+  padding: 40px 56px 34px;
+}
+
+.titleLarge {
+  font-size: 42px;
+  margin-bottom: 16px;
+}
+
+.modalLarge .message {
+  font-size: 16px;
+  margin-bottom: 34px;
+}
+
+.modalLarge .cancelBtn,
+.modalLarge .confirmBtn {
+  flex: 0 0 auto;
+  min-width: 170px;
+  padding: 9px 28px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.modalLarge .actions {
+  gap: 16px;
+  padding: 0 6px;
+  justify-content: center;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Light-mode overrides for the Logout / generic confirm dialog.
+   Triggered when any ancestor of the modal has `data-theme="light"`
+   (Career Talks pages set this on their root). Matches the live YP
+   reference SS: white modal card with the blue gradient border kept,
+   dark navy title, gray subtitle, white-bg cancel button with the
+   same gradient border + dark text, and the same purple→cyan
+   gradient on the primary Logout button. Dark mode is unaffected. */
+[data-theme="light"] .overlay {
+  /* Slightly lighter dimming on the page beneath — the dark wash
+     from dark mode (rgba(4,15,31,0.55)) would look heavy on a
+     mostly-white page. */
+  background: rgba(15, 23, 42, 0.35);
+}
+
+[data-theme="light"] .modal {
+  background: #ffffff;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.18);
+}
+
+/* Close button (X in the top-right of the modal) → dark on white. */
+[data-theme="light"] .closeBtn {
+  color: rgba(15, 23, 42, 0.6);
+}
+
+[data-theme="light"] .closeBtn:hover {
+  background: rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+}
+
+/* Title "Log out" → dark navy heading. */
+[data-theme="light"] .title {
+  color: #0f172a;
+}
+
+/* Subtitle "Are you sure you want to log out?" → mid-gray. */
+[data-theme="light"] .message {
+  color: rgba(15, 23, 42, 0.6);
+}
+
+/* Cancel button → white surface, dark label. Gradient border stays
+   (provided by the existing `.cancelBtn::before` pseudo-element). */
+[data-theme="light"] .cancelBtn {
+  color: #0f172a;
+}
+
+/* Logout (primary) button → keep the purple→cyan gradient and white
+   label exactly as it is in dark mode. No override needed; included
+   here as a comment so a future reader knows it's intentional. */

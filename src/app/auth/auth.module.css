@@ -1,0 +1,324 @@
+.page {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  background: #040f1f;
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  :global(html),
+  :global(body) {
+    overflow: hidden;
+    height: 100dvh;
+  }
+
+  .page {
+    padding: 0 28px;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+}
+
+
+
+/* 
+.page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background-image: url("https://www.transparenttextures.com/patterns/noise.png");
+  opacity: 0.15; 
+} */
+
+
+/*
+ * Right glow — top-right corner
+ * Image: /assets/bg/rightGlow.webp
+ * Scaled larger than original so glow spreads smoothly
+ * Most of the shape sits outside the viewport
+ */
+.bgEllipse1 {
+  position: absolute;
+  top: -21vh;
+  right: 0vw;
+  width: 47vw;
+  height: 47vw;
+  background: url("/assets/bg/rightGlow.webp") no-repeat center center;
+  background-size: contain;
+  pointer-events: none;
+  z-index: 0;
+  
+}
+
+/*
+ * Left arc — bottom-left corner
+ * Image: /assets/bg/leftArc.webp
+ * Only the upper arc portion is visible on screen
+ */
+.bgEllipse2 {
+  position: absolute;
+  bottom: -31vh;
+  left: 3vw;
+  width: 48.2vw;
+  height: 48.2vw;
+  background: url("/assets/bg/leftArc.webp") no-repeat center center;
+  background-size: contain;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Background responsive ── */
+@media (max-width: 1024px) {
+  .bgEllipse1 {
+    top: -18vh;
+    right: -6vw;
+    width: 58vw;
+    height: 58vw;
+    transform: rotate(35deg);
+  }
+
+  .bgEllipse2 {
+    bottom: -14vh;
+    left: -6vw;
+    width: 56vw;
+    height: 56vw;
+  }
+}
+
+@media (max-width: 820px) {
+  .bgEllipse1 {
+    top: -20vh;
+    right: -35vw;
+    left:40vw;
+    width: 65vw;
+    height: 65vw;
+    transform: rotate(40deg);
+  }
+
+  .bgEllipse2 {
+    bottom: -15.9vh;
+    left: 4vw;
+    width: 68vw;
+    height: 68vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .bgEllipse1 {
+    position: absolute;
+    top: -8vh;
+    left: 57%;
+    transform: translateX(-48%);
+    width: 82vw;
+    height: 77vw;
+  }
+
+  .bgEllipse2 {
+    position: absolute;
+    bottom: -18vh;
+    left: -4vw;
+    width: 105vw;
+    height: 105vw;
+  }
+}
+
+/* ── iPhone SE ── */
+@media (max-width: 380px) {
+  :global(html),
+  :global(body) {
+    overflow: auto;
+    height: auto;
+  }
+
+  .page {
+    min-height: auto;
+    align-items: flex-start;
+    overflow: visible;
+    height: auto;
+  }
+
+  .bgEllipse1 {
+    position: fixed;
+    top: -13vh;
+    right: -1vw;
+    width: 102vw;
+    height: 102vw;
+  }
+
+  .bgEllipse2 {
+    position: fixed;
+    bottom: -20vh;
+    left: -5vw;
+    width: 110vw;
+    height: 110vw;
+  }
+}
+
+/* Ellipse41 glow is now SVG-based — see BgGlow.tsx component */
+
+/* Logo styles */
+.logo {
+  text-align: center;
+  color: #fff;
+  letter-spacing: 1.4px;
+  margin-bottom: 0;
+}
+
+.logoYoung {
+  display: block;
+  font-family: var(--font-alumni-sans-sc), sans-serif;
+  font-weight: 700;
+  /* font-size: clamp(60px, 9vh, 110px); */
+    font-size: clamp(80px, 11vh, 150px);
+  line-height: 0.35;
+  padding-top: 30px;
+  padding-bottom: 20px;
+}
+
+.logoPro {
+  display: block;
+  font-family: var(--font-alumni-sans-sc), sans-serif;
+  font-weight: 600;
+  /* font-size: clamp(42px, 6vh, 75px); */
+   font-size: clamp(36px, 6.8vh, 90px);
+  line-height: 0.4;
+  letter-spacing: 0.8;
+  padding-top: 2px;
+  padding-bottom: 6px;
+}
+
+@media (max-width: 1024px) {
+  .logoYoung {
+    font-size: clamp(50px, 7vh, 80px);
+    padding-top: 18px;
+    padding-bottom: 20px;
+  }
+
+  .logoPro {
+    font-size: clamp(28px, 4.5vh, 50px);
+  }
+}
+
+@media (max-width: 480px) {
+  .logoYoung {
+    font-size: clamp(60px, 9vh, 82px);
+    padding-top: 18px;
+    padding-bottom: 16px;
+  }
+
+  .logoPro {
+    font-size: clamp(36px, 5.5vh, 50px);
+    padding-top: 4px;
+    padding-bottom: 0;
+  }
+
+}
+
+/* Welcome Back title */
+.title {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: clamp(24px, 2.8vh, 32px);
+  line-height: 1;
+  letter-spacing: -0.4px;
+  color: #fff;
+  text-align: center;
+  margin: 22px 0 16px;
+  font-size: 22px;
+}
+
+/* Sign up / Login toggle */
+.toggle {
+    position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  width: 222px;
+  max-width: 100%;
+  height: 46px;
+  /* background: rgba(2, 12, 25, 0.4);
+  border: 2px solid #5433ff; */
+  border: 2px solid transparent;
+  border-radius: 87.618px;
+  backdrop-filter: blur(12.223px);
+  -webkit-backdrop-filter: blur(12.223px);
+  overflow: hidden;
+  padding: 3px;
+}
+
+.toggleTab {
+  flex: 1;
+  height: 34px;
+  border: none;
+  border-radius: 87.618px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  background: transparent;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  transition: background 0.3s ease;
+}
+
+.toggleTabActive {
+  background: linear-gradient(95.03deg, #5433ff 3.68%, #20bdff 95.65%);
+}
+
+
+.toggle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 87.618px;
+  padding: 1.5px; /* border thickness */
+
+  background: linear-gradient(90deg, #5433FF, #20BDFF);
+
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+
+  mask-composite: exclude;
+
+  pointer-events: none;
+}
+
+/* ── Login/Signup mobile overrides (must be after base styles) ── */
+@media (max-width: 480px) {
+  .title {
+    margin: 30px 0 22px;
+  }
+
+  .toggle {
+    margin: 0 auto 24px;
+    width: 250px;
+  }
+}
+
+/* ── iPhone SE ── */
+@media (max-width: 380px) {
+  .logoYoung {
+    font-size: clamp(80px, 11vh, 95px);
+    padding-bottom: 18px;
+    color: #ffffff;
+  }
+
+  .logoPro {
+    font-size: clamp(49px, 6.5vh, 58px);
+    color: #ffffff;
+  }
+}
+
+

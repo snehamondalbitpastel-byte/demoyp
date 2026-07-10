@@ -1,0 +1,188 @@
+/* Booking confirm dialog — pre-payment "Are you sure?" modal. Same
+   chrome family as the generic `profile/ConfirmDialog` (cyan
+   gradient ring, dark glass fill, centered actions) so it reads as
+   a sibling of the existing confirm modals across the app, but
+   with the message body sized + spaced for the longer booking
+   copy + inline refund-policy link. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 15, 31, 0.55);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  border-radius: 14px;
+  padding: 28px 30px 24px;
+  background: rgba(8, 20, 38, 0.82);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  animation: bookingConfirmPop 0.18s ease;
+}
+
+/* Cyan gradient ring around the modal — consumes a 1.5px slice of
+   the modal's border-radius via mask-composite. Matches the
+   ConfirmDialog ring exactly. */
+.modal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(180deg, #5433ff 0%, #20bdff 100%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@keyframes bookingConfirmPop {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.closeBtn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.closeBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.closeBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.title {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #fff;
+  margin: 2px 0 12px;
+}
+
+.message {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 24px;
+  /* Slight horizontal padding so the long message wraps inside a
+     tighter measure than the modal's own padding allows — matches
+     the live SS where the text wraps to ~3 lines. */
+  padding: 0 4px;
+}
+
+/* Inline cyan refund-policy link inside the message paragraph.
+   Bolded + cyan + underlined on hover so it reads clearly as a
+   distinct affordance against the muted surrounding copy. */
+.refundLink {
+  color: #20bdff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.refundLink:hover {
+  opacity: 0.85;
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.cancelBtn {
+  position: relative;
+  flex: 1;
+  padding: 11px 20px;
+  border: none;
+  border-radius: 50px;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+/* Cyan gradient ring on the Cancel button — outline-style pair to
+   the gradient-filled Proceed button. Same mask-composite trick
+   as the modal ring above. */
+.cancelBtn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(180deg, #5433ff 0%, #20bdff 100%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.proceedBtn {
+  flex: 1;
+  padding: 11px 20px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.proceedBtn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.proceedBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,0 +1,111 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  flex: 1;
+  margin: 0 auto;
+}
+
+.fieldWrapper {
+  width: 88%;
+}
+
+.orText {
+  display: none;
+}
+
+.forgotLink {
+  display: block;
+  width: 82%;
+  text-align: right;
+  margin-top: 4px;
+  margin-bottom: -18px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.forgotLink:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.toggleText {
+  text-align: center;
+  margin-top: 14px;
+  margin-bottom: 6px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 16.2px;
+  color: #fff;
+  transform: translateY(-12.5px);
+
+}
+
+.toggleBtn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 16.2px;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.toggleBtn:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+
+
+.form .fieldWrapper:first-child {
+  margin-top: 12.5px;
+}
+
+/* ── Tablet ── */
+@media (max-width: 1024px) {
+  .form {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form {
+    --input-height: 44px;
+    --input-max-width: 100%;
+    --btn-max-width: 100%;
+    gap: 10px;
+  }
+
+  .fieldWrapper {
+    width: 96%;
+  }
+
+  .form .fieldWrapper:first-child {
+    margin-top: -4px;
+  }
+
+  .fieldWrapper:last-of-type {
+    margin-top: 6px;
+  }
+}
+
+/* ── iPhone SE ── */
+@media (max-width: 380px) {
+  .form {
+    padding-bottom: 0;
+  }
+
+  .toggleText {
+    margin-top: 0;
+    margin-bottom: 0;
+    transform: none;
+  }
+}

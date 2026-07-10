@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx next:*)",
+      "Bash(npm run:*)",
+      "mcp__figma__get_screenshot",
+      "mcp__figma__get_design_context",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/83f18e5b-35d1-4510-9e2c-69a462de3e42\" -o \"/c/Users/Tanushri Mondal/bitpastelprojects/demoyp/public/assets/icons/chevron-down.svg\")",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/aeab9815-26b5-4e64-ba17-b40c82aca081\" -o \"/c/Users/Tanushri Mondal/bitpastelprojects/demoyp/public/assets/icons/chevron-frame.svg\")",
+      "Bash(curl -sL -o \"/c/Users/Tanushri Mondal/bitpastelprojects/demoyp/public/assets/icons/fire.svg\" \"https://www.figma.com/api/mcp/asset/8bc8c4c4-0170-41e0-972f-f27c0fcd5ab8\")",
+      "Bash(curl -sL -o \"/c/Users/Tanushri Mondal/bitpastelprojects/demoyp/public/assets/icons/chevron-down.svg\" \"https://www.figma.com/api/mcp/asset/83f18e5b-35d1-4510-9e2c-69a462de3e42\")",
+      "mcp__figma__get_metadata",
+      "mcp__figma__get_variable_defs"
+    ]
+  }
+}

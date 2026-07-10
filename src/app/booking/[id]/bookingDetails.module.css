@@ -1,0 +1,532 @@
+/* Booking details page — only the styles unique to this page live
+   here. Page chrome (background, navbar offset) reuses
+   `home/home.module.css` via the second style import in page.tsx.
+   Horizontal sizing and outer max-width mirror /events/[id] so the
+   two detail pages line up at byte-identical horizontal positioning
+   on every viewport. */
+
+/* Outer page wrapper — full viewport height with the navbar
+   pinned at the top (no scroll) and a flex-1 scroll region below
+   it. The navbar stays fixed in place while the booking content
+   below it scrolls inside `.scrollArea`. */
+.pageBookingDetails {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Scroll region that sits BELOW the navbar. Spans the full
+   viewport width so its scrollbar lives on the right edge of
+   the browser window — same visual result as a page-level
+   scrollbar, but the navbar above stays fixed because it isn't
+   inside this scroll container. */
+.scrollArea {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Project-standard subtle scrollbar — same colour, width and
+   radius the /events/[id] and /jobs/[id] detail pages use, so
+   every page in the app shares one scrollbar treatment. */
+.scrollArea::-webkit-scrollbar { width: 6.1px; }
+.scrollArea::-webkit-scrollbar-track { background: transparent; }
+.scrollArea::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.scrollArea::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Page chrome — outer <main>. Outer container is full-width
+   with the same horizontal padding as /events/[id] so the
+   "Booking Details" back-arrow heading sits at the original wide
+   left-edge position. The narrow form-like column is applied
+   only to the inner `.formContainer` below.
+   No `overflow-y: auto` here — the page-level (browser) scrollbar
+   drives navigation, so the scroll thumb sits on the right edge
+   of the browser window, NOT on the inner form. ── */
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: 1590px;
+  margin: 0 auto;
+  padding: 21px 202px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+/* Form-like narrow column that wraps the banner card + View Event
+   button. Constrained to ~720px so the booking content reads as
+   a compact form, while the title row above stays at the original
+   wide position. Centred inside `.main`. */
+.formContainer {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Page title row — back arrow + "Booking Details" heading. ── */
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  transition: background 0.15s ease;
+}
+
+.backBtn:hover { background: rgba(255, 255, 255, 0.08); }
+.backBtn svg { width: 22px; height: 22px; }
+
+.title {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: #fff;
+}
+
+/* ── Single content card holding banner → body content. The card
+   has the same dark-glass surface every other detail page uses so
+   /booking/[id] visually feels like a sibling of /events/[id] /
+   /jobs/[id]. ── */
+.card {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Banner image — full width inside the card. Edges are rounded
+   only at the top corners (the bottom edge sits flush with the
+   card body below). */
+.banner {
+  width: 100%;
+  height: 280px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.banner img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bannerPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  padding: 0 24px;
+}
+
+/* ── Card body — vertical stack inside the card. Vertical gap
+   is tight enough that the reduced-font rows sit naturally;
+   horizontal padding stays comfortable so the content doesn't
+   touch the card edges. ── */
+.cardBody {
+  padding: 24px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.eventTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #fff;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+/* Date row under the title — calendar icon + "30 April 2026". */
+.eventDate {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.78);
+  margin-top: -8px;
+}
+
+.eventDate svg {
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.78);
+  flex-shrink: 0;
+}
+
+/* Thin divider line between sections inside the card. */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  margin: 4px 0;
+}
+
+/* Booking Number + Seats — two-column grid. */
+.metaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.metaBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.metaLabel {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+.metaValue {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  word-break: break-word;
+}
+
+/* Section heading inside the card (e.g. "Payment Summary"). */
+.sectionHeading {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+}
+
+/* Summary row — label on the left, value on the right. */
+.summaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+}
+
+.summaryLabel {
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 400;
+}
+
+.summaryValue {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Total Amount row — same layout as summary rows but the label is
+   white-bold and the amount is large + cyan to match the SS. */
+.totalRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.totalLabel {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+}
+
+.totalValue {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: #20bdff;
+}
+
+/* Status row — label on the left, chip / value on the right. */
+.statusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.statusLabel {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Status chip used for Booking / Payment status. Tinted by the
+   `chipDanger` / `chipSuccess` / `chipNeutral` modifier applied
+   alongside this base class. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 14px;
+  border-radius: 100px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.chipDanger {
+  color: #ff4d4f;
+  background: rgba(255, 77, 79, 0.15);
+  border: 1px solid rgba(255, 77, 79, 0.3);
+}
+
+.chipSuccess {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.chipNeutral {
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* "Paid at" value with a clock icon to the left of the timestamp. */
+.paidAtValue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.paidAtValue svg {
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.78);
+  flex-shrink: 0;
+}
+
+/* Cyan "View Payment Receipt" link with a ticket icon. Sits at
+   the bottom of the card body, centred horizontally. */
+.receiptLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
+  align-self: center;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: #20bdff;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.receiptLink:hover { opacity: 0.85; }
+
+.receiptLink svg {
+  width: 18px;
+  height: 18px;
+  color: #20bdff;
+  flex-shrink: 0;
+}
+
+/* "View Event" gradient pill — full width, sits below the card
+   with a small vertical gap. Same brand gradient the other CTAs
+   on the app use. */
+.btnViewEvent {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 100px;
+  padding: 14px 24px;
+  color: #fff;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease;
+}
+
+.btnViewEvent:hover { opacity: 0.92; }
+.btnViewEvent:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Error state — used when the booking-detail fetch fails. Same
+   chrome as `.card` but the body is a single centred line. */
+.errorState {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  padding: 36px 24px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+}
+
+/* ── Tablet (≤1200px) ─────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .main {
+    padding: 18px 32px 24px;
+  }
+
+  .banner {
+    height: 240px;
+  }
+
+  .eventTitle {
+    font-size: 24px;
+  }
+
+  .totalValue {
+    font-size: 24px;
+  }
+}
+
+/* ── Tablet portrait (≤900px) ────────────────────────────────── */
+@media (max-width: 900px) {
+  .main {
+    padding: 16px 18px 22px;
+  }
+
+  .cardBody {
+    padding: 22px 20px 24px;
+    gap: 16px;
+  }
+
+  .banner {
+    height: 200px;
+  }
+
+  .eventTitle {
+    font-size: 22px;
+  }
+
+  .metaValue {
+    font-size: 16px;
+  }
+
+  .totalLabel,
+  .sectionHeading {
+    font-size: 16px;
+  }
+
+  .totalValue {
+    font-size: 22px;
+  }
+}
+
+/* ── Mobile (≤640px) ──────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .main {
+    padding: 14px 16px 24px;
+    gap: 14px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .cardBody {
+    padding: 20px 18px 22px;
+  }
+
+  .banner {
+    height: 180px;
+  }
+
+  .eventTitle {
+    font-size: 20px;
+  }
+
+  .metaGrid {
+    gap: 18px;
+  }
+
+  .metaValue {
+    font-size: 15px;
+  }
+
+  .totalValue {
+    font-size: 20px;
+  }
+
+  .summaryRow,
+  .summaryLabel,
+  .summaryValue,
+  .statusLabel,
+  .paidAtValue {
+    font-size: 13px;
+  }
+
+  .chip {
+    font-size: 11px;
+    padding: 3px 10px;
+  }
+
+  .btnViewEvent {
+    font-size: 14px;
+    padding: 12px 18px;
+  }
+}

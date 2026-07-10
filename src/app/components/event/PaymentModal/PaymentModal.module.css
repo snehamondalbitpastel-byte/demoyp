@@ -1,0 +1,1286 @@
+/* Payment modal — Stripe PaymentSheet / Link-checkout look-alike.
+   Dark glass surface, rounded inputs with lighter fill, crisp
+   cyan-on-error treatment, and a gradient Pay pill. Sized at
+   ~520px so the form sits comfortably across desktop viewports
+   without dominating the screen. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 15, 31, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  border-radius: 16px;
+  /* Top padding 36px so the form (and its right-edge scrollbar)
+     starts JUST below the close X (which sits at top:8 with
+     height:26 → bottom edge at 34px). 36px clears the X with
+     a tight 2px buffer so the scrollbar visually starts right
+     after the X. Side / bottom padding unchanged so the form
+     width is preserved. */
+  padding: 36px 28px 22px;
+  /* Solid-ish dark surface — Stripe's PaymentSheet background.
+     Translucency is kept low so the form is comfortable to read
+     against the blurred site behind it. */
+  background: #0c1830;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  animation: paymentModalPop 0.18s ease;
+  /* Tap-targets for the close button + form fields can extend
+     close to the corners on mobile, so include a small inner
+     gutter. */
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@keyframes paymentModalPop {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.closeBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  z-index: 2;
+}
+
+.closeBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.closeBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Link checkout strip ─────────────────────────────────────────
+   The collapsible "Secure, fast checkout with Link" header at the
+   top of the modal. Matches the Stripe Link strip's chrome —
+   rounded box, lock icon, brand wordmark in the cyan Link teal,
+   chevron that rotates on open. */
+/* Default (collapsed) state — completely flush against the
+   modal surface, no box / border / fill. The "🔒 Secure, fast
+   checkout with Link ⌄" row is just inline content with the
+   lock icon, cyan label, and cyan chevron sitting in a row.
+   Sticky-pinned to the top of the form's scroll viewport so
+   when the optional signup form pushes content past the form's
+   max-height and a scrollbar appears, this row stays visible
+   no matter how far down the viewer scrolls. The opaque
+   background matches the modal surface so card fields don't
+   peek through behind it during scroll. */
+.linkStrip {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: #0c1830;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+/* Open state — visible outline so the email signup form reads
+   as the active section. Background stays the same opaque
+   modal-surface color (#0c1830) so the sticky strip fully
+   masks scrolling content underneath; the "active" feel
+   comes from the soft white outline rather than a tinted
+   fill that would let card fields bleed through. */
+.linkStripOpen {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: #0c1830;
+}
+
+.linkHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  /* COLLAPSED state: no horizontal padding — the lock icon sits
+     flush at the form's left edge so it lines up exactly with
+     the "Card number" label (which is a direct child of the
+     form with no extra left padding). Vertical padding kept
+     for breathing room. The `.linkStripOpen` modifier below
+     overrides this when the strip is expanded so the lock
+     icon aligns with the body's subtitle text inside the
+     bordered box. */
+  padding: 6px 0;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: left;
+}
+
+/* EXPANDED state header padding — inset 16px on left/right so
+   the lock icon + "Secure, fast checkout with Link" wordmark
+   sit at the same x-coordinate as the subtitle text below
+   ("Securely pay with your saved info..."), matching the
+   live YP reference exactly. */
+.linkStripOpen .linkHeader {
+  padding: 12px 16px 4px;
+}
+
+/* Modifier applied when the row is rendered as a <button> (only
+   in the collapsed state). Whole strip becomes one click target. */
+.linkHeaderBtn {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.linkHeaderBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.linkHeaderBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.linkLockIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #11d97d;
+  flex-shrink: 0;
+}
+
+/* Label takes its natural width (no flex: 1) so the chevron
+   sits right next to the word "Link" instead of getting
+   pushed to the far right of the header. */
+.linkHeaderLabel {
+  color: #00d4ff;
+}
+
+.linkBrand {
+  color: #00d4ff;
+  font-weight: 700;
+}
+
+/* Trailing chevron in the COLLAPSED header — clicking it (or any
+   part of the header is fine, but the chevron is the primary
+   affordance) expands the Link section. */
+.linkChevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #00d4ff;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.linkChevron:hover:not(:disabled) {
+  background: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
+}
+
+.linkChevron:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Trailing X close in the EXPANDED header — collapses the Link
+   section back to its single-row form. Pushed to the far
+   right corner of the bordered box via `margin-left: auto`
+   so it sits at the top-right corner of the expanded card
+   (matching the live YP reference where X stays at the
+   corner regardless of how short the title text is). */
+.linkClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: auto;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.linkClose:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.linkClose:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.linkBody {
+  padding: 4px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.linkBodyText {
+  margin: 4px 0 4px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* Email input inside the Link strip uses the same input shell as
+   the rest of the form, but we wrap it so the focus-ring colour
+   resolves locally — Stripe Link uses a chunkier cyan focus ring
+   here than the regular form fields. */
+.linkEmailWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.linkEmailWrap:focus-within {
+  border-color: rgba(0, 212, 255, 0.85);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.22);
+}
+
+/* "▸ link" continue affordance below the email field — clicking
+   opens the second-layer LinkInfoModal ("Pay quickly, shop
+   confidently"). The wordmark itself is rendered via the
+   official Stripe Link SVG so the brand reads identical to the
+   real Stripe PaymentSheet; we just provide the click target +
+   sizing wrap around it. */
+.linkContinueLink {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 4px;
+  padding: 6px 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.linkContinueLink:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.linkContinueLink:disabled {
+  cursor: not-allowed;
+}
+
+/* Wrap that controls the rendered size of the inline LinkLogo SVG.
+   The SVG itself uses height="100%" so it scales to the wrap's
+   height — adjust this to scale the "▸ link" wordmark. Sized
+   small to match the live Stripe Link inline footer treatment. */
+.linkLogoWrap {
+  display: inline-flex;
+  align-items: center;
+  height: 14px;
+}
+
+.linkLogoSvg {
+  height: 100%;
+  width: auto;
+}
+
+/* Smaller variant for the inline use in the optional signup
+   form's terms paragraph — sized to match the upper "Link"
+   wordmark in the link strip header (14px font-size) so the
+   two brand marks read at the same visual scale. */
+.linkLogoSvgInline {
+  height: 14px;
+  width: auto;
+  vertical-align: middle;
+}
+
+/* ── Form fields ─────────────────────────────────────────────────
+   Stripe Elements style: lighter fill on focus, soft border by
+   default, red border + helper text on validation error. */
+.fieldLabel {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 4px;
+}
+
+/* Tighten the gap between a top-level form label and the
+   inputWrap that immediately follows it. The form's flex
+   gap (14px) is the right rhythm BETWEEN field groups, but
+   inside a single label+input pair we want a smaller 4px
+   gap to match the .col grouping the Expiration/Security
+   pair already uses. The negative margin-top on the input
+   pulls it 10px closer (14 − 10 = 4) and only fires for
+   pairs where the label is a direct child of .form. */
+.form > .fieldLabel + .inputWrap {
+  margin-top: -10px;
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.inputWrap:focus-within {
+  border-color: rgba(0, 212, 255, 0.65);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.18);
+}
+
+/* Manual focus class — Stripe Elements run inside cross-origin
+   iframes that don't reliably trigger the parent's :focus-within
+   across browsers. Each Element's `onFocus` / `onBlur` callbacks
+   toggle this class so the cyan ring still appears on focus. */
+.inputWrapFocus {
+  border-color: rgba(0, 212, 255, 0.65);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.18);
+}
+
+.inputWrapError {
+  border-color: rgba(255, 90, 90, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 90, 90, 0.16);
+}
+
+.inputWrapError:focus-within,
+.inputWrapError.inputWrapFocus {
+  border-color: rgba(255, 90, 90, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 90, 90, 0.16);
+}
+
+/* Wrapper around a Stripe Element. Stripe injects an iframe at
+   ~100% width — we give it the same padding the plain `.input`
+   used so the iframe text aligns with the surrounding chrome. */
+.stripeField {
+  flex: 1;
+  min-width: 0;
+  padding: 13px 14px;
+  display: block;
+}
+
+.stripeField :global(.StripeElement) {
+  width: 100%;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 14px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* `<select>` needs the appearance reset on every browser plus the
+   custom chevron via `.selectChevron` so it visually matches the
+   text inputs. */
+.selectInput {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  padding-right: 38px;
+}
+
+.selectInput option {
+  background: #0c1830;
+  color: #fff;
+}
+
+.selectChevron {
+  position: absolute;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+}
+
+.errorText {
+  margin: 4px 2px 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #ff7575;
+  line-height: 1.35;
+}
+
+/* Two-column row for Expiration + Security code. Wraps to a
+   single column on very narrow viewports so the field chrome
+   doesn't get crushed. */
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+@media (max-width: 420px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* CVC hint — the little card-back icon Stripe shows inside the
+   security-code field. Styled to sit flush against the right
+   edge of the input. */
+.cvcHint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 10px;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+
+/* ── Card brand strip ────────────────────────────────────────────
+   Compact horizontal row of brand badges sitting against the
+   right edge of the card-number input. Matches the live Stripe
+   PaymentSheet treatment: every supported brand is rendered at
+   full opacity at all times so the viewer always knows which
+   cards work; the brand the typed digits resolve to gets a thin
+   highlight ring + lift. No asset imports — each badge is built
+   from inline shapes / wordmarks. */
+.brandStrip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 10px;
+  flex-shrink: 0;
+}
+
+.brandBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 22px;
+  border-radius: 3px;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.brandBadgeActive {
+  box-shadow: 0 0 0 1.5px rgba(0, 212, 255, 0.85),
+              0 2px 6px rgba(0, 0, 0, 0.3);
+  transform: translateY(-0.5px);
+}
+
+/* Visa — deep blue tile with a tightly-tracked italic-weight
+   wordmark in white. */
+.brand_visa {
+  background: #1a1f71;
+}
+
+.visaWord {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  color: #ffffff;
+  line-height: 1;
+}
+
+/* Mastercard — white tile with the two interlocking circles
+   (red-orange overlap → orange wedge in the middle). Built with
+   two absolutely positioned circles inside an inline-flex shell. */
+.brand_mastercard {
+  background: #ffffff;
+  position: relative;
+}
+
+.mcCircles {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 24px;
+  height: 14px;
+}
+
+.mcRed,
+.mcYellow {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  top: 1px;
+}
+
+.mcRed {
+  left: 1px;
+  background: #eb001b;
+}
+
+.mcYellow {
+  right: 1px;
+  background: #f79e1b;
+  mix-blend-mode: multiply;
+}
+
+/* Amex — solid royal-blue tile with a tight white "AMEX"
+   wordmark, matching the brand's reverse-on-blue lockup that
+   Stripe ships in its PaymentSheet. */
+.brand_amex {
+  background: #1976d2;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.amexWord {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 900;
+  font-size: 8.5px;
+  letter-spacing: 0.4px;
+  color: #ffffff;
+  line-height: 1;
+}
+
+/* Discover — white tile with the "DISCOVER" wordmark in black
+   on the left half AND a solid Discover-orange section filling
+   the entire right half of the tile from top to bottom, with a
+   smooth curved (elliptical) left edge so it reads as the
+   signature Discover orange "swoosh". Matches the SS exactly. */
+.brand_discover {
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+  justify-content: flex-start;
+  padding-left: 4px;
+  /* Reserve room for the orange section on the right so the
+     wordmark sits comfortably to its left without colliding. */
+  padding-right: 16px;
+}
+
+/* Orange right-half "swoosh" — a full-height orange block
+   anchored to the right edge with a large elliptical border-
+   radius on its left corners. width:14px against height:22px
+   plus border-radius:100% on the left corners produces a smooth
+   convex curve running top-to-bottom, exactly matching the
+   reference badge. Sits above the wordmark on the z-stack so
+   the right tail of "DISCOVER" tucks behind the orange. */
+.brand_discover::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  background: #ff6000;
+  border-top-left-radius: 100%;
+  border-bottom-left-radius: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Wordmark sits BELOW the orange swoosh on the z-stack so the
+   right tail of "DISCOVER" disappears under the curve — only
+   the leading letters read cleanly to the left of the orange. */
+.discoverWord {
+  position: relative;
+  z-index: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 900;
+  font-size: 6.2px;
+  letter-spacing: 0.1px;
+  color: #000000;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.brand_unknown {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Form container — wraps the real `.form` plus the loading
+   skeleton overlay. Position relative so the skeleton can
+   sit absolutely on top of the form during the brief Stripe
+   Elements boot window. */
+.formContainer {
+  position: relative;
+}
+
+/* Loading state — opacity 0 so Stripe iframes can keep mounting
+   underneath the skeleton. pointer-events: none so any clicks
+   on the skeleton don't fall through to half-loaded inputs. */
+.formLoading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Ready state — fade the real form in once all three Card
+   Elements have signalled `onReady`. */
+.formReady {
+  opacity: 1;
+  transition: opacity 0.18s ease;
+}
+
+/* Skeleton overlay — sits on top of the still-loading form,
+   covering the whole form area with the same gap rhythm as
+   the real fields so the layout doesn't visibly shift when
+   the swap happens. The placeholder boxes share a slow
+   `pulse` animation that gently dims their fill so the area
+   reads as actively loading. */
+.skeleton {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.skeletonStrip {
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  animation: paymentSkelPulse 1.4s ease-in-out infinite;
+}
+
+.skeletonLabel {
+  height: 12px;
+  width: 120px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  animation: paymentSkelPulse 1.4s ease-in-out infinite;
+}
+
+.skeletonInput {
+  height: 44px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  animation: paymentSkelPulse 1.4s ease-in-out infinite;
+}
+
+.skeletonRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.skeletonCol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.skeletonCol .skeletonLabel {
+  width: 80px;
+}
+
+@keyframes paymentSkelPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* Form wrapper — same gap rhythm as the modal's flex column so
+   the rendered fields don't visibly shift when the form mounts
+   inside Elements. The form owns its own vertical scroll so
+   when the optional signup form auto-opens (or any other
+   content pushes the form past the viewport), a scrollbar
+   appears on the form's right edge. The close X stays put on
+   the modal because it's a sibling of `.form`, not inside it. */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: calc(95vh - 60px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Push the form's right edge (where the scrollbar sits)
+     24px past the modal's right padding edge — this slides
+     the scrollbar all the way to the form's right corner so
+     there's effectively no gap between it and the modal's
+     right side. The padding-right (8px original + 24px to
+     compensate for the negative margin = 32px) keeps the
+     input field x-position exactly the same so nothing
+     shifts inside the form. Net effect: scrollbar at the
+     edge, form width + input positions both pinned. */
+  margin-right: -24px;
+  padding-right: 32px;
+}
+
+.form::-webkit-scrollbar {
+  width: 4px;
+}
+
+.form::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 3px;
+  margin: 4px 0;
+}
+
+.form::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.form::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Optional Link signup card ────────────────────────────────────
+   Auto-opens once the CVC is complete. Mirrors the live Stripe
+   PaymentSheet "Save my information for faster checkout" panel:
+   bordered box, "Optional" small pill + bold title + X close,
+   then email / mobile / full-name fields, with a small "▸ link"
+   terms footer at the bottom. */
+.signupCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.signupHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.optionalPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  flex-shrink: 0;
+}
+
+.signupTitle {
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.signupClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.signupClose:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.signupClose:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Phone input wrap — react-phone-number-input renders a flag-
+   select + input pair. We give the wrap the same chrome as the
+   other field wraps and re-skin the library's inner elements
+   via :global so the modal-wide Plus Jakarta Sans / dark fill
+   look is consistent. */
+.phoneWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 6px 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.phoneWrap:focus-within {
+  border-color: rgba(0, 212, 255, 0.65);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.18);
+}
+
+.phoneInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.phoneInput :global(.PhoneInputCountry) {
+  margin-right: 8px;
+}
+
+.phoneInput :global(.PhoneInputCountrySelect) {
+  color: #fff;
+  background: transparent;
+  /* Firefox: subtle white-on-dark scrollbar inside the country
+     picker popup, matching the rest of the app's scrollbar
+     treatment. */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+
+/* Native country-list dropdown — when the viewer clicks the flag
+   to open the country picker, the browser renders an OS-native
+   <option> popup whose chrome we can't fully restyle. What we
+   CAN style are the options' fill + text colours. Match the
+   exact treatment used by the upper Country/Territory <select>
+   (`.selectInput option`) so both lists read as the same dark
+   dropdown — solid #0c1830 fill, white text — instead of the
+   browser-default white. */
+.phoneInput :global(.PhoneInputCountrySelect) option {
+  background: #0c1830;
+  color: #fff;
+}
+
+/* Chromium: project-standard subtle scrollbar (8px slim, white-22%
+   thumb fading darker on hover, transparent track, no end-arrow
+   buttons) applied to the country-picker popup. Mirrors the
+   `.main::-webkit-scrollbar*` treatment used everywhere else in
+   the app (event-details, privacy-policy, booking pages) so all
+   scrollbars in the app read as one consistent visual language. */
+.phoneInput :global(.PhoneInputCountrySelect)::-webkit-scrollbar {
+  width: 8px;
+}
+
+.phoneInput :global(.PhoneInputCountrySelect)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.phoneInput :global(.PhoneInputCountrySelect)::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+
+.phoneInput :global(.PhoneInputCountrySelect)::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.phoneInput :global(.PhoneInputCountrySelect)::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.phoneInput :global(.PhoneInputCountrySelectArrow) {
+  color: rgba(255, 255, 255, 0.6);
+  border-bottom-width: 1.2px;
+  border-right-width: 1.2px;
+  opacity: 0.8;
+}
+
+.phoneInput :global(.PhoneInputCountryIcon) {
+  background: transparent;
+  box-shadow: none;
+  width: 22px;
+  height: 16px;
+}
+
+.phoneInput :global(.PhoneInputCountryIcon--border) {
+  background: transparent;
+  box-shadow: none;
+}
+
+.phoneInput :global(.PhoneInputInput) {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 4px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+
+.phoneInput :global(.PhoneInputInput::placeholder) {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.phoneInput :global(.PhoneInputInput:disabled) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Terms footer — small grey text with the cyan "▸ link" wordmark
+   on the left, matching the live Stripe Link signup footer. */
+.signupTerms {
+  display: block;
+  margin: 6px 0 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.signupLinkBrand {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  border: none;
+  background: transparent;
+  padding: 0 2px 0 0;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.signupLinkBrand:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.signupLinkBrand:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.signupTermsBody {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.signupTermsLink {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: underline;
+}
+
+.signupTermsLink:hover {
+  color: #fff;
+}
+
+/* Submission error banner — surfaces Stripe's `confirmCardPayment`
+   failure message ("Your card was declined.", etc.) above the
+   action row in the same red treatment as the per-field errors. */
+.submitError {
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 90, 90, 0.1);
+  border: 1px solid rgba(255, 90, 90, 0.45);
+  color: #ff9a9a;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Configuration-error message rendered when the Stripe
+   publishable key isn't set — keeps the modal visible (not a
+   blank fallback) so the dev sees what to fix. */
+.configError {
+  margin: 12px 0;
+  padding: 14px;
+  border-radius: 10px;
+  background: rgba(255, 200, 80, 0.08);
+  border: 1px solid rgba(255, 200, 80, 0.4);
+  color: #ffd58a;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.configError code {
+  font-family: var(--font-mono, monospace);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* ── Action row ──────────────────────────────────────────────────
+   Cancel + Pay pair. Pay is the dominant gradient pill (same
+   gradient the rest of the app uses for primary CTAs); Cancel
+   is a quieter outline pill. */
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.cancelBtn {
+  flex: 1;
+  padding: 12px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 100px;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.payBtn {
+  flex: 1.6;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 100px;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.payBtn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.payBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Spinner replaces the "Pay £X" label while
+   `stripe.confirmCardPayment` and the parent's /confirm-payment
+   are in flight. Same open-arc shape the rest of the app uses,
+   spinning at 0.8s linear infinite. */
+.payBtnSpinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: #fff;
+  animation: payBtnSpin 0.8s linear infinite;
+}
+
+.payBtnSpinner svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes payBtnSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── LinkInfoModal (second-layer "Pay quickly, shop confidently"
+   promo dialog) ─────────────────────────────────────────────────
+   Opens above the PaymentModal when the viewer clicks any "▸ link"
+   wordmark inside the form. Same dark-glass treatment as the
+   parent modal but a higher z-index so it stacks cleanly. */
+.linkInfoOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 8, 20, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 10100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.linkInfoModal {
+  position: relative;
+  width: 100%;
+  /* Slightly narrower (was 440 → 400) and taller via more
+     generous vertical padding + larger gap so the heading +
+     three-feature list + Privacy / Cookies footer breathe
+     more comfortably and read closer to the live reference. */
+  max-width: 400px;
+  border-radius: 18px;
+  padding: 32px 30px 28px;
+  background: #1a2332;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: paymentModalPop 0.18s ease;
+}
+
+.linkInfoTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.linkInfoLogo {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+}
+
+.linkInfoLogoSvg {
+  height: 100%;
+  width: auto;
+}
+
+.linkInfoClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.linkInfoClose:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.linkInfoHeading {
+  margin: 8px 0 4px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.15;
+  text-align: center;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+.linkInfoFeatures {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.linkInfoFeature {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.linkInfoFeatureIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.linkInfoFeatureTitle {
+  margin: 0 0 4px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.linkInfoFeatureBody {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.45;
+}
+
+/* Footer — Privacy / Cookies text-links centered. No divider
+   line above them per the live Stripe Link reference; just two
+   plain text-links sitting under the feature list. */
+.linkInfoFooter {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 4px;
+}
+
+.linkInfoFooterLink {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.linkInfoFooterLink:hover {
+  color: #ffffff;
+}

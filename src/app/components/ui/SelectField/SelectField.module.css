@@ -1,0 +1,353 @@
+.fieldGroup {
+  position: relative;
+  margin-bottom: 0;
+  max-width: var(--input-max-width, 338px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.trigger {
+  width: 100%;
+  height: var(--input-height, 38px);
+  padding: 0 38px 0 24px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: var(--input-font-size, 15px);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.66px solid rgba(255, 255, 255, 0.23);
+  border-radius: 83.237px;
+  outline: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+}
+
+.triggerOpen {
+  border-color: rgba(84, 51, 255, 0.6);
+  box-shadow: 0 0 0 3px rgba(84, 51, 255, 0.15);
+}
+
+.triggerPlaceholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.chevron {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: rgba(255, 255, 255, 0.43);
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.chevronOpen {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.clearBtn {
+  position: absolute;
+  right: 42px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.clearBtn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+/**
+ * Dropdown panel — position + top / bottom are set inline from the
+ * SelectField JSX (which uses React Portal so the panel escapes the card's
+ * overflow clipping). Keep everything else here.
+ */
+.dropdown {
+  background: #1d2f47;
+  border: 1px solid rgba(255, 255, 255, 0.23);
+  border-radius: 12px;
+  z-index: 10050;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sticky search bar at the top of the dropdown */
+.searchWrapper {
+  position: relative;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px 0 36px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.searchInput:focus {
+  border-color: rgba(84, 51, 255, 0.6);
+}
+
+/* Scrollable options area inside the dropdown */
+.optionsScroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+/* Webkit / Blink — thin themed scrollbar */
+.optionsScroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.optionsScroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 6px 0;
+}
+
+.optionsScroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.optionsScroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.option {
+  width: 100%;
+  padding: 10px 16px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: #fff;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.option:hover,
+.optionActive {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.optionIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.65);
+  flex-shrink: 0;
+}
+
+.optionLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emptyState {
+  padding: 12px 20px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+}
+
+/* ── Multi-select trigger ── */
+.triggerMulti {
+  width: 100%;
+  min-height: var(--input-height, 38px);
+  max-height: 58px;
+  padding: 4px 6px 4px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.66px solid rgba(255, 255, 255, 0.23);
+  border-radius: 83.237px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.chipScroll {
+  flex: 1;
+  min-width: 0;
+  max-height: 48px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.chipScroll::-webkit-scrollbar {
+  width: 3px;
+}
+
+.chipScroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 6px 0;
+}
+
+.chipScroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+}
+
+.chipScroll::-webkit-scrollbar-button:start,
+.chipScroll::-webkit-scrollbar-button:end {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.chipScroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.multiChevron {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-right: 10px;
+  color: rgba(255, 255, 255, 0.43);
+  transition: transform 0.2s ease;
+}
+
+.chipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 0.66px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.chipLabel {
+  line-height: 1.2;
+}
+
+.chipRemove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.chipRemove:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.multiCount {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 12.5px;
+  color: rgba(32, 189, 255, 0.8);
+  margin: 4px 0 0 4px;
+}
+
+.multiMaxError {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 12.5px;
+  color: #ef4444;
+  margin: 4px 0 0 4px;
+}

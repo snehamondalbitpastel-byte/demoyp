@@ -1,0 +1,980 @@
+/* Jobs page — only the styles unique to this page live here.
+   Page chrome, grid layout, mini-profile card, recommended-jobs card,
+   and the search-bar pill are reused from `home/home.module.css` via
+   the second style import in page.tsx. Anything that already looks
+   right on the home feed should NOT be re-declared here — keeping
+   it shared means the two pages can never visually drift. */
+
+/* ── Stats box (left column, between mini-profile and Recommended Jobs) ──
+   Static labels for now — same dark-glass surface as the other left
+   cards so all three boxes read as one column visually. */
+.statsBox {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* On tablet / mobile (≤ 900px, where the right panel stacks below the
+   left column), the stats box moves to the END of the left flex
+   column so the visual order becomes:
+     mini-profile → Recommended Jobs card → stats box → right panel
+   matching the SS. `order: 2` is enough on its own — the other left-
+   column items keep the default `order: 0` and therefore render in
+   their natural DOM order before this block. Desktop layout is
+   untouched (stats keeps its original position between mini-profile
+   and the Recommended Jobs card on screens > 900px). */
+@media (max-width: 900px) {
+  .statsBox {
+    order: 2;
+  }
+}
+
+.statsRow {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: default;
+  transition: color 0.15s ease;
+}
+
+/* Only the rows that actually switch the right panel get the pointer
+   affordance + hover brighten. Applied/Recommended stay non-interactive
+   for now until those views are wired up. */
+.statsClickable {
+  cursor: pointer;
+}
+
+.statsClickable:hover {
+  color: #fff;
+}
+
+/* Active row reflects the current view mode — currently "All Jobs" by
+   default, "Saved Jobs" when the viewer clicks that stat row. */
+.statsActive {
+  color: #fff;
+}
+
+/* ── Right column wrapper — single rounded card holding the heading,
+   filters, and the listings list, matching the SS exactly. ── */
+.rightOuter {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  padding: 18px 18px 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Top row of the right card — title on the left, search bar on the
+   right. The search bar pill is composed from the home module so its
+   sizing/border/colors stay identical to the home feed search. */
+.rightHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.rightTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #fff;
+}
+
+/* Outer flex row that holds the search pill AND the optional
+   "Clear All" button to its right. Takes the available width that
+   used to belong to `.searchWrap`, and aligns its children to the
+   right edge of the header so the search pill sits flush with the
+   right side and "Clear All" tucks just outside its right edge. */
+.searchClearWrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Constrain the search pill so it doesn't stretch the full row width. */
+.searchWrap {
+  flex: 1;
+  max-width: 380px;
+  min-width: 220px;
+}
+
+/* "Clear All" reset button beside the search pill — appears only when
+   there is at least one active filter or non-empty search text. */
+.clearAllBtn {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.clearAllBtn:hover {
+  color: #20bdff;
+  opacity: 0.92;
+}
+
+/* Slider/filter glyph that sits on the right side of the search pill.
+   Glyph stays plain white at all times (no brand-blue switch on click
+   or hover) — the user's spec calls for the icon's color to remain
+   constant; the open/closed state is communicated via the dropdown
+   appearing/disappearing below the search bar, not via icon recolor. */
+.searchSliders {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: background 0.15s ease;
+}
+
+.searchSliders:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.searchSliders svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Filter row (Location / Company / Employment Type dropdowns) ──
+   Flex row, left-aligned. The chips are sized via `.filterWrap`
+   below (each capped at 200px); the row no longer stretches them to
+   `1fr` so the SS look — three discrete pill-shaped chips with
+   visible gaps and unused space on the right — is preserved. */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+/* Pill-shaped filter dropdown, matching the SS exactly — fully rounded
+   ends (border-radius 100px) with the chevron snug against the right
+   edge. Same dark-glass surface as the other left-column cards so the
+   row blends with the page surface. All three filter chips share an
+   identical width (the parent grid gives each `1fr`), an identical
+   min-height of 46px, and identical horizontal/vertical padding so
+   they read as pixel-perfect siblings. */
+.filterBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 16px;
+  min-height: 38px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 0.66px solid rgba(255, 255, 255, 0.23);
+  border-radius: 83px;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background 0.2s ease,
+    color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filterBtn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Active state — fires when the chip has a value selected OR its
+   dropdown is currently open. Solid cyan border + subtle cyan glow
+   so the selected/open chip pops against the row exactly like the SS
+   (Location chip highlighted while its dropdown is open). */
+.filterBtnActive {
+  border: 0.66px solid #20bdff;
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(32, 189, 255, 0.35);
+}
+
+/* The chip itself is the text-search input. The viewer types directly
+   into the chip to narrow the dropdown options live; placeholder shows
+   either "Location" or "Location (1)" depending on whether a value is
+   currently selected. Slightly smaller font and a faded placeholder
+   colour so the chip reads as an input affordance. `flex: 1` lets the
+   input claim any spare horizontal room so the X / chevron stay anchored
+   to the right edge of the chip. */
+.filterBtnInput {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1;
+}
+
+.filterBtnInput::placeholder {
+  /* Faded white so the placeholder reads as a soft prompt, matching
+     the SS where "Location" / "Location (1)" appears as a low-contrast
+     hint. Typed text (the input value) stays full-white so it pops
+     once the viewer starts typing. */
+  color: rgba(255, 255, 255, 0.45);
+  opacity: 1; /* Firefox lowers placeholder opacity by default; pin it. */
+}
+
+/* Real <button> wrapper around the chevron icon so the chevron can
+   independently toggle the dropdown without conflicting with the
+   chip-level click handler that opens it. Transparent so it visually
+   reads as just the chevron glyph itself. */
+.filterChevronBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.filterChevronBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.filterBtn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+/* The small X button rendered inside a filter chip after the viewer
+   picks a value. Real <button> nested inside the chip's
+   `<div role="button">` (so it doesn't violate the no-nested-buttons
+   rule). Click clears just this category; click bubbling is stopped
+   in the handler so it doesn't also toggle the dropdown. */
+.filterClearX {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.filterClearX:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.filterClearX svg {
+  width: 11px;
+  height: 11px;
+  /* Override the generic `.filterBtn svg { color: #fff }` rule so the
+     X tracks the parent button's hover/active text colour instead. */
+  color: inherit;
+}
+
+/* Wrapper around each filter button — `position: relative` anchors
+   the absolutely-positioned dropdown panel below it. The
+   `data-filter-menu` attribute is used by the click-outside handler
+   in jobs/page.tsx to know whether a click landed inside any filter
+   menu (and should NOT close it). */
+.filterWrap {
+  position: relative;
+  min-width: 0;
+  /* Each chip claims at most 200px so the three-up row reads as
+     three discrete pills with visible breathing room rather than a
+     stretched-to-the-edges grid. `flex: 1 1 0` lets them shrink
+     gracefully on narrow viewports until they wrap onto multiple
+     rows (gap stays consistent via `.filters`). */
+  flex: 1 1 0;
+  max-width: 200px;
+}
+
+/* Dropdown panel with the multi-select checkbox list. Anchored
+   flush against the bottom of the trigger button (zero gap, per the
+   SS — the dropdown reads as a continuation of the chip rather than
+   a detached menu). Internal scroll because the company list can
+   have 40+ entries. */
+.filterDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 240px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #06162e;
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 12px;
+  padding: 6px 0;
+  /* `clip-path: inset(0 round 12px)` forces the rounded shape to
+     visibly clip the inner scrollbar gutter so the bottom-right
+     corner stays round even when the scrollbar is rendered. Without
+     this, Chrome's scrollbar track extends to a flat bottom edge,
+     visually squaring off the corner. */
+  clip-path: inset(0 round 12px);
+  box-shadow:
+    0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+}
+
+.filterDropdown::-webkit-scrollbar { width: 6px; }
+.filterDropdown::-webkit-scrollbar-track { background: transparent; }
+.filterDropdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.filterDropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Sticky search row at the top of every dropdown — lets the viewer
+   narrow long option lists by typing. Uses position: sticky so it
+   stays pinned while the rest of the option list scrolls under it. */
+.filterDropdownSearch {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 8px 10px;
+  background: #06162e;
+  border-bottom: 1px solid rgba(160, 174, 192, 0.18);
+}
+
+.filterDropdownSearchInput {
+  width: 100%;
+  background: rgba(2, 12, 25, 0.65);
+  border: 1px solid rgba(160, 174, 192, 0.4);
+  border-radius: 8px;
+  padding: 7px 12px;
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.filterDropdownSearchInput::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.filterDropdownSearchInput:focus {
+  border-color: rgba(32, 189, 255, 0.6);
+}
+
+.filterEmpty {
+  margin: 0;
+  padding: 14px 16px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  font-style: italic;
+}
+
+/* Each option row — visible checkbox box + label text. The actual
+   <input type="checkbox"> is visually hidden (positioned offscreen)
+   so the visible square `.filterCheckbox` element is the source of
+   truth for visual state, while the input still owns keyboard /
+   accessibility behaviour. */
+.filterOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.filterOption:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.filterCheckbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgba(160, 174, 192, 0.6);
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.filterCheckboxChecked {
+  background: #20bdff;
+  border-color: #20bdff;
+}
+
+.filterCheckboxChecked::after {
+  content: "";
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg);
+  margin-top: -2px;
+}
+
+/* Visually hide the real checkbox input but keep it keyboard-
+   accessible — it still receives focus, fires onChange, and screen
+   readers can read its state. The visible `.filterCheckbox` square
+   is purely a styled mirror of this input's state. */
+.filterCheckboxInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+/* Listings empty / loading / error message — replaces the cards when
+   no listings are loaded yet or no results match. */
+.listingsState {
+  margin: 24px auto;
+  padding: 24px 8px;
+  text-align: center;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Right-panel "no results" empty state — briefcase icon stacked on
+   top of a short caption, centered horizontally, sized so it sits
+   roughly mid-panel even on tall viewports. Used both for "no search
+   match" and for empty saved/applied/recommended views. */
+.listingsEmpty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 40px 16px;
+  min-height: 220px;
+}
+
+.listingsEmptyIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.listingsEmptyIcon svg {
+  width: 44px;
+  height: 44px;
+}
+
+.listingsEmptyText {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Scrollable listings region — fills the remaining vertical space.
+   Matches `.jobsScroll` (left column) scroll behaviour and uses the
+   same custom thin scrollbar so both columns read as one design. ── */
+/* Vertical gap between consecutive listing cards bumped from 14px →
+   22px so the cards visually breathe more and read as discrete units
+   in the scroll list. The card body itself (padding, border, layout)
+   is unchanged — only the spacing between cards grows. */
+.listings {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-top: 18px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  padding-bottom: 18px;
+}
+
+.listings::-webkit-scrollbar {
+  width: 6.1px;
+}
+
+.listings::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.listings::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+
+.listings::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Listing card (right column) — wider format than the left column's
+   compact `.jobItem`. Logo on the left, info middle, action buttons
+   stacked on the right matching the SS. ── */
+.listingCard {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: flex-start;
+  background: rgba(2, 12, 25, 0.45);
+  border: 1px solid rgba(160, 174, 192, 0.4);
+  border-radius: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Unified card hover — cyan-tint bg + cyan border, same look used by
+   the company listings, the home recommended-jobs cards, and the
+   left-column recommended cards on this jobs page. Keeps the entire
+   app's "tap a card" affordance visually consistent. */
+.listingCard:hover {
+  background-color: #20bdff1a;
+  border: 1px solid #20bdff;
+}
+
+/* Skeleton variant of the listing card — same grid + spacing as the
+   real card so the layout doesn't shift when live data lands.
+   Disables the hover (skeletons aren't interactive), drops the cursor
+   back to default, and lets the logo's `.skeleton` shimmer show
+   through by clearing the listing logo's solid white fill (the white
+   would otherwise mask the dark shimmer animation underneath). */
+.listingCardSkeleton {
+  cursor: default;
+  pointer-events: none;
+}
+
+.listingCardSkeleton:hover {
+  border: 1px solid rgba(160, 174, 192, 0.4);
+  background: rgba(2, 12, 25, 0.45);
+}
+
+.listingCardSkeleton .listingLogo {
+  background: transparent;
+}
+
+.listingLogo {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  background: #fff;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.listingLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.listingInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.listingTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listingCompany {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Row of location chips — identical visual to the home feed's
+   `.miniLocation` chip so all "where" chips across the app match.
+   No extra `margin-top` here: the parent `.listingInfo` already
+   applies `gap: 6px` between its rows, so tacking on a margin
+   double-counts and pushes the chip away from the company line. */
+.listingChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.listingChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  border: 0.88px solid #374888;
+  border-radius: 4px;
+  background-color: #121f3d;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: #a0aec0;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.listingChip svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: #a0aec0;
+}
+
+.listingPosted {
+  margin: 6px 0 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Action buttons stacked on the far right of the card. Save Job is
+   the gradient-outline variant; Apply is the gradient-fill variant —
+   reused look from the home recommended-jobs card. */
+.listingActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  align-self: center;
+  min-width: 130px;
+}
+
+.btnSave,
+.btnApply {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50px;
+  padding: 8px 18px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btnApply {
+  color: #fff;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+}
+
+.btnSave {
+  position: relative;
+  color: #fff;
+  background: transparent;
+}
+
+/* Gradient outline ring around Save Job — same masking trick used on
+   the ConfirmDialog cancel button so the gradient becomes a 1.5px
+   border that follows the button's pill shape. */
+.btnSave::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(180deg, #5433ff 0%, #20bdff 100%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.btnApply:hover,
+.btnSave:hover {
+  opacity: 0.92;
+}
+
+/* "Applied" state of the Apply button — once a viewer has applied to
+   a job they cannot un-apply, so the button drops its gradient fill
+   in favour of a flat cyan ring + tinted cyan fill, matching the SS
+   exactly. !important is used to win over the base `.btnApply`
+   gradient-fill background and `border: none`. Disabled so the user
+   can't re-trigger the apply action; cursor stays default to make
+   the non-interactive state obvious on hover. */
+.btnApplied {
+  color: #20bdff !important;
+  background: #20bdff1a !important;
+  border: 1px solid #20bdff !important;
+  cursor: default;
+}
+
+/* Pin opacity so the disabled state doesn't visually fade — the
+   "Applied" pill should read as a positive confirmation, not a greyed
+   out / inactive control. */
+.btnApplied:disabled,
+.btnApplied:hover {
+  opacity: 1;
+}
+
+/* ── Outer page wrapper override.
+
+   DESKTOP: stays viewport-locked (height: 100dvh; overflow: hidden)
+   so the desktop layout still uses the existing internal scrollers
+   on the recommended-jobs card and the right-side listings —
+   nothing about desktop changes.
+
+   TABLET / MOBILE: the page itself becomes scrollable so the viewer
+   can swipe through every section vertically (profile → stats →
+   recommended jobs → recommended listings) using the native
+   right-side page scrollbar. Internal scrollers inside the
+   recommended-jobs card and the listings panel are left as-is —
+   they only activate when their parent has a bounded height,
+   which on mobile/tablet now defers to natural sizing. The dvh
+   fallback is kept so the visible-viewport calculation tracks
+   the dynamic mobile chrome (URL bar collapse/expand). */
+.pageJobs {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .pageJobs {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+/* ── Jobs-page-only override of the home grid's row ratio on tablet
+   and mobile.
+
+   The home page's `.content` rule at ≤900px sets
+   `grid-template-rows: minmax(0, 1.2fr) minmax(0, 1fr)`. That ratio
+   is tuned for the home left column's TWO boxes (mini-profile + jobs
+   card). The jobs page adds a THIRD box (the stats box) to the same
+   left column, which eats into the jobs card's flex space — at tablet
+   width only ~half a recommended-job card is visible, and at mobile
+   width even less.
+
+   Applying `.contentJobsPage` alongside `homeStyles.content` raises
+   the left row's allocation so the jobs card has room to render at
+   least one complete job item without being squeezed. Both classes
+   compile to the same specificity (one class apiece); jobs.module.css
+   imports after home.module.css in `page.tsx`, so this rule wins the
+   cascade. */
+@media (max-width: 900px) {
+  .contentJobsPage {
+    /* Each row sizes to its natural content (auto), so the left
+       column (profile + stats + recommended jobs) and the right
+       column (Recommended listings) each take exactly the height
+       their content needs. The total stack can grow taller than
+       the viewport — when it does, the OUTER `.pageJobs` scrolls
+       (configured above) and the viewer reaches every section by
+       sliding the native right-side scrollbar. `overflow: visible`
+       overrides home's `overflow: hidden` (jobs CSS imports after
+       home, so it wins the cascade tie). */
+    grid-template-rows: auto auto;
+    min-height: 0;
+    overflow: visible;
+    height: auto;
+  }
+
+  /* Cap the right-side listings panel so its inner `.listings` scroll
+     activates on tablet/mobile too. Without an explicit max-height
+     here, `.rightOuter` would size to its full natural content (every
+     job listing card) and `.listings` (which has `flex: 1; overflow-y:
+     auto`) would never have a reason to scroll. With the cap, the
+     panel stays a fixed height, the listings inside scroll vertically
+     within it, AND the outer page still scrolls past it to reach
+     anything below. Both scrollbars work together. */
+  .rightOuter {
+    max-height: 580px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Mobile: tighter cap on the listings panel so it fits comfortably
+     between the recommended-jobs card above and any extra footer
+     space below within a single mobile screen. */
+  .rightOuter {
+    max-height: 460px;
+  }
+}
+
+/* Jobs-page-only modifier applied alongside `homeStyles.jobsCard` —
+   gives the recommended-jobs card a fixed max-height on tablet/mobile
+   so its inner `.jobsScroll` keeps scrolling within the card instead
+   of the card growing to fit every job at natural height. The cap
+   only activates inside the responsive media queries below; on
+   desktop this class adds nothing, and the home page's existing
+   `.jobsCard { flex: 1; max-height: 100% }` continues to drive the
+   inner scroll behaviour exactly as it always has. */
+@media (max-width: 900px) {
+  .jobsCardOnJobsPage {
+    max-height: 520px;
+  }
+}
+
+@media (max-width: 640px) {
+  .jobsCardOnJobsPage {
+    max-height: 440px;
+  }
+}
+
+/* ── Tablet (≤1200px) — let the right column stay full-width but
+   collapse the listing card to logo + info above, action buttons in
+   their own row below so titles aren't crushed. ── */
+@media (max-width: 1200px) {
+  .rightOuter {
+    padding: 16px 14px 0;
+  }
+
+  .filters {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ── Tablet portrait / small (≤900px) — drop to a single column,
+   match the home page's responsive grid override so the page's outer
+   frame already provides this stacking via shared `.content`. ── */
+@media (max-width: 900px) {
+  .rightHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchWrap {
+    max-width: 100%;
+  }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .listingCard {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "logo info"
+      "actions actions";
+    row-gap: 12px;
+  }
+
+  .listingLogo {
+    grid-area: logo;
+  }
+
+  .listingInfo {
+    grid-area: info;
+  }
+
+  .listingActions {
+    grid-area: actions;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-self: stretch;
+  }
+}
+
+/* ── Small mobile (≤420px) — buttons go full-width side-by-side
+   instead of right-aligned so they remain comfortably tappable. ── */
+@media (max-width: 420px) {
+  .rightOuter {
+    padding: 14px 12px 0;
+    border-radius: 14px;
+  }
+
+  .rightTitle {
+    font-size: 19px;
+  }
+
+  .listingCard {
+    padding: 14px 14px;
+  }
+
+  .listingTitle {
+    font-size: 16px;
+    white-space: normal;
+  }
+
+  .listingActions {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .btnSave,
+  .btnApply {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 13px;
+    min-width: 0;
+  }
+}

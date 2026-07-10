@@ -1,0 +1,2179 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-page, #020C19);
+  background-image:
+    radial-gradient(
+      ellipse 56% 73% at 70% -23%,
+      rgba(84, 51, 255, 0.2) 0%,
+      rgba(32, 189, 255, 0.2) 50%,
+      transparent 100%
+    );
+  background-attachment: fixed;
+  color: var(--text-primary, #fff);
+}
+
+[data-theme="light"] .page {
+  background-image: radial-gradient(
+    ellipse 70% 80% at 95% 25%,
+    rgba(57, 96, 251, 0.08) 0%,
+    rgba(32, 189, 255, 0.06) 45%,
+    transparent 100%
+  );
+}
+
+/* ── Content wrapper ── */
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: 1580px;
+  margin: 0 auto;
+  padding: 21px 204px 30px 205px;
+
+  display: grid;
+  grid-template-columns: 384px 1fr;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Left column — mini-profile stays fixed, jobs list scrolls internally.
+   .leftCol itself does NOT scroll. ── */
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ── Mini profile card ── */
+.miniProfile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  padding: 12px 14px 14px 16px;
+  background: var(--bg-surface, rgba(2, 12, 25, 0.33));
+  border: 1px solid var(--border-soft, rgba(160, 174, 192, 0.5));
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  /* Locks the card's vertical size so the outer box doesn't grow or
+     shrink when the inner `.miniAvatar` size or `.miniName / .miniRole`
+     font-size changes. Value = current natural height (88px avatar
+     + 12px×2 vertical padding = 112px). Use `min-height` instead of
+     `height` so the card can still expand gracefully if a future
+     edit pushes content past this baseline; the avatar can be made
+     SMALLER freely and the card will still sit at 112px. */
+  min-height: 113.8px;
+}
+
+.miniAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #5433ff, #20bdff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: 1px;
+  user-select: none;
+  overflow: hidden;
+
+  position: relative;
+  top: 1;
+  left: 0;
+}
+
+.miniAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.miniInfo {
+  display: flex;
+  flex-direction: column;
+ 
+  gap: 0;
+  min-width: 0;
+  align-items: flex-start;
+}
+
+.miniName {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-primary, #fff);
+  margin: 0;
+  /* ── KNOB E — TRULY INDEPENDENT top-edge → Sneha Mondal gap ──
+     Uses `position: relative; top` so the shift is PURELY VISUAL:
+       • Sneha Mondal's layout slot stays exactly where it is, so
+         Apprenticeship and the location chip do NOT move at all.
+       • Mini-profile outer dimensions (min-height 113.8px, column
+         width) are unaffected — `position: relative` doesn't change
+         box size or flow.
+     Sign convention:
+       + value  →  Sneha Mondal moves DOWN (more top gap)
+       − value  →  Sneha Mondal moves UP   (less top gap)
+     Tip: keep the magnitude small (≤ ~6px) or Sneha may visually
+     overlap with Apprenticeship below it. */
+  position: relative;
+  top: 0;
+  /* ── KNOB C — gap between the card's TOP edge and "Sneha Mondal" ──
+     Pushes "Sneha Mondal" downward but causes a re-centring side-
+     effect because `.miniProfile` uses `align-items: center`. Use
+     Knob E above for fully independent control. */
+  margin-top: -2px;
+  /* ── KNOB A — gap between "Sneha Mondal" and "Apprenticeship" ──
+     Independent of the Role → Location gap (which lives on `.miniRole`).
+     Increase to spread Name + Role apart; decrease to bring them
+     closer. Mini-profile outer height stays at min-height 113.8px. */
+  margin-bottom: 7px;
+  line-height: 1.25;
+}
+
+.miniRole {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--text-primary, #fff);
+  margin: 0;
+  /* ── KNOB B — gap between "Apprenticeship" and the location chip ──
+     Independent of the Name → Role gap (which lives on `.miniName`).
+     Increase to spread Role + Location apart; decrease to bring them
+     closer. Mini-profile outer height stays at min-height 113.8px. */
+  margin-bottom: 6px;
+  line-height: normal;
+ 
+  position: relative;
+  top: -1px;
+}
+
+/* Location chip — small rounded rectangle, shared style used by .jobLocation
+   in each job card too. */
+.miniLocation {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 10px;
+  margin-top: 0;
+  border: 0.88px solid #374888;
+  border-radius: 4px;
+  background-color: #121f3d;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #a0aec0;
+  letter-spacing: 0;
+  line-height: 1.1;
+  vertical-align: middle;
+  width: fit-content;
+  max-width: 100%;
+  min-width: 90;
+  min-height: 27;
+  position: relative;
+  top: 1.5px;
+}
+
+.miniLocation svg {
+  margin-left: 0.2px;
+  width: 10px;
+  height: 11px;
+  flex-shrink: 0;
+  color: #a0aec0;
+  /* ── KNOB H — moves ONLY the 📍 SVG horizontally inside the chip ──
+     Uses `position: relative; left` for a PURELY VISUAL shift:
+       • The SVG's layout slot stays in place inside the chip's flex
+         row, so the "North East" text does NOT move.
+       • The chip's outer width and height are NOT affected (KNOBS F
+         and G stay at whatever you've set them to).
+     Sign convention:
+       − value (e.g. `-2px`)  → SVG moves LEFT
+       + value (e.g.  `2px`)  → SVG moves RIGHT
+     Default 0 = original position. */
+  position: relative;
+  left: -0.09px;
+}
+
+/* Light-mode: mini-profile is FULLY transparent — no sub-bg, no
+   blur, no fill. Only the hairline border defines the card. The
+   page's blue glow flows straight through. */
+[data-theme="light"] .miniProfile {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Light-mode SKELETON-CARD override — `.miniProfile[aria-hidden="true"]`
+   only matches the MiniProfileSkeleton instance (the real-data
+   <section> on the mini-profile carries `aria-label`, not
+   `aria-hidden`). This flips the skeleton mini-profile from the
+   default transparent surface to a soft light-gray block so it
+   reads as a clean placeholder on the white page — matching the
+   live YP events-page skeleton reference (uniform light-gray
+   rectangle with subtle inner bars). Real mini-profile rendering
+   is untouched: it keeps `background: transparent` from the rule
+   above and the page bg flows straight through. Dark mode is
+   untouched as well — only the `[data-theme="light"]` branch
+   fires here. */
+[data-theme="light"] .miniProfile[aria-hidden="true"] {
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+/* Light-mode override — exact spec from the live YP site's
+   `.light_side_profile_location` rule:
+     font:        DM Sans, weight 500
+     color:       #3960fb        (brand blue, label + icon)
+     background:  #3960fb0d      (5% opacity blue surface)
+     border:      .88px solid #3960fb1a  (10% opacity blue border)
+     radius:      4px
+     padding:     6px 10px
+     font-size:   12px
+     line-height: 100%
+     gap:         3px (between icon and label)
+   Dark mode is preserved by the base `.miniLocation` rule above. */
+[data-theme="light"] .miniLocation {
+  font-family: var(--font-dm-sans), "DM Sans", sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 100%;
+  color: #3960fb;
+  background-color: #3960fb0d;
+  border: 0.88px solid #3960fb1a;
+  border-radius: 4px;
+  padding: 6px 10px;
+  gap: 3px;
+}
+
+[data-theme="light"] .miniLocation svg {
+  color: #3960fb;
+}
+
+/* ── Recommended jobs card — bounded height; title stays fixed,
+   job items scroll inside .jobsScroll. The `gap` below controls space
+   BETWEEN .jobsTitle and the .jobsScroll region (not between job items —
+   that is inside .jobsScroll's own gap). ── */
+.jobsCard {
+  /* Asymmetric padding on purpose: left stays 14px (balanced visually under
+     the .jobsTitle text), right drops to 10px so the scrollbar gets equal
+     breathing room on both sides (10px left gap + 7px track + 10px right gap). */
+  padding: 10px 5.5px 20px 15px;
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Inner scroll region holding the job items. The jobsTitle heading sits
+   OUTSIDE this (inside .jobsCard but above it) so it stays fixed. ── */
+.jobsScroll {
+  display: flex;
+  flex-direction: column;
+  gap: 9.5px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* 10px breathing room between the job-card content and the scrollbar
+     track — mirrors .jobsCard's new 10px right-padding so the scrollbar
+     sits equidistant from the card edge and the outer container edge. */
+  padding-right: 10px;
+  /* NOTE: `scrollbar-width: thin` is intentionally NOT set here. On Windows
+     Chrome/Edge, `thin` activates the OS native thin scrollbar which renders
+     up/down arrows the `::-webkit-scrollbar-button` rules cannot hide.
+     Leaving it unset lets our custom webkit scrollbar below take effect. */
+}
+
+.jobsScroll::-webkit-scrollbar {
+  width: 6.1px;
+}
+
+.jobsScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.jobsScroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+
+.jobsScroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.jobsTitle {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: #fff;
+  margin: 0 0 2px 2px;
+  line-height: normal;
+}
+
+/* Wraps the title + tablet-only collapse toggle so they sit on the
+   same row. Doesn't affect desktop (toggle is display:none there). */
+.jobsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Collapse / expand chevron — hidden by default, revealed only inside
+   the tablet media query further down the file. */
+.jobsToggle {
+  display: none;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: #a0aec0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* No circular background on hover — chevron stays as a bare glyph,
+   only the color shifts. Keeps the header row visually clean. */
+.jobsToggle:hover {
+  color: #fff;
+}
+
+.jobsToggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Added to .jobsScroll when the viewer collapses the card. Only takes
+   effect inside the tablet media query (see below) so desktop stays
+   expanded regardless of this state. */
+.jobsScrollCollapsed {
+  /* intentionally empty at base — see media query */
+}
+
+/* Added to the .jobsCard outer section when collapsed. Shrinks the card
+   down to just the header row (overrides the tablet `flex: 1` that
+   would otherwise make the card still fill the column height, leaving
+   a big empty box under the heading). Only takes effect inside the
+   tablet media query. */
+.jobsCardCollapsed {
+  /* intentionally empty at base — see media query */
+}
+
+.jobItem {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  padding: 14px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Unified card hover — cyan-tint bg + cyan border with a 0.3s ease.
+   Shared visual language with the right-side jobs listing cards and
+   the company listing cards so every "tap a card" affordance across
+   the app reads identically. NO transform / no "card jump". */
+.jobItem:hover {
+  background-color: #20bdff1a;
+  border: 1px solid #20bdff;
+}
+
+.jobHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.jobLogo {
+  width: 70px;
+  height: 71px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #20bdff, #5433ff);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  overflow: hidden;
+}
+
+.jobLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.jobInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.jobTitle {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: #fff;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.jobCompany {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14.5px;
+  color: #a0aec0;
+  margin: 0;
+  line-height: normal;
+}
+
+/* Job-card location chip — same visual as .miniLocation. Capped at a
+   fixed max-width so chips whose locations are long (e.g. multi-city
+   strings like "Glasgow, UK, Liverpool, UK, Edinburgh, UK, …") stay
+   single-line and single-row-height. The inner .jobLocationText span
+   carries the actual ellipsis truncation. */
+.jobLocation {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  margin-top: 2px;
+  border: 0.88px solid #374888;
+  border-radius: 4px;
+  background-color: #121f3d;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #a0aec0;
+  letter-spacing: 0;
+  line-height: 1.2;
+  vertical-align: middle;
+  width: fit-content;
+  max-width: 200px;
+}
+
+.jobLocation svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: #a0aec0;
+}
+
+/* Truncates overflowing location text with an ellipsis. `min-width: 0`
+   lets the flex child shrink below its intrinsic content width so the
+   ellipsis can actually trigger inside the capped inline-flex chip. */
+.jobLocationText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Buttons sit under the text column (indented past the logo) so the area
+   directly below the logo stays blank — matches the reference SS layout.
+   margin-left = .jobLogo width (70px) + .jobHead gap (10px) = 80px (we trim
+   a few px here to give the buttons a bit more horizontal room). */
+.jobActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-left: 70px;
+}
+
+.btnApply,
+.btnSave {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 35.8px;
+  border-radius: 100px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  color: #fff;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0 12px;
+  transition: background 0.15s ease, filter 0.15s ease;
+  line-height: 1;
+  position: relative;
+}
+
+/* Apply = primary — solid gradient fill, NO border so the gradient runs
+   edge-to-edge. */
+.btnApply {
+  background: linear-gradient(91.13deg, #5433ff 2.22%, #20bdff 97.08%);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Save Job = secondary — transparent interior with a two-colour gradient
+   border painted via a masked ::before pseudo-element. Same technique
+   used by Navbar's .actionBtn so the border colour stays consistent
+   across the whole project (no single-colour border anywhere). */
+.btnSave {
+  font-weight: 500;
+  font-size: 15px;
+  height: 35.8px;
+}
+
+.btnSave::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.7px;
+  background: linear-gradient(91.13deg, #5433ff 2.22%, #20bdff 97.08%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.btnApply:hover {
+  filter: brightness(1.08);
+}
+
+.btnSave:hover {
+  background: rgba(84, 51, 255, 0.12);
+}
+
+/* "Applied" state of the Apply button — once a job is applied the
+   button drops its gradient fill in favour of a flat cyan ring +
+   tinted cyan fill, matching the /jobs page pill exactly. !important
+   wins over the base `.btnApply` gradient bg/border-none rules. The
+   button is non-interactive once in this state (cursor: default,
+   disabled). */
+.btnApplied {
+  color: #20bdff !important;
+  background: #20bdff1a !important;
+  border: 1px solid #20bdff !important;
+  cursor: default;
+}
+
+.btnApplied:disabled,
+.btnApplied:hover {
+  filter: none;
+  opacity: 1;
+}
+
+.btnApply:focus-visible,
+.btnSave:focus-visible {
+  outline: 2px solid #20bdff;
+  outline-offset: 2px;
+}
+
+/* ── Right column outer container — single bordered card wrapping the
+   search bar (static top) and the feed scroll area below it.
+   Whole-page scrolling is disabled, only .feedScroll scrolls. ── */
+.rightOuter {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  /* Right padding reduced from 12 → 6 so the feed scrollbar sits closer
+     to the outer container's right edge. Feed's left / top / bottom
+     padding unchanged — only right-side gap shrinks. */
+  padding: 16px 6px 16px 16px;
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+}
+
+/* ── Search bar (top of right container) ── */
+.searchBar {
+  display: flex;
+  align-items: center;
+  /* Gap reduced 4 → 2 per user spec — tighter spacing between the
+     search icon wrapper and the placeholder/input text. Search box
+     height + icon wrapper size are untouched, only the horizontal
+     gap between them shrinks. */
+  gap: 5.5px;
+  /* Box dimensions per user spec — 40px tall with 30px corner
+     radius (was 100px / fully round). Vertical padding pinned to
+     0 with explicit `height: 40px` so the 20px icon + 14px input
+     line are perfectly vertically centred by `align-items: center`
+     above. Left padding 16px gives clearance before the icon;
+     right 12px before the clear-X button. */
+  height: 40px;
+  /* Right padding reduced 12 → 10 per user spec — pulls the sort
+     SVG 2px closer to the pill's right edge. Box height + total
+     width are unchanged because we're shaving INTERNAL padding,
+     not external margin.
+
+     Padding values read from CSS variables so a parent context
+     (e.g. `.searchWrap:has(+ .clearAllBtn)` on /career-talks) can
+     override JUST the shrunk-state padding without touching this
+     default. Fallbacks (14.5px / 11px) preserve the normal layout
+     on every other page. */
+  padding: 0 var(--search-bar-pad-right, 11px) 0 var(--search-bar-pad-left, 14.5px);
+  /* Pushes the search bar 10px further from the outer container's right
+     edge without affecting the feed below (feed has no margin-right).
+     `margin-left` reduced 15 → 0 per user spec so the pill's LEFT
+     EDGE shifts leftwards while the RIGHT EDGE (still anchored by
+     `margin-right: 6px`) stays exactly where it was — effectively
+     widening the visible search bar from the left side only. */
+  margin-right: 6px;
+  margin-left: 14.5px;
+  border: 1px solid transparent;
+  border-radius: 30px;
+  /* Pill fill uses `--bg-input` so dark mode keeps the deep #040f1f
+     interior and light mode switches to clean white — the cyan/violet
+     gradient border (in the background-image's 2nd layer) stays
+     unchanged in both modes since the accent gradient reads well on
+     either palette. */
+  background:
+    linear-gradient(var(--bg-input, #040f1f), var(--bg-input, #040f1f)) padding-box,
+    linear-gradient(91.13deg, #5433ff 2.22%, #20bdff 97.08%) border-box;
+  color: var(--text-primary, #fff);
+  flex-shrink: 0;
+  transition: border-color 0.15s ease;
+}
+
+.searchBar:focus-within {
+  /* Focused border gradient swapped per user spec so the colour
+     order matches the resting state:
+       • PURPLE  `#5433ff` on the LEFT  (2.22% along 91.13deg)
+       • CYAN    `#20bdff` on the RIGHT (97.08%)
+     Previously the focus state flipped the gradient (cyan left,
+     purple right) which made the colour positions look "opposite"
+     when the input was focused. Now both states share the same
+     left→right colour direction; only the inner pill fill animates
+     subtly via `transition: border-color` above. */
+  background:
+    linear-gradient(var(--bg-input, #040f1f), var(--bg-input, #040f1f)) padding-box,
+    linear-gradient(91.13deg, #5433ff 2.22%, #20bdff 97.08%) border-box;
+}
+
+.searchIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Wrapper STAYS at 20×20 per user spec — this is the layout slot
+     the icon occupies in the flex row, so the search-pill height
+     and the icon ↔ text alignment are unchanged. */
+  width: 20px;
+  height: 20px;
+  /* `overflow: visible` lets the SVG below render LARGER than its
+     20×20 container without clipping. The wrapper's layout size
+     stays the same, but the visible glyph paints bigger — matches
+     the user spec "increase the SVG only, not the wrapper". */
+  overflow: visible;
+  /* Pure white per user spec — the previous `--text-secondary`
+     made the glyph read as soft gray, and the drop-shadow filter
+     gave it a "dull" lifted look. Both removed: now the icon is
+     bright white in dark mode (matches the placeholder + typed
+     text color family). Light mode dimming is handled below. */
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* Light-mode search icon — needs to be DARK on the white pill so
+   the glyph is visible. The base rule sets pure white for dark
+   mode; this override flips to a near-black navy on the light
+   surface. */
+[data-theme="light"] .searchIconWrap {
+  color: #1a1a2e;
+}
+
+/* SVG renders at an EXPLICIT 24×24 — bigger than its 20×20 wrapper.
+   The wrapper's `overflow: visible` + flex centering let the extra
+   4px (2px on each side) paint outside the slot without breaking
+   layout. Tweak both numbers in lockstep to grow/shrink the glyph
+   while keeping the search-pill geometry intact. */
+.searchIconWrap svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.searchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary, #fff);
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  /* 14px per user spec — matches the live YP search panel input. */
+  font-size: 14px;
+  /* Padding-bottom nudges the input text UPWARD without touching the
+     search box's 40px height (the box is a flex container with
+     `height: 40px` + `align-items: center`, so adding padding here
+     grows the input's content area downward; the flex center then
+     visually shifts the text UP by half of the added padding).
+     Tune this value (3–6px range) if the placeholder still sits too
+     close to the bottom edge. */
+  padding: 0 0 2.5px 0;
+  /* line-height pinned so the taller font doesn't re-expand the search-bar
+     box (paired with the trimmed vertical padding above). */
+  line-height: 1;
+  letter-spacing: -0.2px;
+  min-width: 0;
+}
+
+.searchInput::placeholder {
+  /* Placeholder color per user spec — `#94a3b8` (slate-400) matches
+     the bluish-gray placeholder in the reference SS: soft and
+     muted, but with a slight cool blue undertone that pairs with
+     the pill's cyan/purple gradient border. Letter-spacing and
+     font-size below stay UNTOUCHED — only the color changed. */
+  color: #818ea0;
+  /* Trimmed look per user spec — placeholder text is now SMALLER
+     and TIGHTER than typed input text:
+       • `font-size: 13px` shrinks the placeholder by 1px from the
+         input's 14px. Only affects the placeholder; once the
+         viewer types, text reverts to the input's 14px.
+       • `letter-spacing: -0.2px` removes the previous positive
+         stretch and matches the input's own tightness. */
+  font-size: 13.5px;
+  letter-spacing: -0.2px;
+}
+
+/* Clear (X) button — only rendered when the input has text. Kept compact
+   so the search pill's height is unchanged. */
+.searchClear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin-left: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: #a0aec0;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.searchClear:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.searchClear svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+/* ── Feed inner scroll — only area that scrolls on desktop ── */
+.feedScroll {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* 12px of breathing room between the post cards' right edge and the
+     scrollbar track — widens the gap from the previous 4px without
+     moving .feedScroll itself or .rightOuter's right padding. */
+  padding-right: 10px;
+  /* NOTE: `scrollbar-width: thin` intentionally omitted — see .jobsScroll. */
+}
+
+.feedScroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.feedScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.feedScroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 3px;
+}
+
+.feedScroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Remove the up/down arrow buttons from both scrollbars (WebKit). */
+/* Kill every scrollbar arrow variant WebKit exposes — no double-button,
+   no single-button, no start, no end, on either axis. !important guards
+   against any OS-level default (notably Windows Chrome/Edge) trying to
+   reintroduce arrows. */
+.jobsScroll::-webkit-scrollbar-button,
+.jobsScroll::-webkit-scrollbar-button:single-button,
+.jobsScroll::-webkit-scrollbar-button:double-button,
+.jobsScroll::-webkit-scrollbar-button:vertical,
+.jobsScroll::-webkit-scrollbar-button:horizontal,
+.jobsScroll::-webkit-scrollbar-button:vertical:start,
+.jobsScroll::-webkit-scrollbar-button:vertical:end,
+.jobsScroll::-webkit-scrollbar-button:horizontal:start,
+.jobsScroll::-webkit-scrollbar-button:horizontal:end,
+.jobsScroll::-webkit-scrollbar-button:vertical:start:decrement,
+.jobsScroll::-webkit-scrollbar-button:vertical:end:increment,
+.jobsScroll::-webkit-scrollbar-button:horizontal:start:decrement,
+.jobsScroll::-webkit-scrollbar-button:horizontal:end:increment,
+.feedScroll::-webkit-scrollbar-button,
+.feedScroll::-webkit-scrollbar-button:single-button,
+.feedScroll::-webkit-scrollbar-button:double-button,
+.feedScroll::-webkit-scrollbar-button:vertical,
+.feedScroll::-webkit-scrollbar-button:horizontal,
+.feedScroll::-webkit-scrollbar-button:vertical:start,
+.feedScroll::-webkit-scrollbar-button:vertical:end,
+.feedScroll::-webkit-scrollbar-button:horizontal:start,
+.feedScroll::-webkit-scrollbar-button:horizontal:end,
+.feedScroll::-webkit-scrollbar-button:vertical:start:decrement,
+.feedScroll::-webkit-scrollbar-button:vertical:end:increment,
+.feedScroll::-webkit-scrollbar-button:horizontal:start:decrement,
+.feedScroll::-webkit-scrollbar-button:horizontal:end:increment {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+}
+
+.jobsScroll::-webkit-scrollbar-corner,
+.feedScroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ── Post card ── */
+.post {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.postHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.postAvatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #5433ff, #20bdff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  overflow: hidden;
+}
+
+.postAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.postAuthorBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.postAuthor {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: #fff;
+  margin: 0;
+  line-height: normal;
+}
+
+.postTime {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  color: #a0aec0;
+  margin: 0;
+}
+
+.postMenuBtn {
+  background: none;
+  border: none;
+  color: #a0aec0;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.postMenuBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.postText {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #fff;
+  /* Wider line-height gives each line of the description visible
+     breathing room (matches the modal's .postText rule). */
+  line-height: 1.75;
+  margin: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Rich-text HTML from the feed API (paragraphs, links, headings, emphasis). */
+.postText p {
+  margin: 0 0 6px;
+}
+.postText p:last-child {
+  margin-bottom: 0;
+}
+.postText a {
+  color: #20bdff;
+  text-decoration: underline;
+  word-break: break-word;
+}
+.postText strong,
+.postText b {
+  font-weight: 600;
+}
+.postText h1,
+.postText h2,
+.postText h3 {
+  font-weight: 600;
+  font-size: 17px;
+  margin: 4px 0;
+  line-height: 1.3;
+  color: #fff;
+}
+.postText img,
+.postText video {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* Collapsed-state clamp — renders the FULL API HTML visually trimmed
+   to 2 lines. Every piece of formatting (<strong>, <h*>, links,
+   bold / size overrides from the rules above) is preserved exactly as
+   the API sent it; only the height is constrained. "show more" button
+   sits on its own line directly below. */
+.postTextClamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Zero out paragraph / heading margins ONLY inside the clamped box so
+   line-clamp counts real content lines, not the empty lines created by
+   margin. The font-weight / font-size overrides still apply, so bold
+   and heading sizing stay intact — only the block spacing normalises. */
+.postTextClamped p,
+.postTextClamped h1,
+.postTextClamped h2,
+.postTextClamped h3 {
+  margin: 0;
+}
+
+/* Reposted-by indicator shown above a post that was shared. */
+.postShared {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #20bdff;
+  /* Thin divider line separating the "reposted this" row from the post
+     header that follows. padding-bottom spaces the line below the text;
+     margin-bottom pulls the next row up so the total visual gap stays
+     close to the original .post { gap } rhythm. */
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: -8px;
+}
+
+.postSharedAvatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #5433ff, #20bdff);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.3px;
+}
+
+.postSharedAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Two-avatar row used when the viewer AND another user have both
+   reposted the same post ("You and X reposted this"). The avatars sit
+   side-by-side with a tight 2px gap — they do NOT overlap, both faces
+   stay fully visible, and the spacing reads as a tight pair rather
+   than two separate elements. */
+.postSharedAvatars {
+  display: inline-flex;
+  align-items: center;
+  gap: -4px;
+}
+
+/* Loading / empty-feed state. */
+.feedState {
+  margin: 0;
+  padding: 24px 8px;
+  text-align: center;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  color: #a0aec0;
+}
+
+/* ── Skeleton loaders ────────────────────────────────────────────────
+   Shimmer placeholders shown while the feed / jobs APIs load. Same
+   pattern as profile.module.css's skeletons, scoped to this module. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 50%, transparent);
+  animation: homeShimmer 1.4s infinite;
+  transform: translateX(-100%);
+}
+
+@keyframes homeShimmer {
+  100% { transform: translateX(100%); }
+}
+
+.skelLine {
+  position: relative;
+  overflow: hidden;
+  height: 10px;
+  margin: 4px 0;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.skelLine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 50%, transparent);
+  animation: homeShimmer 1.4s infinite;
+  transform: translateX(-100%);
+}
+
+.skelLineShort { width: 35%; }
+.skelLineMed { width: 55%; }
+.skelLineLong { width: 80%; }
+.skelLineFull { width: 100%; }
+
+/* Skeletons sized to match the real mini-profile text rows so the
+   loading state has the same visual shape as the final content. */
+.skelName {
+  position: relative;
+  overflow: hidden;
+  height: 17px;            /* matches .miniName font-size */
+  width: 70%;
+  margin: 2px 0;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.skelName::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 50%, transparent);
+  animation: homeShimmer 1.4s infinite;
+  transform: translateX(-100%);
+}
+
+.skelRole {
+  position: relative;
+  overflow: hidden;
+  height: 13px;            /* matches .miniRole font-size visual height */
+  width: 50%;
+  margin: 2px 0;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.skelRole::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 50%, transparent);
+  animation: homeShimmer 1.4s infinite;
+  transform: translateX(-100%);
+}
+
+.skelChip {
+  position: relative;
+  overflow: hidden;
+  height: 24px;            /* matches .miniLocation pill height */
+  width: 90px;             /* matches a typical "North East" chip */
+  margin-top: 2px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.skelChip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 50%, transparent);
+  animation: homeShimmer 1.4s infinite;
+  transform: translateX(-100%);
+}
+
+/* Row of small pill placeholders for the Like / Comments / Reposts + stats
+   region at the bottom of a post-card skeleton. Uses flex with gap so the
+   pills distribute across the card width, matching the reference SS. */
+.skelFooterRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.skelActionBtn {
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  height: 20px;
+  max-width: 90px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.skelActionBtn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 50%, transparent);
+  animation: homeShimmer 1.4s infinite;
+  transform: translateX(-100%);
+}
+
+.skelBtn {
+  position: relative;
+  overflow: hidden;
+  height: 36px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.skelBtn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 50%, transparent);
+  animation: homeShimmer 1.4s infinite;
+  transform: translateX(-100%);
+}
+
+.skelImage {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 11;
+  width: 100%;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Light-mode skeleton overrides — the dark-mode defaults above use
+   `rgba(255, 255, 255, 0.06)` for the base + `rgba(255, 255, 255,
+   0.08)` for the shimmer wash, both of which are basically INVISIBLE
+   on a pure-white light-mode page. These overrides flip every
+   skeleton block's surface to a soft dark-on-white wash so the
+   placeholder shapes are clearly visible while the data loads.
+
+   Triggered when any ancestor sets `data-theme="light"` (Career
+   Talks pages do this). Every page in dark mode keeps the existing
+   white-on-dark treatment. */
+[data-theme="light"] .skeleton,
+[data-theme="light"] .skelLine,
+[data-theme="light"] .skelName,
+[data-theme="light"] .skelRole,
+[data-theme="light"] .skelChip,
+[data-theme="light"] .skelActionBtn,
+[data-theme="light"] .skelBtn,
+[data-theme="light"] .skelImage {
+  background: rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .skeleton::after,
+[data-theme="light"] .skelLine::after,
+[data-theme="light"] .skelName::after,
+[data-theme="light"] .skelRole::after,
+[data-theme="light"] .skelChip::after,
+[data-theme="light"] .skelActionBtn::after,
+[data-theme="light"] .skelBtn::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(15, 23, 42, 0.06) 50%,
+    transparent
+  );
+}
+.skelImage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 50%, transparent);
+  animation: homeShimmer 1.4s infinite;
+  transform: translateX(-100%);
+}
+
+/* Highlight an action button when its action is currently "on" — Like
+   when the viewer has liked the post, Repost when they've reposted it.
+   Uses the chained `.postActionBtn.postActionBtnActive` selector so the
+   color override beats the base `.postActionBtn { color: #fff }` rule
+   regardless of source-order (the base rule appears later in this file
+   for layout reasons, so a single-class selector would lose the cascade). */
+.postActionBtn.postActionBtnActive {
+  color: #20bdff;
+}
+/* Only stroke turns blue on the active state — the LikeIcon already has
+   its solid blue fill baked into its <path>, and the RepostIcon is a
+   stroke-only outline (fill="none"). Forcing fill: #20bdff here used
+   to flood the RepostIcon's polylines/paths with solid blue, visibly
+   changing its shape the instant the user reposted. Stroke alone keeps
+   the icon's silhouette identical and just recolors the lines. */
+.postActionBtn.postActionBtnActive svg {
+  stroke: #20bdff;
+}
+
+.postReadMore {
+  color: #20bdff;
+  background: none;
+  border: none;
+  padding: 0 0 0 4px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.postReadMore:hover {
+  text-decoration: underline;
+}
+
+/* "show less" link used under the expanded post content, block-level so
+   it sits on its own line flush against the card's left padding. */
+.postToggle {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: -4px;
+  color: #20bdff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.1px;
+  cursor: pointer;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.postToggle:hover {
+  text-decoration: none;
+}
+
+.postToggle:focus-visible {
+  outline: 2px solid #20bdff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Inline "... show more" link used INSIDE the collapsed preview paragraph
+   so the truncation reads naturally on one line. Matches .postToggle
+   styling but renders inline with surrounding text. */
+.postToggleInline {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 4px;
+  color: #20bdff;
+  font: inherit;
+  cursor: pointer;
+  vertical-align: baseline;
+}
+
+.postToggleInline:hover {
+  text-decoration: underline;
+}
+
+.postToggleInline:focus-visible {
+  outline: 2px solid #20bdff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Post image grid ── */
+.postImages {
+  display: grid;
+  gap: 8px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.postImages1 {
+  grid-template-columns: 1fr;
+}
+
+.postImages2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.postImages3 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.postImages3 > :first-child {
+  grid-row: span 2;
+}
+
+.postImages4 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.postImage {
+  aspect-ratio: 16 /7.3;
+  width: 100%;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Placeholder gradients — MANUAL IMAGE NEEDED (Figma ref: image 45 / image 46)
+   Replace each background with real imagery in public/assets/home/. */
+.ph1 { background: linear-gradient(135deg, #2d3a55, #5433ff); }
+.ph2 { background: linear-gradient(135deg, #1a2236, #20bdff); }
+.ph3 { background: linear-gradient(135deg, #3a2a66, #1a4c7f); }
+.ph4 { background: linear-gradient(135deg, #2c4a8f, #5433ff); }
+.ph5 { background: linear-gradient(135deg, #242c44, #4a2a8a); }
+.ph6 { background: linear-gradient(135deg, #2a3f66, #20bdff); }
+.ph7 { background: linear-gradient(135deg, #1f2e4f, #7d4dff); }
+
+/* NOTE: The post-image carousel styles previously lived here. They now
+   live in `components/feed/ImageCarousel/ImageCarousel.module.css` so
+   the same component can be reused by the PostImageModal without CSS
+   duplication. Nothing in this file references them anymore. */
+
+/* ── Post footer (stats + actions) ── */
+.postFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.postStats {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #a0aec0;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+/* Slightly larger stats-row like icon so it tracks the bumped 15px text
+   without looking pinched. Overrides the LikeIcon SVG's intrinsic 16x16
+   only when used here — other consumers (image modal) are unaffected. */
+.postStats svg {
+  width: 18px;
+  height: 18px;
+}
+
+.postStat {
+  white-space: nowrap;
+}
+
+/* Pointer + hover-brighten on the comments-count chunk of the stats
+   row, so the affordance reads as "click me to open comments" — same
+   action the dedicated Comments button below the row fires. The
+   non-clickable Likes / Shares chunks keep `.postStat` only. */
+.postStatClickable {
+  cursor: pointer;
+  transition: color 0.15s ease;
+  outline: none;
+}
+
+.postStatClickable:hover,
+.postStatClickable:focus-visible {
+  color: #fff;
+}
+
+.postStatDivider {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.postActions {
+  display: flex;
+  align-items: center;
+  /* Reduced from 18px → 8px → 4px → 0px so Like / Comments / Reposts
+     sit flush against each other. Each button still has its own
+     6px/10px internal padding so the labels never visually touch the
+     adjacent button — the buttons just share a common edge. Button
+     size, padding, and alignment all unchanged — only the
+     inter-button gap shrinks. */
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.postActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.15s ease, color 0.15s ease;
+  position: relative;
+}
+
+/* Custom "Coming soon" tooltip — renders ABOVE each action button on
+   hover. Thin (1px) light border, solid black fill, small-caps text.
+   `pointer-events: none` so the tooltip doesn't steal hover. */
+.postActionBtn::after {
+  content: "Coming soon";
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  background: #000;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 5;
+}
+
+.postActionBtn:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+/* The Like button is wired to a real backend endpoint, so suppress the
+   shared "Coming soon" tooltip on it. Comments / Reposts still inherit
+   the default tooltip until they're wired up. */
+.postActionBtnLive::after {
+  content: none;
+}
+
+.postActionBtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.postActionBtn:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+/* Hover applies a subtle background tint only — color stays white so
+   the icon and label DON'T turn blue mid-hover. Blue is reserved for
+   the genuinely "on" state (button has .postActionBtnActive), which
+   means the user has actually liked / reposted the post. */
+.postActionBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.postActionBtn:focus-visible {
+  outline: 2px solid #5433ff;
+  outline-offset: 2px;
+}
+
+/* ── Scale up for wide viewports (≥1920px) ── */
+@media (min-width: 1920px) {
+  .content {
+    padding: 24px 240px 30px;
+    grid-template-columns: 436px 1fr;
+    gap: 20px;
+  }
+
+  .miniName {
+    font-size: 19px;
+  }
+
+  .miniRole {
+    font-size: 15px;
+  }
+
+  .miniLocation {
+    font-size: 13px;
+  }
+
+  .jobsTitle {
+    font-size: 26px;
+  }
+
+  .jobTitle {
+    font-size: 20px;
+  }
+
+  .jobCompany {
+    font-size: 17px;
+  }
+
+  .jobLocation {
+    font-size: 15px;
+  }
+
+  .btnApply,
+  .btnSave {
+    height: 46px;
+    font-size: 16px;
+  }
+
+  .composerInput {
+    font-size: 16px;
+    height: 48px;
+  }
+
+  .composerPost {
+    font-size: 16px;
+    height: 44px;
+  }
+
+  .postAuthor {
+    font-size: 19px;
+  }
+
+  .postTime {
+    font-size: 14px;
+  }
+
+  .postText {
+    font-size: 17px;
+    line-height: 1.55;
+  }
+
+  .postActionBtn {
+    font-size: 16px;
+  }
+
+  .reactionSummary {
+    font-size: 15px;
+  }
+}
+
+/* ── Tablet landscape & small desktop (≤1200px) ── */
+@media (max-width: 1200px) {
+  .content {
+    padding: 20px 40px 28px;
+    grid-template-columns: 320px 1fr;
+    gap: 18px;
+  }
+
+  .miniAvatar {
+    width: 46px;
+    height: 46px;
+    font-size: 22px;
+    border-radius: 12px;
+  }
+
+  .jobLogo {
+    width: 58px;
+    height: 58px;
+    font-size: 18px;
+  }
+}
+
+/* ── iPad Air / iPad Pro (821–1024px) — hold two-column layout with
+   desktop-style internal scroll. Page itself does NOT scroll here, which
+   also prevents the transparent navbar from appearing to overlap content
+   (there's nothing scrolling behind it). ── */
+@media (min-width: 821px) and (max-width: 1024px) {
+  /* Explicitly keep the two-column desktop layout + internal scroll
+     behaviour. These inherit from the 1200px rule but we restate key
+     properties to make the tablet layout's intent obvious.
+     `gap: 22px` widens the space between the left jobs card and the
+     right outer panel in tablet mode (was 16px). */
+  .content {
+    padding: 22px 28px 20px;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: minmax(0, 1fr);
+    gap: 22px;
+  }
+
+  .postText {
+    font-size: 16px;
+  }
+
+  .jobsTitle {
+    font-size: 24px;
+  }
+
+  /* Taller mini-profile card on tablets + more row-gap inside .miniInfo
+     so the role label ("Apprenticeship") and the location chip no longer
+     sit flush against each other. */
+  .miniProfile {
+    padding: 14px 16px;
+  }
+
+  /* Bigger square avatar in tablet mode. The .miniInfo text block is
+     ~89px tall (name + role + chip with gaps + margin) — the avatar at
+     76px stays shorter than that, so the mini-profile card's overall
+     height is still driven by the text block and does NOT grow. */
+  .miniAvatar {
+    width: 76px;
+    height: 76px;
+    font-size: 24px;
+    border-radius: 14px;
+  }
+
+  .miniInfo {
+    gap: 8px;
+  }
+
+  .miniLocation {
+    margin-top: 2px;
+  }
+
+  /* Bigger top/bottom padding inside each recommended-job card on tablets
+     so the logo + title + chip + buttons have visible breathing room
+     between the content and the card's top/bottom edges. */
+  .jobItem {
+    padding: 22px 14px;
+    gap: 14px;
+  }
+
+  /* Slightly wider vertical gap between consecutive job cards in the
+     scrollable jobs list (was 9.5px in the default .jobsScroll rule). */
+  .jobsScroll {
+    gap: 13px;
+  }
+}
+
+/* ── Mobile / tablet (≤900px) — single column stack, BUT the page
+   itself does NOT scroll. Both the jobs card and the right feed panel are
+   fixed-height cells of a viewport-height grid, and each scrolls INSIDE
+   its own container. The feed scrollbar therefore sits at the right
+   panel's inner edge, not at the page edge — identical to desktop.
+   Breakpoint raised from 820 → 900 so every common iPad portrait width
+   (Mini 768, Air 820/834, 10th-gen 820) gets the same stacked layout. ── */
+@media (max-width: 900px) {
+  /* Viewport-locked page → no whole-UI scroll, no transparent-navbar
+     overlap while scrolling. */
+  .page {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Single column grid with a WEIGHTED 1.2fr / 1fr split so the left
+     column (mini-profile + jobs card) keeps a comfortable, web-mode-like
+     footprint instead of collapsing — and the right feed panel still
+     holds its own as a fixed, internally scrolling container.
+     `gap: 20px` widens the vertical breathing space between the jobs
+     card (bottom of left column) and the right outer panel below it. */
+  .content {
+    padding: 16px 16px 16px;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 20px;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* Left column fills its grid row (no artificial cap). Jobs card flexes
+     inside to take whatever remains after the mini-profile header. */
+  .leftCol {
+    max-height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    gap: 12px;
+  }
+
+  /* Jobs card fills what's left of .leftCol after the mini-profile, and
+     scrolls internally — header stays fixed. `gap` widens to 30px so
+     the "Recommended Jobs" title and the first job card have visible
+     breathing room between them (title position itself is NOT moved —
+     only the scroll region below it shifts down). */
+  .jobsCard {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    max-height: 100%;
+    gap: 30px;
+  }
+
+  /* Taller job card — bumps top / bottom padding so each card feels
+     substantial (matches user's reference SS for tablet / mobile). */
+  .jobItem {
+    padding: 20px 16px;
+  }
+
+  /* Bigger Apply / Save buttons on tablet so they match the reference
+     SS's button proportions. Mobile (≤640) already overrides to 42px
+     too; this rule covers 641–900px. */
+  .btnApply,
+  .btnSave {
+    height: 42px;
+    font-size: 14px;
+  }
+
+  .jobsScroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 6px;
+    /* Slightly wider gap between consecutive job cards on mobile /
+       small-tablet (was 9.5px in the default rule). */
+    gap: 13px;
+  }
+
+  /* Right panel outer container is pinned to the bottom grid row — the
+     search bar stays put at its top and .feedScroll scrolls internally.
+     Its scrollbar sits at the right panel's inner right edge (inside the
+     bordered container), not at the viewport edge. */
+  .rightOuter {
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+  }
+
+  .feedScroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+  }
+
+  .jobActions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Taller mini-profile card + more row-gap so role text and location
+     chip stop crowding each other on narrow viewports. Vertical
+     padding bumped to 20px so the avatar + text block sit inside a
+     more generous card (matches user's request for bigger profile
+     card on tablet / mobile). */
+  .miniProfile {
+    padding: 20px 16px;
+  }
+
+  /* Larger avatar for tablet + mobile stacked mode — gives the profile
+     card a more substantial presence. Inherited desktop is 88px;
+     ≤1200px narrows to 64; this bumps back up to 84. The mobile
+     override below tunes it again for very small viewports. */
+  .miniAvatar {
+    width: 84px;
+    height: 84px;
+    font-size: 26px;
+    border-radius: 14px;
+  }
+
+  .miniInfo {
+    gap: 8px;
+  }
+
+  .miniLocation {
+    margin-top: 2px;
+  }
+}
+
+/* ── Tablet only (641–900px) ──
+   - Reveals the jobs-card collapse toggle (hidden elsewhere)
+   - When the toggle is tapped, the state-driven .jobsScrollCollapsed
+     class takes effect inside this media query ONLY — so desktop is
+     never hidden even if the tablet state is "collapsed".
+   - Reformats the Apply / Save Job buttons to compact, right-aligned
+     pills (matches the user's reference SS) — stretched full-width
+     versions from the generic ≤900 rule would otherwise look too long.
+   - Upper bound is 900 (not 820) so iPad Air 820/834 portrait gets the
+     same tablet treatment as iPad Mini 768. */
+@media (min-width: 641px) and (max-width: 900px) {
+  .jobsToggle {
+    display: inline-flex;
+  }
+
+  .jobsScrollCollapsed {
+    display: none;
+  }
+
+  /* Shrink the whole jobs section to just the header when collapsed.
+     Without this, `flex: 1` from the base ≤900 rule still makes the
+     card fill the column height — showing an empty card below the
+     heading. `flex: 0 0 auto` lets it size to content; paddings are
+     tightened so the collapsed state looks pleasantly compact. */
+  .jobsCardCollapsed {
+    flex: 0 0 auto;
+    padding: 14px 12px 14px 15px;
+    gap: 0;
+  }
+
+  /* When the jobs card is collapsed, the outer grid row that holds the
+     left column (mini-profile + jobs) should size to content instead
+     of claiming its allocated 1.2fr — otherwise there's a big empty
+     gap between the collapsed jobs card and the search / feed panel
+     below it. The right panel then expands to fill the remaining
+     vertical space naturally. */
+  .contentJobsCollapsed {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  /* Compact, right-aligned button row. Inline-flex instead of the
+     desktop 1fr/1fr grid so each button sits at its natural content
+     width and both push to the right edge of the card. Padding bumped
+     up so buttons don't feel cramped ("Apply" was visibly narrow). */
+  .jobActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-left: 0;
+  }
+
+  .btnApply,
+  .btnSave {
+    padding: 0 40px;
+    min-width: 130px;
+    flex: 0 0 auto;
+  }
+}
+
+/* ── Mobile (≤640px) ── */
+@media (max-width: 640px) {
+  .content {
+    padding: 16px 14px 16px;
+    gap: 14px;
+  }
+
+  /* Small-phone mini-profile — taller card + wider inner row-gap so the
+     role line ("Apprenticeship") and the location chip ("North East") sit
+     with visible breathing room between them instead of crowding/overlapping. */
+  .miniProfile {
+    padding: 16px 16px;
+    gap: 14px;
+  }
+
+  .miniInfo {
+    gap: 10px;
+  }
+
+  .miniLocation {
+    margin-top: 2px;
+    font-size: 12px;
+  }
+
+  /* Mobile avatar sized to match the height of the .miniInfo text
+     column next to it. With `align-items: center` on .miniProfile this
+     makes the avatar's TOP edge line up with the top of the "Sneha
+     Mondal" name, and its BOTTOM edge line up with the bottom of the
+     "North East" location chip — no vertical offset on either side.
+     88px covers: name (~21px) + gap (10) + role (~17) + gap (10) +
+     margin-top (2) + chip (~28). */
+  .miniAvatar {
+    width: 88px;
+    height: 88px;
+    font-size: 26px;
+    border-radius: 14px;
+  }
+
+  .miniName {
+    font-size: 17px;
+  }
+
+  .miniRole {
+    font-size: 14px;
+  }
+
+  .jobsCard {
+    padding: 14px 12px 16px;
+  }
+
+  .jobsTitle {
+    font-size: 19px;
+  }
+
+  /* More vertical breathing room inside each recommended-job card on
+     mobile — the top/bottom padding is noticeably larger than the desktop
+     14px default so content doesn't feel cramped against the card edges. */
+  .jobItem {
+    padding: 24px 16px;
+    gap: 16px;
+  }
+
+  /* Mobile job card — matches the reference SS: logo centered at top,
+     title + company + location-chip centered below, then full-width
+     Apply/Save row at the bottom (no indent past the logo). */
+  .jobHead {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .jobInfo {
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .jobLogo {
+    width: 96px;
+    height: 96px;
+    font-size: 24px;
+    border-radius: 14px;
+  }
+
+  .jobTitle {
+    font-size: 16px;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .jobCompany {
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .jobLocation {
+    align-self: center;
+    font-size: 12px;
+  }
+
+  /* Reset the desktop offset so buttons span the full card width centered
+     under the text column. Horizontal padding pulls the Apply/Save row in
+     from the card's inner edges so the buttons have visible breathing room
+     on both sides (not stretched flush to the card border). */
+  .jobActions {
+    margin-left: 0;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 14px;
+  }
+
+  .btnApply,
+  .btnSave {
+    height: 42px;
+    font-size: 14px;
+    padding: 0 10px;
+  }
+
+  .composer {
+    padding: 14px 14px 12px;
+    gap: 12px;
+  }
+
+  .composerTop {
+    gap: 10px;
+  }
+
+  .composerAvatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .composerInput {
+    height: 40px;
+    font-size: 14px;
+    padding: 0 16px;
+  }
+
+  .composerPost {
+    height: 36px;
+    padding: 0 22px;
+    font-size: 14px;
+  }
+
+  .composerOptions {
+    padding-left: 0;
+    gap: 12px;
+  }
+
+  .post {
+    padding: 14px 14px 12px;
+    gap: 12px;
+  }
+
+  .postAvatar {
+    width: 42px;
+    height: 42px;
+    font-size: 14px;
+  }
+
+  .postAuthor {
+    font-size: 14px;
+  }
+
+  .postTime {
+    font-size: 12px;
+  }
+
+  .postText {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .postImages2,
+  .postImages3,
+  .postImages4 {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .postImages3 > :first-child {
+    grid-row: auto;
+  }
+
+  .postImage {
+    aspect-ratio: 16 / 10;
+  }
+
+  .postFooter {
+    gap: 10px;
+  }
+
+  .reactionSummary {
+    font-size: 12px;
+  }
+
+  .postActions {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .postActionBtn {
+    font-size: 12px;
+    padding: 5px 7px;
+    gap: 5px;
+  }
+
+  .postActionBtn svg {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+/* ── Small mobile (≤420px) ── */
+@media (max-width: 420px) {
+  .content {
+    padding: 12px 10px 14px;
+  }
+
+  .miniProfile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .jobActions {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .composerOptions {
+    justify-content: space-between;
+  }
+
+  .postActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .postActionBtn span {
+    display: none;
+  }
+
+  .postActionBtn svg {
+    width: 18px;
+    height: 18px;
+  }
+}

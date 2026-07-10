@@ -1,0 +1,141 @@
+/* ================================================================
+ * HANDOVER PACKAGE — Career Talks Module
+ * File:    src/app/globals.css
+ * Role:    CSS-variable theme tokens (dark default + `[data-theme="light"]`
+ *          overrides) + global resets + browser-control hiding.
+ * COPY?:   ⚠ The target project most likely already defines these
+ *          tokens. Only copy the `[data-theme="light"]` block if
+ *          your project does not already supply a light-mode token
+ *          set. The `@import` lines stay in target's globals.
+ * NOTE:    Career-talks pages opt into light mode by stamping
+ *          `data-theme="light"` on their root container — the
+ *          variables here cascade to every descendant.
+ * See README.md §2 (Light mode) and §4 (Integration).
+ * ================================================================ */
+
+@import "tailwindcss";
+@import "bootstrap/dist/css/bootstrap-grid.min.css";
+
+:root {
+  --background: #040f1f;
+  --foreground: #ededed;
+
+  /* ── Theme tokens (semantic) ──
+     These resolve to the DARK values by default. Any ancestor element
+     that sets `data-theme="light"` (see ThemeContext) flips them to
+     the light palette via the override block below. CSS modules that
+     consume these tokens via `var(--token-name)` will automatically
+     follow the cascade — so the Career Talks pages opt into light
+     mode by setting `data-theme="light"` on their root, and the
+     navbar + mini-profile rendered inside that root inherit the
+     light tokens automatically. Pages that DON'T set the attribute
+     fall back to these defaults and stay dark. */
+  --bg-page: #020C19;
+  --bg-surface: rgba(2, 12, 25, 0.33);
+  --bg-elevated: rgba(255, 255, 255, 0.06);
+  --bg-input: #040f1f;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.55);
+  --text-placeholder: #6b7280;
+  --border-soft: rgba(160, 174, 192, 0.5);
+  --border-faint: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.23);
+  --shadow-card: 0 6px 18px rgba(0, 0, 0, 0.35);
+  --accent-blue: #20bdff;
+  --accent-gradient: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+}
+
+[data-theme="light"] {
+  /* Per spec: page background is pure white `#ffffff` and the panel
+     surfaces are TRANSPARENT (not white) so containers truly take on
+     whatever colour the page bg actually is — guarantees the panels
+     can never look like a different shade from the page. Their soft
+     borders are the only thing defining the container edges. */
+  --bg-page: #ffffff;
+  --bg-surface: transparent;
+  --bg-elevated: rgba(15, 23, 42, 0.04);
+  --bg-input: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: rgba(15, 23, 42, 0.7);
+  --text-muted: rgba(15, 23, 42, 0.55);
+  --text-placeholder: rgba(15, 23, 42, 0.4);
+  --border-soft: rgba(15, 23, 42, 0.12);
+  --border-faint: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.2);
+  --shadow-card: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+/* Smooth fade between themes when `data-theme` flips. Targets the
+   most common theme-affected properties on every element so the
+   switch reads as one cohesive animation. */
+[data-theme="light"],
+[data-theme="dark"],
+[data-theme="light"] *,
+[data-theme="dark"] * {
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide the browser's built-in password reveal / clear controls so our
+   custom eye icon is the only toggle shown. */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-contacts-auto-fill-button,
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-strong-password-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+}
+
+/* ── Toaster (sonner) close-button position + responsive rules ──
+   Sonner's defaults place the × on the LEFT edge of the toast — per
+   spec we want it pinned to the TOP-RIGHT corner instead. These
+   selectors target sonner's data attributes (the library equivalent
+   of react-toastify's `.Toastify__toast` / `.Toastify__close-button`
+   classes), so the dark-navy toast looks exactly like the live YP /
+   Apprenticeships site reference. */
+[data-sonner-toast] [data-close-button] {
+  left: auto !important;
+  right: 0 !important;
+  top: 0 !important;
+  transform: translate(35%, -35%) !important;
+}
+
+/* Responsive toast (≤480px) — full-width edge-to-edge, no radius,
+   no bottom margin. Mirrors the react-toastify mobile rule from spec. */
+@media only screen and (max-width: 480px) {
+  [data-sonner-toast] {
+    width: 100% !important;
+    margin-bottom: 0 !important;
+    border-radius: 0 !important;
+  }
+}

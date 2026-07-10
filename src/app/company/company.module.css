@@ -1,0 +1,927 @@
+/* Company page — only the styles unique to this page live here.
+   Page chrome, grid layout, mini-profile card, and the search-bar
+   pill are reused from `home/home.module.css` via the second style
+   import in page.tsx. Anything that already looks right on the home
+   feed (or jobs page) is NOT re-declared here so the three pages can
+   never visually drift. The structure intentionally mirrors
+   `jobs.module.css` so the two pages share identical column widths,
+   right-card chrome, search pill behaviour, and responsive breakpoints. */
+
+/* ── Stats box (left column, between mini-profile and the bottom
+   edge). Static labels for now — same dark-glass surface as the other
+   left-column cards on the home and jobs pages so the boxes read as
+   one column visually. ── */
+.statsBox {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.statsRow {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: default;
+  transition: color 0.15s ease;
+}
+
+/* Pointer affordance + hover brighten on the rows that actually
+   switch the right panel. */
+.statsClickable {
+  cursor: pointer;
+}
+
+.statsClickable:hover {
+  color: #fff;
+}
+
+/* Active row reflects the current view mode — "All" by default,
+   "Following" when the viewer clicks that stat row. */
+.statsActive {
+  color: #fff;
+}
+
+/* ── Right column wrapper — single rounded card holding the heading,
+   search, filter row, and listings list, sized identically to the
+   jobs-page right panel so the two pages line up pixel-for-pixel. ── */
+.rightOuter {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  padding: 18px 18px 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Top row of the right card — title on the left, search bar on the
+   right. Search bar pill itself is composed from `homeStyles` so its
+   sizing/border/colors stay identical to the home / jobs feed. */
+.rightHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.rightTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #fff;
+}
+
+/* Wrapper that holds the search pill + the conditional Clear All
+   button beside it. Same flex shell as the jobs page so the two
+   pages render identically. The Clear All button only appears
+   when at least one filter chip has selections. */
+.searchClearWrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Block-level wrap — NO flex/justify-content on the wrap itself.
+   The inner `.searchBar` (homeStyles, `display:flex`) fills the
+   wrap's full 380px max-width naturally as a block child. If the
+   wrap is itself a flex container with `justify-content:flex-end`,
+   the inner search-bar shrinks to its content width, which makes
+   the pill grow/shrink as the input text length changes — exactly
+   the "search bar resizes when I type / clear" bug we're fixing
+   here. Mirrors the jobs-page treatment so all three listing
+   pages now behave identically. */
+.searchWrap {
+  flex: 1;
+  max-width: 380px;
+  min-width: 220px;
+}
+
+/* Plain text-button beside the search pill. Resets all filter
+   chips on click; matches the jobs-page styling so the three
+   listing pages share one visual treatment. */
+.clearAllBtn {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.clearAllBtn:hover {
+  color: #20bdff;
+  opacity: 0.92;
+}
+
+/* Slider/filter glyph that sits on the right side of the search pill.
+   Glyph stays plain white at all times — the open/closed state is
+   communicated via the dropdown appearing/disappearing below the
+   search bar, not via icon recolor. */
+.searchSliders {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: background 0.15s ease;
+}
+
+.searchSliders:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.searchSliders svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Filter row — single chip on the company page (Job Sector). Same
+   dark-glass card chrome as the jobs-page filters so the rows feel
+   identical across pages. ── */
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* Pill-shaped filter dropdown chip. Width capped to ~280px so the
+   single-chip row doesn't stretch full-width like the three-up jobs
+   row does — visually the chip reads as a discrete dropdown anchored
+   to the left of the panel (matches the SS exactly). */
+.filterBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 16px;
+  min-height: 38px;
+  width: 100%;
+  max-width: 280px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 0.66px solid rgba(255, 255, 255, 0.23);
+  border-radius: 83px;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background 0.2s ease,
+    color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filterBtn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.filterBtnActive {
+  border: 0.66px solid #20bdff;
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(32, 189, 255, 0.35);
+}
+
+.filterBtnInput {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1;
+}
+
+.filterBtnInput::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+  opacity: 1;
+}
+
+.filterChevronBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.filterChevronBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.filterBtn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.filterClearX {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.filterClearX:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.filterClearX svg {
+  width: 11px;
+  height: 11px;
+  color: inherit;
+}
+
+.filterWrap {
+  position: relative;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.filterDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 240px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #06162e;
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 12px;
+  padding: 6px 0;
+  clip-path: inset(0 round 12px);
+  box-shadow:
+    0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+}
+
+.filterDropdown::-webkit-scrollbar { width: 6px; }
+.filterDropdown::-webkit-scrollbar-track { background: transparent; }
+.filterDropdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.filterDropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.filterEmpty {
+  margin: 0;
+  padding: 14px 16px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  font-style: italic;
+}
+
+.filterOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.filterOption:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.filterCheckbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgba(160, 174, 192, 0.6);
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.filterCheckboxChecked {
+  background: #20bdff;
+  border-color: #20bdff;
+}
+
+.filterCheckboxChecked::after {
+  content: "";
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg);
+  margin-top: -2px;
+}
+
+.filterCheckboxInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+/* ── Listings empty state ── briefcase-style outline glyph stacked
+   above a short caption, centered horizontally. Used both for "no
+   search match" under All view and for the "not following anyone"
+   state under Following view. */
+.listingsEmpty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 40px 16px;
+  min-height: 220px;
+}
+
+.listingsEmptyIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.listingsEmptyIcon svg {
+  width: 44px;
+  height: 44px;
+}
+
+.listingsEmptyText {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Scrollable listings region — fills the remaining vertical space
+   in the right panel. Custom thin scrollbar matches the jobs page so
+   both pages read as one design. ── */
+.listings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  padding-bottom: 18px;
+}
+
+.listings::-webkit-scrollbar {
+  width: 6.1px;
+}
+
+.listings::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.listings::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+
+.listings::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Company card (right column) — logo on the left, info middle,
+   single Follow button on the right.
+
+   Default border / radius / padding follow the user's spec exactly:
+     - 1px solid #a0aec080 (the same neutral grey the live YP site uses
+       for the sidebar recommended-job item)
+     - border-radius 16px, padding 16px
+   The hover state applies the cyan-tint highlight from the user's
+   spec (`background-color: #20bdff1a; border: 1px solid #20bdff;`)
+   with a 0.3s `all` transition so the swap eases in. `position:
+   relative` matches the user's spec literally (kept here even though
+   nothing is absolutely positioned inside the card right now —
+   future Follow toggles or "Following" pill overlays will rely on
+   it). ── */
+.companyCard {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+  background: transparent;
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  padding: 16px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+.companyCard:hover {
+  background-color: #20bdff1a;
+  border: 1px solid #20bdff;
+}
+
+.companyLogo {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  /* Default surface — dark/translucent so the skeleton shimmer over
+     the box reads correctly during image load and doesn't flash
+     white. The white surface needed for actual logo backgrounds is
+     applied only AFTER the image successfully loads, via the
+     `.companyLogoLoaded` modifier below. */
+  background: rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Applied to the logo box only once the real image has finished
+   downloading — flips the surface to white so the loaded logo sits
+   on the brand-light background it was designed for. */
+.companyLogoLoaded {
+  background: #fff;
+}
+
+.companyLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Initials placeholder used by the static seed data. The dynamic step
+   replaces this with a real <img>; the colour comes from each card's
+   inline `style` so the SS-style multicoloured wall of logos is
+   preserved without bundling 10 brand assets. */
+.companyLogoInitials {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.companyInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.companyName {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Address chip with location pin — same styling as the jobs-page
+   listing chips so all "where" chips across the app match. Used only
+   when the company has an `address` value. */
+.companyAddressChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  border: 0.88px solid #374888;
+  border-radius: 4px;
+  background-color: #121f3d;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: #a0aec0;
+  letter-spacing: 0;
+  line-height: 1.2;
+  align-self: flex-start;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.companyAddressChip svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: #a0aec0;
+}
+
+.companyDesc {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+.companyActions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.btnFollow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50px;
+  padding: 9px 28px;
+  color: #fff;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  min-width: 100px;
+}
+
+.btnFollow:hover {
+  opacity: 0.92;
+}
+
+/* "Following" state for the listing-page Follow pill. Matches the
+   jobs-page Applied pill exactly — cyan ring, soft cyan tint,
+   cyan text — so the brand-confirmed state reads identically
+   across the app. `!important` is used to win over the gradient
+   fill / `border: none` of `.btnFollow` above. The button is
+   non-interactive in the listing (only the company-details page
+   lets the viewer unfollow), so cursor stays default and opacity
+   is pinned to 1 so the disabled state doesn't visually fade. */
+.btnFollowing {
+  color: #20bdff !important;
+  background: #20bdff1a !important;
+  border: 1px solid #20bdff !important;
+  cursor: default;
+}
+
+.btnFollowing:disabled,
+.btnFollowing:hover {
+  opacity: 1;
+}
+
+/* ── Outer page wrapper override — same desktop / tablet split as the
+   jobs page. DESKTOP stays viewport-locked so the right panel uses an
+   internal scroll. TABLET / MOBILE flips to a page-level scroll so
+   the viewer can sweep through profile → stats → companies vertically
+   using the native right-side scrollbar. ── */
+.pageCompany {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .pageCompany {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+/* ── Tablet / mobile grid override — same idea as
+   `.contentJobsPage`. The home grid's ≤900px rule sets two flexible
+   rows, but the company page needs each row to size to its content
+   so the page-level scroller drives navigation. Both classes (this
+   one + the home `.content`) share specificity; company.module.css
+   imports after home.module.css so this override wins the cascade. ── */
+@media (max-width: 900px) {
+  /* Chained-class selector (`.x.x`) doubles specificity to 0,2,0
+     so this rule reliably wins over the home grid's `.content
+     { gap: 20px }` at the same breakpoint, regardless of CSS
+     module load order. The visual gap below the stats box on
+     tablet now matches the live YP /company SS (~10px). */
+  .contentCompanyPage.contentCompanyPage {
+    grid-template-rows: auto auto;
+    min-height: 0;
+    overflow: visible;
+    height: auto;
+    /* Slightly more breathing room between the All / Following
+       stats card and the companies panel below it on tablet —
+       the previous 6px read as too tight. */
+    gap: 12px;
+  }
+
+  /* Right-side companies panel is now sized in viewport units so
+     it extends much further down on tablet — matches the SS where
+     the panel reaches almost the full height of the viewport. The
+     inner `.listings` scroll still activates because the cap is
+     less than 100vh. */
+  .rightOuter {
+    max-height: 80vh;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Same higher-specificity selector for mobile gap. */
+  .contentCompanyPage.contentCompanyPage {
+    gap: 14px;
+  }
+
+  /* Mobile gets a slightly taller cap so the panel fills more of
+     the small-screen viewport. The page-level scroller still
+     drives top-to-bottom navigation. */
+  .rightOuter {
+    max-height: 78vh;
+  }
+
+  /* Override the home `.searchBar`'s `margin-right: 10px` so the
+     pill spans flush against the right edge of the mobile
+     container — same fix the events page uses for full-width
+     search alignment. */
+  .searchWrap > div {
+    margin-right: 0;
+    width: 100%;
+  }
+}
+
+/* ── Tablet (≤1200px) — slightly tighter padding on the right card,
+   matching the jobs page. ── */
+@media (max-width: 1200px) {
+  .rightOuter {
+    padding: 16px 14px 0;
+  }
+}
+
+/* ── Tablet portrait (641–900px) — keep the heading + search bar
+   on the same row (compressed search pill), and bump the stats
+   box vertical padding so the All / Following card has visual
+   presence next to the wider companies panel below. Same
+   tablet treatment the events listing page uses, so the two
+   listing pages share one responsive layout. ── */
+@media (min-width: 641px) and (max-width: 900px) {
+  .rightHeader {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Compressed search pill so it shares the row with the
+     "Companies" heading without overflowing the tablet width. */
+  .searchWrap.searchWrap {
+    max-width: 280px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .filterBtn {
+    max-width: 100%;
+  }
+
+  /* Taller stats card on tablet — matches the events page where
+     the card reads as a substantial sibling block next to the
+     listings panel. */
+  .statsBox {
+    padding: 22px 22px;
+    gap: 14px;
+  }
+
+  .statsRow {
+    font-size: 15px;
+    padding: 4px 0;
+  }
+
+  /* Keep the desktop 3-column layout on tablet so the Follow
+     button sits to the right of the info column (vertically
+     centered) instead of dropping to a second row. Slightly
+     reduced card padding so the height feels compact. */
+  .companyCard {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: none;
+    padding: 14px;
+    gap: 14px;
+  }
+
+  /* Center-align the action column vertically with the card
+     content (so the Follow pill sits at the visual centre of
+     the card, not pinned to the bottom). */
+  .companyActions {
+    align-self: center;
+    justify-content: flex-end;
+  }
+}
+
+/* ── Mobile (≤640px) — heading + search bar stack vertically;
+   search pill spans full container width with the home
+   `.searchBar`'s `margin-right: 10px` overridden so the pill
+   ends flush with the right edge of the rightOuter container.
+   Filter chip + Follow button also span full width so the
+   layout reads consistently as a column of full-width controls,
+   matching the SS reference. ── */
+@media (max-width: 640px) {
+  .rightHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .searchClearWrap.searchClearWrap {
+    flex-direction: row;
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .searchWrap.searchWrap {
+    max-width: 100%;
+    min-width: 0;
+    width: 100%;
+    flex: 1;
+  }
+
+  /* Filter chip stretches full width matching the search bar. */
+  .filters {
+    width: 100%;
+  }
+
+  .filterWrap {
+    flex: 1;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .filterBtn {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Compact card padding on mobile so the card height feels
+     tighter — was 16px from the desktop default, dropped to
+     12px (further reduced to 14px → 12px in the small-mobile
+     ≤420px override below). */
+  .companyCard {
+    padding: 12px;
+    row-gap: 12px;
+  }
+
+  /* Follow button — full-width gradient pill matching the event
+     View button on mobile (same height, padding, font-size). */
+  .btnFollow {
+    width: 100%;
+    flex: 1;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 50px;
+  }
+
+  .companyActions {
+    width: 100%;
+  }
+
+  /* Address chip wraps to multiple lines on narrow widths so
+     long addresses don't overflow the card. The pin icon stays
+     anchored to the top via `align-items: flex-start`; the text
+     wraps naturally because the chip's width is constrained by
+     the parent column. */
+  .companyAddressChip {
+    align-items: flex-start;
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.4;
+  }
+
+  .companyAddressChip svg {
+    margin-top: 2px;
+  }
+}
+
+/* ── Card layout (≤640px) — mobile only: collapse the company
+   card to logo+info above, Follow button in its own full-width
+   row below. Tablet keeps the desktop 3-column layout (overriden
+   in the tablet block above) so the Follow button stays
+   right-aligned next to the info column. ── */
+@media (max-width: 640px) {
+  .companyCard {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "logo info"
+      "actions actions";
+    row-gap: 12px;
+  }
+
+  .companyLogo {
+    grid-area: logo;
+  }
+
+  .companyInfo {
+    grid-area: info;
+  }
+
+  .companyActions {
+    grid-area: actions;
+    justify-content: flex-end;
+  }
+}
+
+/* ── Small mobile (≤420px) — tighter card padding and a slightly
+   smaller heading, matching the jobs page small-mobile rules. ── */
+@media (max-width: 420px) {
+  .rightOuter {
+    padding: 14px 12px 0;
+    border-radius: 14px;
+  }
+
+  .rightTitle {
+    font-size: 19px;
+  }
+
+  .companyCard {
+    padding: 14px;
+  }
+
+  .companyName {
+    font-size: 16px;
+    white-space: normal;
+  }
+
+  .btnFollow {
+    flex: 1;
+    padding: 9px 16px;
+    font-size: 13px;
+    min-width: 0;
+  }
+
+  .companyActions {
+    width: 100%;
+  }
+}

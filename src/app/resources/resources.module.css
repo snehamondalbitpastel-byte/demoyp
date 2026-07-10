@@ -1,0 +1,1473 @@
+/* ───────────────────────────────────────────────────────────────
+   Resources tab — page-specific styles.
+   Chrome (page background, content grid, leftCol, miniProfile,
+   searchBar / searchInput / searchIconWrap) is inherited from
+   `_chrome.module.css` which is a verbatim copy of /career-talks's
+   chrome — so the navbar, left column width, page padding, and
+   search bar styling match career-talks pixel-for-pixel.
+   This file owns: categories box (sidebar), right outer panel +
+   header, and the 3-col resource-card grid.
+   ─────────────────────────────────────────────────────────────── */
+
+/* ── Page-background override ──
+   The chrome's `.page` rule sets the career-talks navy radial. For
+   /resources we keep the SAME structure (`position: fixed`, layout,
+   typography) but flip the background colour + gradient to the HTML
+   mockup's tokens — slate-50 linear in light, navy radial in dark.
+   Doubled class selector `.resourcesPage.resourcesPage` raises
+   specificity above the chrome's plain `.page` rule without
+   `!important`. */
+.resourcesPage.resourcesPage {
+  background-color: #03060e;
+  background-image: radial-gradient(
+    120% 110% at 88% 8%,
+    #17386a 0%,
+    #0d1d36 26%,
+    #070f1f 52%,
+    #03060e 100%
+  );
+}
+[data-theme="light"] .resourcesPage.resourcesPage {
+  background-color: #ffffff;
+  background-image: linear-gradient(
+    160deg,
+    #ffffff 0%,
+    #f8fafc 55%,
+    #f1f5f9 100%
+  );
+}
+
+.resourcesContent { }
+
+/* ── Categories box (sidebar) ──
+   Mirrors career-talks `.statsBox` exactly — same dark-glass surface,
+   same border, same 16px radius, same padding + 18px gap between rows.
+   Each row is clickable and filters the right panel. */
+.categoriesBox {
+  background: var(--bg-surface, rgba(2, 12, 25, 0.33));
+  border: 1px solid var(--border-soft, rgba(160, 174, 192, 0.5));
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  padding: 16px 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  /* Per-row spacing is owned by `.categoryRow { margin-bottom: 8px }`
+     per the live `side_job_navigation_btn` spec the user pasted.
+     Container gap removed so the two spacing mechanisms don't stack. */
+}
+
+/* Light-mode: fully transparent (matches statsBox light override). */
+[data-theme="light"] .categoriesBox {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* ── Categories sidebar collapse (mobile + tablet) ──
+   Full pattern port of the home-page recommended-jobs collapse
+   (`.jobsHeader` + `.jobsToggle` + `.jobsScroll`). On desktop
+   `.catsHeader` is hidden (no title, no toggle) and the rows
+   render in full; on mobile + tablet (≤1024px) the header is
+   revealed and `.catsScroll` gets a fixed max-height with inner
+   scrollbar so the full category list is reachable inside a
+   bounded container. Smooth max-height + opacity transition on
+   collapse/expand. */
+.catsHeader {
+  display: none;
+  align-items: center;
+  /* Selected-category label on the LEFT, chevron on the RIGHT
+     (space-between). The label shows the active category so the
+     collapsed dropdown is never blank. The whole bar is clickable to
+     open the dropdown (the arrow toggles), hence `cursor: pointer`. */
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+/* Selected-category label inside `.catsHeader` (mobile/tablet only —
+   the header itself is hidden on desktop). */
+.catsHeaderLabel {
+  font-family: var(--font-plus-jakarta-sans), 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 100%;
+  color: #fff;
+  user-select: none;
+}
+[data-theme="light"] .catsHeaderLabel {
+  color: #0f172a;
+}
+.catsTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: #fff;
+}
+[data-theme="light"] .catsTitle {
+  color: #0f172a;
+}
+.catsToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #a0aec0;
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: color 0.15s ease;
+}
+.catsToggle:hover { color: #fff; }
+.catsToggle svg { width: 18px; height: 18px; }
+[data-theme="light"] .catsToggle { color: #475569; }
+[data-theme="light"] .catsToggle:hover { color: #0f172a; }
+
+/* Scroll wrap — desktop default is fully open with NO max-height
+   (categories show in full). The mobile/tablet media query below
+   caps it and turns on overflow-y scroll. */
+.catsScroll {
+  display: flex;
+  flex-direction: column;
+  /* Fixed height sized to EXACTLY the current 8 category rows
+     (8 × 14px row + 7 × 22px gap = 266px). When a 9th (or more)
+     category is added the list scrolls INSIDE this bounded height
+     on EVERY device — desktop and responsive — instead of growing
+     the sidebar container. The mobile/tablet media query below
+     overrides this with its own cap. The visible scrollbar stays
+     hidden (scrollbar-width / ::-webkit-scrollbar rules below) so
+     the inner scroll is silent. */
+  max-height: 266px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Smooth slide animation — drives both the open/close
+     transition AND the desktop ↔ mobile transition without
+     jumps. */
+  transition: max-height 0.32s cubic-bezier(0.2, 0.85, 0.4, 1),
+              opacity 0.22s ease;
+  opacity: 1;
+  /* Scroll stays functional (the mobile/tablet media query keeps
+     `overflow-y: auto`), but the visible scrollbar is hidden per
+     user spec — Firefox + old Edge. WebKit is hidden via the 0-width
+     rule below. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.catsScroll::-webkit-scrollbar { width: 0; height: 0; }
+.catsScroll::-webkit-scrollbar-track { background: transparent; }
+.catsScroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.catsScroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+[data-theme="light"] .catsScroll::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.22);
+}
+
+
+/* ── Mobile + Tablet (≤1024px) — collapse activates ── */
+@media (max-width: 1024px) {
+  /* Header (title + chevron) — REVEALED on mobile/tablet so the
+     user can toggle the list open / closed. */
+  .catsHeader { display: flex; }
+
+  .catsScroll {
+    max-height: 280px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-right: -6px;
+    padding-right: 12px;
+  }
+
+  /* COLLAPSED state — `.catsScrollCollapsed` shrinks the scroll
+     wrap to 0 height + 0 opacity, hidden overflow. The smooth
+     max-height + opacity transition on `.catsScroll` above
+     drives the slide-up animation. */
+  .catsScrollCollapsed {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  /* When the categories box is collapsed, remove the header's
+     bottom margin so the box becomes just the header row —
+     same trick the home-page `.jobsCardCollapsed` uses. */
+  .categoriesBoxCollapsed .catsHeader { margin-bottom: 0; }
+
+  /* ── Single-source-of-truth for the selection ──
+     CLOSED → the header bar shows the selected category (the trigger);
+              the list is collapsed to 0 height.
+     OPEN   → the WHOLE header bar is hidden, so the list itself sits at
+              the very top showing EVERY option in its FIXED original
+              order (All first), with the selected one highlighted in
+              place. This removes BOTH the duplicate (selected appearing
+              in the header AND the list = "two times") AND the blank
+              arrow-only row. The dropdown is dismissed by picking an
+              option or tapping outside (handled in page.tsx).
+     `:not(.categoriesBoxCollapsed)` matches only the OPEN state. */
+  .categoriesBox:not(.categoriesBoxCollapsed) .catsHeader {
+    display: none;
+  }
+
+  /* The header bar shows the selected category as the collapsed
+     trigger label. When the dropdown is OPEN, the full option list is
+     shown in its FIXED original order — the selected row stays in its
+     natural position (e.g. a 3rd-position category stays 3rd), simply
+     highlighted in place via `.categoryActive`. It is NOT hidden and
+     NOT floated to the top, so reopening the dropdown to switch
+     options always presents the same stable ordering. Standard
+     <select>-style behaviour: trigger shows the current value, the
+     open list shows every option including the highlighted current
+     one in place. */
+}
+
+/* Category row — matches the live YP `side_job_navigation_btn`
+   spec verbatim per user request:
+     font-family : var(--font-plus-jakarta-sans)
+     font-weight : 400
+     letter-spacing : 0
+     color       : #a0aec0
+     cursor      : pointer
+     margin-bottom : 8px         (gap between each row)
+     font-size   : 14px
+     line-height : 100%
+     transition  : all .3s ease-in-out
+*/
+.categoryRow {
+  margin: 0 0 22px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-plus-jakarta-sans), 'Plus Jakarta Sans', sans-serif;
+  /* Weight bumped 400 → 600 per user "all the options to last
+     font weight need to increased in 600 … not size increased,
+     only the font weight" spec. Size, color, line-height,
+     letter-spacing all unchanged so only the strokes thicken;
+     the row count + per-row height stay identical. */
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 100%;
+  letter-spacing: 0;
+  color: #a0aec0;
+  transition: all 0.3s ease-in-out;
+  user-select: none;
+}
+.categoryRow:last-child {
+  margin-bottom: 0;
+}
+.categoryRow:hover { color: var(--text-primary, #fff); }
+/* Active row stays at the same 600 weight as the rest — only the
+   color flips to white (or dark navy in light mode) so the
+   highlight is colour-based, not weight-based. */
+.categoryActive { font-weight: 600; color: #fff; }
+[data-theme="light"] .categoryActive { color: #0f172a; }
+
+/* ── Right outer panel ──
+   Mirrors career-talks `.rightOuter` exactly: same surface, border,
+   radius, padding, max-height. Internal scrolling is handled by
+   the inner `.list` container below. */
+.rightOuter {
+  background: var(--bg-surface, rgba(2, 12, 25, 0.33));
+  border: 1px solid var(--border-soft, rgba(160, 174, 192, 0.5));
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  /* Padding restored to `16px 17.8px 16px 16px` to MATCH the
+     career-talks `.rightOuter` byte-for-byte per user "search bar
+     dimensions / heading padding position should be exactly the
+     same as the career-talks UI" spec. The search-bar row inside
+     this panel sits flush with this padding, so the search bar's
+     right edge now lands at the SAME X position it does on
+     /career-talks (≈24px from the panel's right border once the
+     search bar's own 6px margin-right is added). The scrollbar-
+     to-edge gap is preserved by the `.list` margin-right /
+     padding-right trick below — same pattern career-talks uses
+     on its `.talksGridWrap`. */
+  padding: 16px 17.8px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  max-height: 80.8vh;
+}
+
+[data-theme="light"] .rightOuter {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Right panel header row — title on the left, search + sort on the right.
+   Spacing pattern mirrors career-talks `.rightHeader`. */
+.rightHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.rightTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--text-primary, #fff);
+word-break: break-word;
+  margin-left: 7.2px;       
+  margin-top: 0px;        
+}
+
+
+/* Outer wrapper — mirrors career-talks `.searchClearWrap` verbatim:
+   flex-fills the row, right-aligns the search pill, and exposes the
+   five CSS variables that drive the Clear All sibling-shrink math
+   below. Editing any variable auto-rebalances the layout without
+   moving the search pill's LEFT edge. */
+.searchSortWrap {
+  --search-pill-max: 352px;
+  --search-clear-gap: 17.9px;
+  --clear-all-margin-left: 5px;
+  --clear-all-width: 62px;
+  --clear-all-right-gap: 12.5px;
+
+  display: flex;
+  align-items: center;
+  gap: var(--search-clear-gap);
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Search pill width constraint — matches career-talks `.searchWrap`
+   EXACTLY. The pill takes `--search-pill-max` (352px) when Clear All
+   is hidden. */
+.searchWrap {
+  flex: 1;
+  max-width: var(--search-pill-max);
+  min-width: 220px;
+}
+
+/* Shrink the search pill ONLY when the "Clear All" button is rendered
+   next to it as the immediate next sibling. Width math keeps the
+   pill's LEFT edge anchored in BOTH states — only the right edge
+   moves inward to make room for Clear All. Exact port of career-talks
+   `.searchWrap:has(+ .clearAllBtn)` rule. */
+.searchWrap:has(+ .clearAllBtn) {
+  max-width: calc(
+    var(--search-pill-max)
+      - var(--search-clear-gap)
+      - var(--clear-all-margin-left)
+      - var(--clear-all-width)
+  );
+  /* Internal search-bar padding overrides while shrunk — cascade
+     into the descendant `.searchBar` in _chrome.module.css via the
+     `--search-bar-pad-left/right` custom properties. */
+  --search-bar-pad-left: 14.5px;
+  --search-bar-pad-right: 10px;
+}
+
+/* ── Clear All button — exact port of career-talks `.clearAllBtn`.
+   Plus-Jakarta-Sans 600 14px white text, 62px wide pill, hover
+   `scale(1.10)` zoom, no colour change. Appears as a sibling of
+   `.searchWrap` whenever the viewer has an active sort/filter
+   selection AND the panel is revealed (matches career-talks UX). */
+.clearAllBtn {
+  font-family: var(--font-plus-jakarta-sans), 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 100%;
+  letter-spacing: 0;
+  text-align: center;
+  color: #fff;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: 80px;
+  outline: none;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: var(--clear-all-margin-left, 5px);
+  transition: all 0.3s ease-in-out;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  width: var(--clear-all-width, 62px);
+  position: relative;
+  right: var(--clear-all-right-gap, 0px);
+  transform-origin: center;
+}
+.clearAllBtn:hover {
+  transform: scale(1.10);
+}
+.clearAllBtn:active {
+  transform: scale(1.05);
+}
+/* Light-mode text colour — career-talks keeps Clear All white in
+   dark and flips to brand navy in light (matches the live YP SS). */
+[data-theme="light"] .clearAllBtn {
+  color: #0f172a;
+}
+
+/* Clear (X) button inside the search bar — only rendered when
+   the user has typed something. Styling 1:1 with /home's
+   `.searchClear` so the X glyph reads the same across pages. */
+.searchClear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin-left: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: #a0aec0;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.searchClear:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+.searchClear svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+[data-theme="light"] .searchClear:hover {
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.06);
+}
+
+/* Inline sort button — sits INSIDE the search bar at the right edge.
+   Dimensions + colour treatment match career-talks `.searchSliders`
+   EXACTLY (28×28 button, no background fill, 20×22 SVG, near-white
+   in dark / brand-blue in light). */
+.sortBtnInline {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #f1eeee;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  padding: 0;
+}
+.sortBtnInline:hover {
+  background: transparent;
+}
+.sortBtnInline svg {
+  width: 20px;
+  height: 22px;
+}
+[data-theme="light"] .sortBtnInline {
+  color: #3960fb;
+}
+
+/* ── Sort panel (below search bar) — mirrors career-talks 2-step
+   pattern. The filter icon inside the search bar toggles
+   `.filtersOuter` open/close via a CSS-Grid row trick; the panel
+   holds a "Sort" CHIP (`.compactSortBtn`); the chip in turn opens
+   the actual sort options dropdown (`.compactDropdown`). Two
+   levels — exactly like /career-talks. */
+.filtersOuter {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  transition:
+    grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    margin-top 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    margin-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.filtersOuterOpen {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  /* Chip row position knobs (sum to -1 so the cards row never
+     shifts vertically — same trick career-talks uses). Bigger
+     margin-top slides the chip row DOWN toward the cards; the
+     matching negative margin-bottom keeps the layout stable. */
+  margin-top: 14px;
+  margin-bottom: -15px;
+}
+.panelInner {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+  overflow: hidden;
+}
+.filtersOuterOpen > .panelInner {
+  overflow: visible;
+  transition: overflow 0s 0.4s;
+}
+
+/* Compact bar — single Sort chip for /resources (career-talks
+   has two: Filter + Sort, but resources doesn't expose a filter
+   modal so only the Sort chip lives here). */
+.compactBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10.5px;
+  margin-left: 0;
+}
+
+/* ── Sort dropdown — exact port of career-talks `.compactSortBtn` +
+   `.compactDropdown` family. Only two options (A to Z / Z to A) so
+   no "Relevance" group header is needed; just a single TITLE block
+   with both options. */
+.compactWrap {
+  position: relative;
+}
+.compactSortBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgb(255, 255, 255);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s;
+}
+.compactSortBtnActive {
+  background: rgba(255, 255, 255, 0.05);
+}
+.compactSortBtn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+[data-theme="light"] .compactSortBtn {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.18);
+  color: #0f172a;
+}
+[data-theme="light"] .compactSortBtn:hover {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.18);
+}
+[data-theme="light"] .compactSortBtnActive {
+  background: #ffffff;
+}
+
+/* Chevron rotates 180° on open. */
+.compactChevron {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.compactChevronOpen {
+  transform: rotate(180deg);
+}
+
+/* Dropdown panel anchored under the Sort chip. Left-aligned to the
+   chip's left edge so it pops down underneath the chip's left side
+   (same anchor pattern as career-talks). */
+.compactDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  min-width: 221px;
+  background: rgb(29, 47, 71);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 8px 24px;
+  min-height: 80px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 6px;
+  font-family: var(--font-dm-sans);
+  transform-origin: top left;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 0.18s;
+}
+.compactDropdownOpen {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  visibility: visible;
+  transition:
+    opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 0s;
+}
+[data-theme="light"] .compactDropdown {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: rgba(15, 23, 42, 0.18) 0px 8px 24px;
+}
+
+.compactSortGroupLabel {
+  padding: 6px 10px 4px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  color: rgb(160, 174, 192);
+  text-transform: uppercase;
+}
+[data-theme="light"] .compactSortGroupLabel {
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.compactSortItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.compactSortItem:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+.compactSortItemActive {
+  background: rgba(32, 189, 255, 0.08);
+  color: rgb(32, 189, 255);
+}
+.compactSortItemActive:hover {
+  background: rgba(32, 189, 255, 0.08);
+  color: rgb(32, 189, 255);
+}
+.compactSortItem svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.55);
+}
+.compactSortItemActive svg {
+  color: rgb(32, 189, 255);
+}
+[data-theme="light"] .compactSortItem {
+  color: rgba(15, 23, 42, 0.85);
+}
+[data-theme="light"] .compactSortItem:hover {
+  background: rgba(15, 23, 42, 0.04);
+  color: #0f172a;
+}
+[data-theme="light"] .compactSortItem svg {
+  color: rgba(15, 23, 42, 0.5);
+}
+[data-theme="light"] .compactSortItemActive {
+  background: rgba(53, 111, 238, 0.10);
+  color: rgb(53, 111, 238);
+}
+[data-theme="light"] .compactSortItemActive:hover {
+  background: rgba(53, 111, 238, 0.10);
+  color: rgb(53, 111, 238);
+}
+[data-theme="light"] .compactSortItemActive svg,
+[data-theme="light"] .compactSortItemActive .compactSortItemCheck {
+  color: rgb(53, 111, 238);
+}
+.compactSortItemCheck {
+  margin-left: auto;
+  color: #20bdff;
+}
+.compactSortItemLabel {
+  flex: 1;
+}
+
+/* ── Card grid + scroll container ── */
+.list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* ── GAP knob #1 — (search bar / Sort chip when filters open)
+     ↔ first card row ──
+     This SINGLE `margin-top` controls the vertical gap between
+     whatever's immediately ABOVE `.list` and the first card row.
+     What's above depends on the filter panel state:
+        • Filter panel CLOSED → search bar sits directly above
+          `.list`, so this is the search-bar-to-first-card gap.
+        • Filter panel OPEN → the Sort chip row (`.compactBar`)
+          slides in BETWEEN the search bar and `.list`. The Sort
+          chip then sits directly above `.list`, so the SAME
+          `margin-top` here becomes the Sort-chip-to-first-card
+          gap that the user can tune.
+
+     So bump this value when the user wants more breathing room
+     between the Sort chip and the cards below:
+        • smaller value (e.g. 16px) → cards sit closer to the
+          chip / search bar
+        • larger value (e.g. 60px) → more breathing room
+     Per user "the chip gap should NOT affect when the sort chip
+     is collapsed off — gap only when the sort dropdown appears,
+     revert the gap when the sort dropdown is closed" spec:
+        • DEFAULT (sort panel CLOSED) → 22px gap. The Sort chip
+          row is hidden inside the collapsed `.filtersOuter`
+          grid-row, so this gap sits BETWEEN the search bar and
+          the first card row.
+        • OPEN (sort panel revealed)  → 45px gap, applied via
+          the `.filtersOuterOpen + .list` rule BELOW (adjacent
+          sibling selector, +1 specificity over this base rule).
+          Now `.filtersOuter` is expanded with the Sort chip
+          row inside, so the 45px gap sits BETWEEN the Sort chip
+          row and the first card row — matching career-talks. */
+  margin-top: 20px;
+
+  /* ── Scrollbar-positioning trick — EXACT port of career-talks
+     `.talksGridWrap` per user "use exact same layout as career
+     talks UI" spec. `.rightOuter` ships a 17.8px right padding
+     (kept untouched so the search bar stays at the career-talks
+     position). The wrapper breaks out of that padding via
+     `margin-right: -12px`, extending its right edge further
+     toward the panel's border. The matching `padding-right: 6px`
+     reserves a slim lane INSIDE the wrapper for the 6px-wide
+     scrollbar to ride against the panel's right border instead
+     of being inset 17.8px. Card content area width is preserved
+     to the pixel — only the scrollbar shifts visually. */
+  margin-right: -12px;
+  padding-right: 6px;
+  /* Bottom breathing room inside the SCROLL area so the LAST card row
+     fully clears the panel's bottom edge when scrolled to the end
+     (was 0 → the last row read as "cut off"). This only adds to the
+     scrollable content area — it does NOT change `.rightOuter`'s
+     height or any card's height. */
+  padding-bottom: 12px;
+}
+/* Conditional gap — applies ONLY when the sort/filter panel is
+   open. The adjacent-sibling selector (`+`) matches `.list` ONLY
+   when the IMMEDIATELY-PRECEDING sibling has the `.filtersOuterOpen`
+   class (added on `.filtersOuter` in page.tsx when `filtersOpen`
+   is true). Specificity 0,2,0 > the base `.list` rule above
+   (0,1,0), so this 45px wins WHEN the panel is open and the
+   default 22px wins WHEN it's closed — exactly what the user
+   asked for ("gap only when the sort dropdown appears, revert
+   when closed"). */
+.filtersOuterOpen + .list {
+  margin-top: 30px;
+}
+.list::-webkit-scrollbar { width: 6px; }
+.list::-webkit-scrollbar-track { background: transparent; }
+.list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+}
+[data-theme="light"] .list::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.18);
+}
+
+.rgrid {
+  display: grid;
+  /* 2 cards per row at desktop per live YP / user spec — was
+     `repeat(3, 1fr)` before. Drops to 1 column on small mobile
+     (≤600px). */
+  grid-template-columns: repeat(2, 1fr);
+  /* `align-items: stretch` is the default but stated EXPLICITLY
+     so all cards in the SAME row render at the IDENTICAL height
+     (the taller content's card sets the row height; the shorter
+     one gets stretched to match) per user "all cards width,
+     height, every thing should be same" spec. */
+  align-items: stretch;
+
+  /* ─── THREE-KNOB SYSTEM for the horizontal card gaps ───
+     Three INDEPENDENT values, one per gap, so each can be tuned
+     without touching the others. Changing any of these does NOT
+     shift the heading, search bar, scrollbar, sort-chip, or any
+     other element — only the cards' horizontal positions inside
+     their grid columns move. */
+
+  /* KNOB #2 — MIDDLE gap (between two cards in a SAME row).
+     The two-value `gap` syntax is `<row-gap> <column-gap>`:
+       • 20px = vertical gap between rows (Card 1 ↔ Card 3)
+       • 16px = horizontal gap between Card 1 ↔ Card 2 ← MIDDLE
+     Lower the second value → cards in a row sit closer
+     together; raise it → they spread apart. */
+  gap: 20px 22px;
+
+  /* KNOB #1 — LEFT gap (panel's LEFT edge ↔ first card).
+     Bigger value → first card sits further RIGHT (more space
+     on the left). Lower value → first card sits closer to the
+     panel's left border. */
+  padding-left: 2px;
+
+  /* KNOB #3 — RIGHT gap (last card ↔ panel's RIGHT edge).
+     Bigger value → last card sits further LEFT (more space on
+     the right, closer to centre). Lower value → last card sits
+     closer to the scrollbar. */
+  padding-right: 8px;
+}
+@media (max-width: 600px)  { .rgrid { grid-template-columns: 1fr; } }
+
+/* ── Mobile responsiveness (≤900px) ──
+   Three deliberate overrides on top of `_chrome.module.css` mobile
+   defaults (the chrome ships the same 1.2fr/1fr row-split + page
+   lock that career-talks uses, but resources needs different
+   behaviour per user spec).
+
+     1. Page-level scroll re-enabled. Chrome's `overflow: hidden` +
+        `height: 100vh` lock the WHOLE UI to one viewport so only
+        the right panel's internal scroll works. Per user ask,
+        resources exposes BOTH the right panel's internal scroll
+        AND the browser's right-edge scrollbar — same scrolling
+        affordance as a normal mobile webpage.
+
+     2. Drop the `grid-template-rows: minmax(0, 1.2fr) minmax(0, 1fr)`
+        row-stretch. That rule forced the left column to fill 60%
+        of viewport even when its content (mini-profile + a short
+        categories list) only needs ~250px → created the huge
+        empty gap between the categories box and the resources
+        panel that the user flagged. `auto auto` makes each row
+        size to its content height instead, so the panel sits
+        flush below the categories box with only the `.content`
+        gap between them.
+
+     3. Right panel allowed to be TALLER. Chrome's mobile default
+        was `max-height: 100%` of the 1fr grid row (~40% of
+        viewport). Per user "increase the right panel height" ask,
+        bump to 70vh so more cards fit before the internal scroll
+        kicks in; page-level scroll handles the rest.
+
+   Doubled-class selectors (`.resourcesPage.resourcesPage`,
+   `.resourcesContent.resourcesContent`) raise specificity above
+   chrome's single-class rules without needing `!important`. */
+@media (max-width: 900px) {
+  .resourcesPage.resourcesPage {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .resourcesContent.resourcesContent {
+    /* Content-sized rows packed to the TOP. `!important` + `align-
+       content: start` guarantee this beats the chrome's tall
+       `minmax(0, 1.2fr) minmax(0, 1fr)` rows, so when the categories
+       dropdown COLLAPSES the left column shrinks and the gap to the
+       resources panel stays a constant 14px (instead of leaving a big
+       empty block where the 1.2fr row used to reserve height). */
+    grid-template-rows: auto auto !important;
+    align-content: start;
+    overflow: visible;
+    gap: 14px;
+  }
+
+  .rightOuter {
+    max-height: 70vh;
+  }
+}
+
+/* ── Small mobile (≤640px) ──
+   Tighten the gap between the categories box and the resources
+   panel even further so they read as a closer pair on small phones,
+   matching career-talks's `gap: 14px` at this breakpoint while
+   still keeping page-level scroll enabled. */
+@media (max-width: 640px) {
+  .resourcesContent.resourcesContent {
+    gap: 12px;
+  }
+}
+
+/* ── Resource card (matches the HTML mockup look: image on top with
+   date pill overlay, title + 3-line description below) ── */
+.rcard {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  background: var(--bg-surface, rgba(2, 12, 25, 0.54));
+  border: 1px solid var(--border-soft, rgba(160, 174, 192, 0.4));
+  /* Border radius bumped 12 → 20 per user "increase the radius"
+     spec — gives the cards the same softly-rounded silhouette as
+     the chips inside them (.rDatePill / .rMediaCount also at 20). */
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  /* Transition timing copied verbatim from career-talks `.talkCard`
+     so the hover animation feels identical across pages
+     (0.3s ease on background + border + transform). */
+  transition: background 0.3s ease, border-color 0.3s ease,
+              transform 0.3s ease;
+  /* ── Fluid card sizing (matches the reference SS) ──
+     The card now FILLS its 1fr grid column edge-to-edge — no
+     `max-width` cap and no `justify-self: center`, so each card
+     is the full column width (≈408px in the SS) instead of being
+     clamped to 330px and centred with uneven side-gutters.
+
+     HEIGHT IS CONTENT-DRIVEN, not fixed. Each card sizes to
+     `.rmedia` (a 16/8 aspect-ratio block whose height follows the
+     full card width) + `.rbody` (its real content). Same-row
+     cards are still equalised by `.rgrid { align-items: stretch }`
+     — a short placeholder card stretches to match its taller
+     row-mate, with the surplus absorbed by `.rbody { flex: 1 }`
+     as empty card-tinted padding at the bottom (exactly the SS
+     look). The previous `max-width: 330px` + `height: 440px` pair
+     forced a narrow card with a short image strip on top and a
+     large empty body below — the "broken card height" the SS
+     never had. */
+}
+/* Hover state — EXACT port of career-talks `.talkCard:hover`:
+   very faint cyan-tint fill + full cyan border. No card lift
+   (the user's spec explicitly removes the translate so only the
+   inner image zooms). Identical in light + dark themes. */
+.rcard:hover {
+  background-color: #20bdff1a;
+  border-color: #20bdff;
+}
+.rcard:focus-visible {
+  outline: 2px solid #20bdff;
+  outline-offset: 2px;
+}
+[data-theme="light"] .rcard {
+  background: transparent;
+  border-color: rgba(15, 23, 42, 0.18);
+}
+/* Light-mode hover — same cyan tint scheme. Override here ONLY to
+   reset the light-mode "transparent" base; the hover values match
+   the dark base above. */
+[data-theme="light"] .rcard:hover {
+  background-color: #20bdff1a;
+  border-color: #20bdff;
+}
+
+.rmedia {
+  position: relative;
+  width: 100%;
+  flex: none;
+  /* Aspect ratio flattened 16/9 → 16/8 per user "decrease card
+     height" spec. The image area now sits at 2:1 (= 16/8) so
+     each card's media block is shorter (≈15px less tall at the
+     ~320px card width) without losing the wide-cinematic feel. */
+  aspect-ratio: 16 / 8;
+  background: #0a1424;
+  overflow: hidden;
+}
+[data-theme="light"] .rmedia { background: rgba(15, 23, 42, 0.06); }
+.rmedia img,
+.rMediaVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* Transition timing copied verbatim from career-talks
+     `.talkImageInner { transition: transform 0.55s ease }` — gives
+     the zoom a slow cinematic feel rather than a snappy 0.35s. */
+  transition: transform 0.55s ease;
+}
+/* Hover-zoom scale lifted from 1.04 → 1.08 to match career-talks
+   `.talkCard:hover .talkImageInner { transform: scale(1.08) }`
+   exactly. */
+.rcard:hover .rmedia img,
+.rcard:hover .rMediaVideo { transform: scale(1.08); }
+/* Video poster previews don't need any inline controls — the card
+   is the click target. The browser default controls overlay would
+   conflict with the card hover/click behavior. */
+.rMediaVideo {
+  pointer-events: none;
+  background: #0a1424;
+}
+
+/* ── List-card placeholder — UNIFIED background per user spec
+   ("used exact same bg for empty image banner list in event page
+   … left top corner, right corner bottom"). All media types
+   (audio / video / pdf / document) now share the SAME bg
+   composite — no per-type variation. Matches the SS the user
+   shared: a dark navy base with a soft TEAL/CYAN glow circle at
+   the TOP-LEFT corner and a second TEAL/CYAN glow at the
+   BOTTOM-RIGHT corner. The brand cyan (#20bdff — same hue the
+   events page uses for its accent) is fed into both radial
+   gradients at low alpha so the glows read as subtle ambient
+   lighting rather than coloured spotlights.
+   Layers (top → bottom in the stack):
+     1. Top-left teal glow (anchor 0% 0%, fades out at ~52%).
+     2. Bottom-right teal glow (anchor 100% 100%, slightly
+        smaller fade radius for a tighter highlight).
+     3. Navy linear gradient base (#0e1c3a → #07112a — same dark
+        navy family the rest of the resources page uses). */
+/* Placeholder design — EXACT port of the live YP fallback look per
+   user spec ("fallback card should use other cards' height + width
+   exactly, doesn't matter if image comes or not"):
+     • Dark navy gradient base + soft top-left highlight.
+     • LARGE faded open-book outline on the RIGHT side as
+       decorative background (renders via a data-URI SVG so it's
+       always pixel-perfect and theme-independent).
+     • Small book icon CHIP positioned on the LEFT side, vertically
+       centred (was previously centred mid-card with a label below;
+       label is now hidden — see `.placeholderLabel { display: none }`).
+   `position: absolute; inset: 0` keeps it filling the parent
+   `.rmedia` exactly, so the placeholder has the IDENTICAL height
+   + width as a real image-cover — the card layout never shifts
+   when the resource has no cover. */
+/* ── Fallback media placeholder — EXACT 1:1 port of the live YP
+   `r_media_fallback` (Claude-authored on the live site). Replaces
+   the old `.rMediaPlaceholder` design. Fills `.rmedia` and layers
+   four pieces, every shade matching the inline styles the user
+   pasted from the live element:
+     1. Navy diagonal gradient base.
+     2. `.r_glow_top`    — soft WHITE glow circle clipped into the
+        TOP-LEFT corner (rgba(255,255,255,0.06)).
+     3. `.r_glow_bottom` — BLUISH glow circle in the BOTTOM-RIGHT
+        corner (rgba(91,108,255,0.18)).
+     4. `.r_ghost_glyph` — LARGE faded book outline on the right
+        (rgba(255,255,255,0.05)), decorative.
+     5. `.r_glass_tile`  — CENTRED frosted-glass tile holding the
+        book icon (bg .1 white, .2 white border, white glyph).
+   Layout = the live rule verbatim: absolute fill, column flex,
+   centred, 10px gap, overflow hidden. The two glow spans + the
+   ghost glyph are absolutely positioned (so they sit behind / to
+   the side); the glass tile is the only flow child, so the flex
+   centring places it dead-centre. */
+.r_media_fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  background: linear-gradient(to right bottom, rgb(10, 22, 40) 0%, rgb(28, 43, 87) 100%);
+}
+/* LIGHT MODE ONLY — swap the dark navy gradient for a SKY-blue one
+   per user spec. Everything else (glows, ghost book, glass tile) is
+   left untouched; the white glyphs still read on this medium sky
+   blue. Dark mode keeps the navy gradient above. */
+[data-theme="light"] .r_media_fallback {
+  background: linear-gradient(to right bottom, #6ba0d4 0%, #8fbde4 100%);
+}
+/* LIGHT MODE ONLY — the two corner glow circles need a slightly
+   DARKER shade to read on the lighter sky-blue background (the dark-
+   mode whites/periwinkles wash out here). Dark mode is untouched. */
+[data-theme="light"] .r_glow_top {
+  background-color: rgba(30, 64, 124, 0.14);
+}
+[data-theme="light"] .r_glow_bottom {
+  background-color: rgba(40, 70, 150, 0.24);
+}
+
+/* ── TOP-LEFT WHITE CIRCLE ──
+   Flat-fill disc, NO border, NO blur — crisp defined edge. Anchored
+   mostly OFF the top-left corner so only its lower-right arc shows.
+   ▸ KNOBS to match the real website:
+       • top    → move circle UP (more negative) / DOWN
+       • left   → move circle LEFT (more negative) / RIGHT
+       • width  → circle SIZE (it's a perfect circle via
+                  aspect-ratio 1/1, so width also sets the height)
+   Exact fill = rgba(255,255,255,0.06) from the live inline style. */
+.r_glow_top {
+  position: absolute;
+  top: -30%;     /* ← vertical position */
+  left: -13%;    /* ← horizontal position */
+  width: 46.5%;    /* ← SIZE (diameter = % of card width) */
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+}
+
+/* ── BOTTOM-RIGHT BLUE CIRCLE ──
+   Flat-fill disc, NO border, NO blur. Anchored mostly OFF the
+   bottom-right corner so only its upper-left arc shows.
+   ▸ KNOBS to match the real website:
+       • bottom → move circle DOWN (more negative) / UP
+       • right  → move circle RIGHT (more negative) / LEFT
+       • width  → circle SIZE (diameter; height follows via
+                  aspect-ratio 1/1)
+   Exact fill = rgba(91,108,255,0.18) from the live inline style. */
+.r_glow_bottom {
+  position: absolute;
+  bottom: -34%;  /* ← vertical position */
+  right: -10%;   /* ← horizontal position */
+  width: 53%;    /* ← SIZE (diameter = % of card width) */
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background-color: rgba(91, 108, 255, 0.18);
+  pointer-events: none;
+}
+
+/* ── GHOST BOOK (large faded outline, decorative) ──
+   Sits on the RIGHT, vertically a touch below centre so it overlaps
+   the bottom-right blue disc, slightly overflowing the right edge.
+   ▸ KNOBS to match the real website:
+       • top    → vertical position (50% = dead centre)
+       • right  → horizontal position (more negative = pushed
+                  further off the right edge)
+       • width  → book SIZE (% of card width; height auto-scales)
+   Exact stroke colour = rgba(255,255,255,0.05) from the live inline
+   style. */
+.r_ghost_glyph {
+  position: absolute;
+  top: 66%;      /* ← vertical position */
+  right: 3%;    /* ← horizontal position */
+  transform: translateY(-50%);
+  width: 36.5%;    /* ← SIZE (book width = % of card width) */
+  color: rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+}
+.r_ghost_glyph svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Centred frosted-glass tile — the focal element. Semi-transparent
+   white fill + 1px white border + backdrop blur = the glass look.
+   Exact values: bg rgba(255,255,255,0.1), border
+   rgba(255,255,255,0.2), white glyph. `z-index: 1` keeps it above
+   the absolutely-positioned glows + ghost behind it. */
+.r_glass_tile {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 58px;
+  height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.r_glass_tile svg {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+/* ── Media-count badge (top-left of card) — EXACT CSS port of the
+   spec the user pasted. Dark navy 85%-opaque background
+   (`#0f172bd9`) with white gallery glyph + white count number.
+   Border-radius 10px (slightly rounded square, NOT a full oval —
+   distinct from the time-ago pill's 20px oval per spec). */
+.rMediaCount {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  /* Bg restored to the original dark-navy transparency per user
+     "why u change the top-left chip bg back in to old black
+     transparency" — the white-translucent variant didn't read
+     on the card image. The gallery SVG colour stays at the new
+     `#5b8cff` blue shade per the earlier spec; only the chip
+     surface reverts. Text colour flipped back to white since the
+     "1+" indicator now sits on a dark bg again. */
+  background: #0f172bd9;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 10px;
+  padding: 5px 8px;
+  font-family: var(--font-plus-jakarta-sans), 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  pointer-events: none;
+}
+.rMediaCount svg {
+  width: 14px;
+  height: 14px;
+  color: #5b8cff;
+  flex: none;
+}
+
+/* Legacy media badge (kept for safety in case any code path still
+   renders the old `<span class="rMediaBadge">…</span>` shape — the
+   new layout uses `.rMediaPlaceholder` instead). */
+.rMediaBadge {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.85);
+  background: linear-gradient(135deg, #1a2942 0%, #0f1c33 100%);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+.rMediaBadge[data-media-type="audio"]    { background: linear-gradient(135deg, #5b3aa6 0%, #2a1a52 100%); }
+.rMediaBadge[data-media-type="video"]    { background: linear-gradient(135deg, #1f4e79 0%, #0f2440 100%); }
+.rMediaBadge[data-media-type="pdf"]      { background: linear-gradient(135deg, #842323 0%, #401010 100%); }
+.rMediaBadge[data-media-type="document"] { background: linear-gradient(135deg, #2a4d3e 0%, #15281f 100%); }
+[data-theme="light"] .rMediaBadge {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* ── Time-ago pill (top-right of card) — exact CSS port from the
+   live YP spec the user pasted. Same look in BOTH light and dark
+   themes: white-translucent background, dark navy text, oval pill
+   shape (radius 20px), small blur-backdrop. Reads as a "floating"
+   badge over the card image regardless of theme. */
+.rDatePill {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  /* White bg bumped 0.6 → 0.82 per user "right top corner chip
+     white transparency is now too much, need to little reduce
+     that transparency" — the pill now reads as a clearly
+     legible badge over the card image instead of a faded wash.
+     Text colour deepened `#304d94` → `#1e3a8a` (blue-900 — the
+     darker navy variant of the same blue family) and font-weight
+     trimmed 600 → 500 per user "text colour need little more
+     dark with font weight 500" spec. Border-radius 14 stays. */
+  /* Less transparent (0.82 → 0.92) so the pill reads as a more solid
+     badge, and tighter padding (5/12 → 4/10) for a trimmer chip. */
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-family: var(--font-plus-jakarta-sans), 'Plus Jakarta Sans', sans-serif;
+  /* Text size + weight both bumped per user "clock svg with 27m
+     ago text font weight size need to increased" spec. Was
+     12px / 500 (too thin / faint). 13px / 600 reads as the
+     punchier badge the user wants while keeping the same darker
+     `#1e3a8a` colour from the previous turn. */
+  font-size: 13px;
+  /* Bolder + darker text per user spec (600 → 700, #1e3a8a → the
+     darker navy #14254f). */
+  font-weight: 700;
+  color: #14254f;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+.rDatePill svg { width: 15px; height: 15px; color: #14254f; flex: none; }
+
+.rbody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  /* Body padding trimmed further per user "decrease card height"
+     spec — was 12/14/14 → now 10/14/12 (top 12 → 10, bottom 14
+     → 12). Combined with the media aspect-ratio bump to 16/8,
+     each card is ~20px shorter overall while content gaps stay
+     readable. Gap kept at 6px for tight content rhythm.
+     Bottom padding trimmed 12 → 8 to compensate for the +4px
+     `margin-top` added on `.rcard p` below — TOTAL card height
+     stays IDENTICAL while the title↔description gap grows from
+     6px to 10px per user "gap between description and title
+     need to increase, total card height should not change"
+     spec. */
+  gap: 6px;
+  padding: 10px 14px 8px;
+}
+
+/* Category chip above the title — uppercase, faint blue background,
+   cyan text. Matches the live YP card layout
+   ("CAREER STARTER KIT", "THIS IS THE SECOND CATEGORY", etc.).
+   Border radius bumped 7 → 20 per user "round oval not square" spec
+   so the chip reads as a pill matching the time-ago + media-count
+   chips above it. */
+.rCategoryChip {
+  display: inline-block;
+  width: fit-content;
+  font-family: var(--font-plus-jakarta-sans), 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #5b8cff;
+  background: rgba(91, 140, 255, 0.16);
+  padding: 4px 11px;
+  border-radius: 20px;
+  margin-bottom: 2px;
+}
+[data-theme="light"] .rCategoryChip {
+  color: #155dfc;
+  /* Light-theme chip surface — bumped from the near-white `#eff6ff`
+     to a more saturated faint blue + a subtle 1px border per user
+     "blue chip border light transparent effect need to be little
+     visible … can't see if the border/bg is a chip or not" spec.
+     The chip now reads as a clearly bordered pill on the white
+     card surface without competing with the text inside it. */
+  background: #dbeafe;
+  border: 1px solid rgba(21, 93, 252, 0.22);
+}
+/* Card title — exact CSS port from the user-pasted spec.
+   `color: #fff` is applied verbatim for the default (dark)
+   theme; the light-theme override below flips to dark navy so
+   the title stays readable on the lighter card surface. */
+.rcard h3 {
+  font-family: var(--font-plus-jakarta-sans), 'Plus Jakarta Sans', sans-serif;
+  color: #fff;
+  text-transform: capitalize;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  /* Title shown in FULL — NO line-clamp / truncation per senior spec
+     (the description shrinks to compensate; see `CardText`). Long
+     words wrap instead of overflowing the card. */
+  display: block;
+  overflow: visible;
+  overflow-wrap: break-word;
+}
+[data-theme="light"] .rcard h3 {
+  color: #0f172a;
+}
+/* Card description — exact CSS port of the user-pasted
+   `.r_excerpt` spec. Two-line clamp, 14px DM Sans, slate-gray
+   (#a0aec0), 1.55 line-height. */
+.rcard p {
+  font-family: var(--font-dm-sans), sans-serif;
+  color: #a0aec0;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  /* Title↔description gap widened from the `.rbody` 6px flex gap
+     to an effective 10px via this +4px `margin-top`. The 4px is
+     offset by a matching 4px reduction in `.rbody` bottom
+     padding (12 → 8) so TOTAL card height is unchanged. */
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  display: -webkit-box;
+  overflow: hidden;
+}
+/* Light-theme description text — darker slate shade so the
+   two-line excerpt actually reads on a white card surface. The
+   default `#a0aec0` (slate-400) was designed for the dark theme
+   and disappeared into the light card background per user "in
+   light mode each card description truncate text color little
+   dark shade … darker shade of current font color" spec.
+   `#475569` is slate-600 — a darker variant of the same gray
+   family so the typography character stays consistent. */
+[data-theme="light"] .rcard p {
+  color: #475569;
+}
+
+.empty {
+  grid-column: 1 / -1;
+  /* `min-height: 100%` makes the empty-state fill the FULL height
+     of `.list` (the scroll container above) — so the icon + text
+     duo sits dead-center vertically in the right panel rather than
+     near the top. The flex centering rules below align the children
+     in both axes. */
+  min-height: 100%;
+  /* Flex column so the icon stacks above the text with a small
+     gap, and both sit centered horizontally + vertically inside
+     the right panel's content area. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Glued near the TOP of the right panel rather than vertically
+     centered. `padding: 60px 20px 20px` gives a definite top gap
+     (60px) below `.list`'s top edge before the SVG starts.
+     Horizontal centering still owned by `align-items: center`. */
+  justify-content: flex-start;
+  /* Tightened gap between icon and text per user spec — they sit
+     close together as a single visual cluster. */
+  gap: 1px;
+  text-align: center;
+  padding: 182px 20px 20px;
+}
+/* Empty-state text — spec'd by user verbatim to match the live
+   YP "No feeds / No resources" pattern:
+     color       : rgb(144, 161, 185)
+     margin      : 0
+     font-size   : 14px
+     font-weight : 600
+   `span` selector picks the actual text node inside `.empty` so
+   the surrounding flex container can keep its own padding/gap. */
+.empty span {
+  margin: 0;
+  /* Slightly larger top gap between the resources glyph above and
+     this primary message, per user spec. The subtitle resets this
+     to 0 via its own `margin: 0` rule below. */
+  margin-top: 8px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+}
+/* Primary empty-state TITLE ("No resources match your search.") —
+   dedicated class mirroring the live YP `empty_title`. Higher
+   specificity than `.empty span` above so the exact spec always
+   wins regardless of theme or any other span rule. */
+.empty .emptyTitle {
+  color: #fff;
+  margin: 0;
+  margin-top: 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+/* Search-specific subtitle — rendered as a second <span> below
+   the primary empty-state message ("Try adjusting your search
+   or category."). Slightly smaller + lower weight so it reads as
+   a quiet supporting line under the main message. Higher
+   specificity than the `.empty span` rule above via the
+   `.empty .emptySubtext` chain. */
+.empty .emptySubtext {
+  color: #a0aec0;
+  margin: 0;
+  font-size: 12px;
+}
+/* Resources glyph above the empty-state text. Uses the exact
+   navbar asset (`/assets/icons/nav/resources-outline.svg`)
+   rendered at the small 24x24 size per user spec, with 0.5 opacity
+   so it reads as a quiet decoration rather than competing with the
+   text. */
+.emptyIcon {
+  width: 33px;
+  height: 33px;
+  /* Opacity removed: full 1.0 so the fill renders at the exact
+     #8495ad the path declares — matches the text color verbatim
+     instead of being washed out lighter. */
+  opacity: 1;
+  flex-shrink: 0;
+  /* The senior's SVG viewBox is `4 -6 132 132` — the path inside
+     it only paints from y≈12 to y≈108, so ~18 viewBox units of
+     EMPTY whitespace sit below the visible glyph. At 36px render
+     height that translates to ~5px of dead space below the icon
+     that visually adds to the flex `gap`. `margin-bottom: -5px`
+     pulls the text up by that amount so the user's `gap: 1px`
+     reads as the true visual gap they intended. */
+  margin-bottom: -5px;
+}

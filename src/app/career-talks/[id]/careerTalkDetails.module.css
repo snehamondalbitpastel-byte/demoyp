@@ -1,0 +1,1093 @@
+/* Career Talk details page — only the styles unique to this page
+   live here. Page chrome (background, navbar offset, scrollbar
+   styling) reuses `home/home.module.css` via the second style
+   import in page.tsx. Horizontal sizing — max-width, side padding,
+   responsive breakpoints — mirrors `eventDetails.module.css` and
+   `jobDetails.module.css` exactly so every details page in the
+   app shares one outer width regardless of viewport. */
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: 1590px;
+  margin: 0 auto;
+  padding: 21px 202px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.main::-webkit-scrollbar { width: 6.1px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.main::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+
+/* ── Page title row — back arrow + "Career Talks Details" heading.
+   Mirrors `.titleRow`, `.backBtn`, `.title` on /events/[id] and
+   /jobs/[id] so every details page in the app opens with the same
+   top-of-page header treatment. */
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+}
+
+/* Hover-circle background removed per user spec — only the cursor
+   change communicates the affordance now. */
+.backBtn:hover {
+  background: transparent;
+}
+
+/* ── Back-arrow glyph size (INDEPENDENT from the title heading) ──
+   Edit ONLY this block to resize the arrow icon. The image asset is
+   served from the live YP CDN (set in page.tsx); these dimensions
+   control how it renders on screen. The `font-weight: 500` is a
+   no-op visually for an <img>, but kept here per the user's spec so
+   the rule documents the intended visual "weight" tier of the glyph. */
+.backBtn svg,
+.backBtn img {
+  width: 30px;
+  height: 30px;
+  font-weight: 500;
+  display: block;
+}
+
+/* ── "Career Talks Details" heading text (INDEPENDENT from the back
+     arrow). Edit ONLY this block to change the heading's font-size,
+     weight, or colour — the back arrow's `.backBtn` / `.backBtn img`
+     rules are kept completely separate above, so tuning one never
+     affects the other. */
+.title {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: #fff;
+}
+
+/* ── Top banner ──
+   Full-width photo with the talk title overlaid on top. Height +
+   radius mirror the banners on /events/[id] and /jobs/[id] so the
+   details pages line up vertically. The OUTER `.banner` is just a
+   positioning context (no clip / no radius) so the "Career Talks"
+   chip can extend BELOW the banner's bottom edge — `.bannerInner`
+   handles the rounded-corner clip + background fill so the image
+   itself stays within the rounded frame. */
+.banner {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  flex-shrink: 0;
+}
+
+.bannerInner {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Light-mode override — the dark-mode placeholder fill above
+   (`rgba(255, 255, 255, 0.06)`) is a barely-visible WHITE wash
+   designed to read as a "loading" surface on a dark page. On a
+   near-white light-mode page it becomes effectively INVISIBLE,
+   AND when `.bannerInner` carries the `.skeleton` class (the
+   details-page banner skeleton state), the parent's invisible
+   fill combined with `.skeleton`'s own low-alpha light wash
+   leaves the skeleton hard to see. Flipping the placeholder fill
+   to a soft dark-on-white wash gives the skeleton state a visible
+   shape on the light surface. Real loaded banners cover this with
+   the photo on `.bannerImage` so the change is invisible once the
+   data arrives. Dark mode is untouched. */
+[data-theme="light"] .bannerInner {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+/* `background-size: contain` — the source photo is shown at its
+   FULL height + width with NO cropping on any edge. The banner's
+   fixed 380px height is kept (option B per the user's choice); the
+   image fits inside it and any remaining horizontal space falls on
+   the LEFT and RIGHT as dark side gaps, filled by `background-color`
+   so they read as part of the dark theme. */
+/* `background-size: cover` — the source photo FILLS the banner
+   edge-to-edge with NO empty side gaps. The image scales up to cover
+   the full 380px-tall × full-width banner; whatever portion exceeds
+   the box (top/bottom or left/right depending on the image's aspect)
+   is cropped off by the parent's overflow clip. Result: image reads
+   as one solid filled frame with zero visible padding/gap on any
+   edge — top, bottom, left, or right. Clipping to the rounded banner
+   shape is owned entirely by the parent `.bannerInner` (overflow:
+   hidden + border-radius:16px) — this element fills the rectangular
+   area edge-to-edge with NO self border-radius, so there's no
+   sub-pixel corner seam. */
+.bannerImage {
+  position: absolute;
+  inset: 0;
+  background-color: #0a1424;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+/* Light-mode override — same reasoning as `.bannerInner` above:
+   the dark `#0a1424` placeholder fill only shows briefly during
+   the banner-image load. In light mode that dark fill flashes as
+   a dark rectangle on the otherwise-light page, so we flip it to
+   the same soft light wash used elsewhere. Once the real image
+   loads via `background-image` it covers this colour entirely. */
+[data-theme="light"] .bannerImage {
+  background-color: rgba(15, 23, 42, 0.06);
+}
+
+/* Dark gradient wash from top-left → bottom-right so the title +
+   "Career Talks" chip stay legible on top of the source image.
+   Opacities reduced a bit (0.82/0.62/0.88 → 0.6/0.4/0.68) per the
+   "reduce the black transparency a little" feedback — the wash is
+   still clearly there for legibility, but the image underneath
+   reads more clearly than before. */
+.bannerOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(2, 12, 25, 0.6) 0%,
+    rgba(2, 12, 25, 0.4) 45%,
+    rgba(2, 12, 25, 0.68) 100%
+  );
+  z-index: 1;
+}
+
+.bannerTitle {
+  position: absolute;
+  left: 56px;
+  right: 56px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+  z-index: 2;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 1.15;
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+  max-width: 720px;
+}
+
+/* "Career Talks" tag — sits at the BOTTOM-LEFT of the banner, with
+   the chip's TOP edge (blue accent line) flush with the banner's
+   bottom edge and the rest of the chip body hanging BELOW the
+   banner. This matches the live YP reference SS the user pasted
+   (chip extends outside the banner, not contained inside it). The
+   `translateY(-2px)` pulls the chip up by 2px so the blue accent
+   line visually kisses the banner's bottom edge without a gap. All
+   four corners are rounded (6px) since the chip now floats as its
+   own element below the banner. */
+.bannerBadge {
+  position: absolute;
+  left: 40px;
+  top: 100%;
+  /* `translateY` controls how far UP the chip sits relative to the
+     banner's bottom edge:
+       0px     → chip's top exactly at banner-bottom (fully hanging)
+      -12px    → chip overlaps the banner by 12px (current value,
+                  per the "move chip a bit upward" feedback)
+       more negative → chip moves further INTO the banner.
+     Tune this single line to shift the chip vertically. */
+  transform: translateY(-30px);
+  z-index: 3;
+  /* Chip size is controlled by `padding` (height = top+bottom
+     padding + line-height, width = left+right padding + label
+     width) and `font-size`. Reduced 12px 28px / 17px → 8px 20px /
+     14px per the "reduce chip height + width" feedback. */
+  padding: 15px 37px;
+  background: rgba(9, 17, 26, 0.88);
+   /* background: rgba(12, 18, 29, 0.88); */
+     /* background: #303338; */
+  border-top: 3.7px solid #20bdff;
+  /* border-left: 1px solid rgba(160, 174, 192, 0.45);
+  border-right: 1px solid rgba(160, 174, 192, 0.45);
+  border-bottom: 1px solid rgba(160, 174, 192, 0.45); */
+  border-radius: 4px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 21px;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Body ──
+   The banner's "Career Talks" chip hangs below the banner's bottom
+   edge (see `.bannerBadge`), so the body needs a margin-top large
+   enough to clear the chip AND leave a comfortable visual gap
+   between the banner+chip and the date/time card underneath, per
+   the user's "gap between the banner and this card need to be
+   increased" note. */
+.body {
+  display: flex;
+  flex-direction: column;
+  /* `gap` controls vertical spacing between the description card
+     and the standalone showcase image / video sections beneath it.
+     Bumped 18px → 28px so the description box reads as separated
+     from the banner image below it (per the "increase gap between
+     description box and banner image box" feedback). */
+  gap: 28px;
+  margin-top: 50px;
+}
+
+/* Date / time row — lives INSIDE `.card` at the top of the
+   description. Per the user's spec these are NOT chips: no square
+   border, no background, no padding — just an inline icon + text
+   pair, with the icon rendered in WHITE (matching the rest of the
+   SVGs in details pages, not the brand cyan). The wide horizontal
+   gap separates the two pairs. */
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 28px;
+  row-gap: 10px;
+}
+
+.metaPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.metaIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.metaIcon svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Value text (e.g. "Tuesday, May 5, 2026", "5pm - 7pm") sits next
+   to the white SVG glyphs. Per spec the text reads slightly dull /
+   muted (NOT pure white) while the SVG icons stay full white — so
+   only this `color` is the dim one; `.metaIcon { color: #fff }`
+   is untouched. */
+.metaText {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Hairline divider between the date/time row at the top of `.card`
+   and the body copy beneath it. Kept very subtle — same opacity as
+   the other thin dividers used elsewhere in the app — so it reads
+   as a soft separator rather than a bold rule. */
+.metaDivider {
+  height: 1px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 2px 0;
+}
+
+/* Light-mode override — the dark-mode rgba(255,255,255,0.1) is
+   invisible on the light card surface. Swap to a soft dark hairline
+   so the separator between the date/time row and body copy still
+   reads. */
+[data-theme="light"] .metaDivider {
+  background: rgba(15, 23, 42, 0.12);
+}
+
+/* Generic content card — used for the long-form description block. */
+.card {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  padding: 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Light-mode override — description card sits TRULY transparent
+   against the page (per user spec: "no sub-container bg"). Only the
+   hairline border defines the card edge; the page's subtle blue
+   glow shows straight through the card surface. Backdrop blur is
+   disabled so there's no filter tint either. */
+[data-theme="light"] .card {
+  background: transparent;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+/* Opening paragraph — slightly larger / lighter than the body
+   paragraphs so it reads as a lead-in. */
+.lead {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  /* Equalised to 15px so the lead paragraph reads at the same size
+     as `.paragraph` and `.bulletList li` below — matches the standard
+     body-text scale used by other detail pages (e.g. /jobs/[id]). */
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.sectionHeading {
+  margin: 8px 0 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  color: #fff;
+}
+
+.paragraph {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.bulletList {
+  margin: 0;
+  padding: 0 0 0 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: disc;
+}
+
+.bulletList li {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.bulletList li::marker {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Light-mode overrides for the description card's typography.
+   Activates only when the page root sets `data-theme="light"`. Per
+   user spec:
+     - Section HEADINGS (e.g. "Job Description" / "About ULAW:" /
+       "What to expect:") → `#040f1f`, the dark-navy title colour.
+     - Body PARAGRAPHS + lead + bullet items → `#333 !important`,
+       the standard dark-gray reading colour.
+   `!important` is on the paragraph/lead/list colours to defeat any
+   nested `color: inherit` rule that could pull the lighter dark-mode
+   value through (e.g. on the .card surface). Dark mode is fully
+   untouched — these blocks only apply when `[data-theme="light"]` is
+   an ancestor. */
+[data-theme="light"] .sectionHeading {
+  color: #040f1f;
+}
+
+[data-theme="light"] .lead,
+[data-theme="light"] .paragraph,
+[data-theme="light"] .bulletList li {
+  color: #333 !important;
+}
+
+[data-theme="light"] .bulletList li::marker {
+  color: rgba(51, 51, 51, 0.6);
+}
+
+/* ── Date / time row in light mode ──
+   Calendar + Clock SVGs render in brand blue #3960fb (same as the
+   navbar nav-link icon tint). The text values ("Tuesday, May 5,
+   2026" / "5pm - 7pm") render in #333 with !important so no parent
+   colour cascade can override them. */
+[data-theme="light"] .metaIcon,
+[data-theme="light"] .metaIcon svg {
+  color: #3960fb;
+}
+
+[data-theme="light"] .metaText {
+  color: #333 !important;
+}
+
+/* ── Event Video heading in light mode ──
+   The video-camera glyph (Font Awesome `fas fa-video`) renders in
+   BLACK FILL per user spec — applies to all viewports (desktop +
+   tablet + mobile) in light mode. The "Event Video" label text
+   uses #040f1f (dark navy) for the section-heading colour spec.
+   Dark mode keeps the icon white (via base `color: #fff` on
+   `.videoHeadingIcon`). */
+[data-theme="light"] .videoHeadingIcon,
+[data-theme="light"] .videoHeadingIcon i,
+[data-theme="light"] .videoHeadingIcon svg {
+  color: #000000;
+}
+
+[data-theme="light"] .videoHeading,
+[data-theme="light"] .videoHeadingText {
+  color: #040f1f;
+}
+
+/* ── Page-title row in light mode ──
+   Back arrow and heading use SEPARATE rule blocks so editing one
+   never cascades into the other. If you want a different colour or
+   size on the back arrow, change only the `.backBtn` block; for the
+   heading, change only the `.title` block. */
+[data-theme="light"] .backBtn {
+  color: #040f1f;
+}
+
+[data-theme="light"] .title {
+  color: #040f1f;
+}
+
+/* ── "Career Talks" chip in light mode ──
+   Surface flips to WHITE with BLACK label text. The top blue accent
+   line (`border-top: 3.7px solid #20bdff`) is intentionally NOT
+   overridden so the chip keeps its signature blue tab look. */
+[data-theme="light"] .bannerBadge {
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
+}
+
+/* ── Standalone showcase image between the description and the
+   Event Video section. Now rendered via a real `<img>` so the
+   source photo is shown at its NATURAL aspect ratio — no
+   cropping on any edge, no blurred / dimmed backdrop fill, no
+   forced 16:x box. The wrapper caps the visible width to 500px
+   (was 720px) so the strip reads as compact and clean. */
+.midImageWrap {
+  width: 100%;
+  max-width: 500px;
+}
+
+/* The thumbnail is wrapped in a real <button> so the whole element
+   reads as one click target (open preview modal). Reset the button's
+   own visual styling to be invisible — the image inside owns the
+   look. `position: relative` anchors the absolutely-positioned hover
+   overlay below. `overflow: hidden` keeps the overlay's dark wash
+   clipped to the same 10px rounded shape as the image. */
+.midImageBtn {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: zoom-in;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Image stays PERFECTLY still on hover — no scale, no transform,
+   no movement of the image or its container. The hover effect lives
+   entirely in the overlay above (dark wash) + the plus glyph
+   (sliding up from below). */
+.midImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(160, 174, 192, 0.4);
+}
+
+/* No-image fallback panel — replaces `<img class="midImage">` when the
+   talk has no `imageUrl`. Matches the listing-card and banner
+   fallback gradient so all three no-image states read consistently.
+   `aspect-ratio: 21 / 9` matches the natural landscape aspect of the
+   live YP career-talk banner images (see the videoCard comment on
+   the tablet override below — "LLOYDS banking image's natural
+   landscape aspect"). So the empty fallback box renders at the
+   SAME outer dimensions (width AND height) as a real `.midImage`
+   card on every breakpoint — they're visually interchangeable. */
+.midImageFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  padding: 24px 28px;
+  border-radius: 10px;
+  border: 1px solid rgba(160, 174, 192, 0.4);
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e293b 100%);
+}
+
+.midImageFallbackTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.25;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+}
+
+/* Hover overlay — sits absolutely on top of the image. Starts at
+   opacity 0 (fully transparent so the image is unobstructed), fades
+   to opacity 1 on hover/focus over 0.35s — smooth, no jump. The
+   image underneath never moves. `pointer-events: none` so the
+   overlay never intercepts the click — the parent .midImageBtn is
+   what handles activation. */
+.midImageOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  /* Smoother ease-in-out (Material Design standard curve) and a
+     slightly longer duration so the overlay fade feels cinematic
+     rather than snappy. Symmetric — same curve fires on enter AND
+     exit, so the wash feels balanced on both sides of the hover. */
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.midImageBtn:hover .midImageOverlay,
+.midImageBtn:focus-visible .midImageOverlay {
+  opacity: 1;
+}
+
+/* "Search-plus" affordance — the GLYPH alone, no circle wrapper,
+   no background, no border. Final resting position copies the live
+   YP spec (`top: 60%; left: 50%; translate(-50%, -50%)`), but the
+   ENTRY animation is custom: the glyph slides UP from below into
+   the centre on hover and fades in at the same time, giving a
+   soft "pop-up from the bottom" feel rather than a flat opacity
+   crossfade.
+     • Default (no hover): opacity 0, shifted ~36px BELOW its final
+       Y position via an extra `translateY(36px)` after the base
+       `translate(-50%, -50%)` centring. This keeps the glyph hidden
+       AND parked under the centre so the upward slide has somewhere
+       to travel from.
+     • Hover/focus (rule below): opacity 1, `translateY(0)` so the
+       glyph snaps to the centred position.
+   The transition uses a soft overshoot bezier (`cubic-bezier(0.34,
+   1.56, 0.64, 1)`) on the transform so the glyph briefly travels
+   PAST the centre before settling — reads as a gentle springy
+   pop rather than a mechanical lift. Opacity uses a plain ease
+   so the fade stays linear and predictable. */
+/* PREMIUM hover animation — symmetric on both sides of the hover.
+     • DEFAULT (no hover): glyph parked 24px BELOW its centred rest
+       position AND scaled down to 0.85 AND fully transparent.
+     • HOVER (rule below): glyph slides UP to the centre, scales
+       to 1.0, and fades to fully opaque.
+     • SAME transition rule on BOTH states so leaving hover plays
+       the reverse motion symmetrically — glyph slides DOWN, scales
+       BACK to 0.85, and fades to 0 over the same window.
+   Curve `cubic-bezier(0.4, 0, 0.2, 1)` is the Material Design
+   "standard" easing — smooth acceleration AND deceleration with
+   no overshoot. Reads as cinematic, not bouncy and not flat.
+   400ms duration sits in the requested 300–500ms premium band. */
+.midImagePlus {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateY(24px) scale(0.85);
+  z-index: 2;
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+  opacity: 0;
+  transition:
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.midImagePlus i {
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.midImageBtn:hover .midImagePlus,
+.midImageBtn:focus-visible .midImagePlus {
+  opacity: 1;
+  /* Slide UP + scale UP to full size. The `translateY(0)` cancels
+     the 24px downward offset from the base rule so the glyph
+     lands at the live YP rest position (top: 60% + translate
+     (-50%, -50%)); the `scale(1)` brings it to full size. */
+  transform: translate(-50%, -50%) translateY(0) scale(1);
+}
+
+/* ── Image preview modal ──
+   Full-viewport fixed backdrop that fades in. The image is sized to
+   fit within the viewport without cropping (`max-width: 90vw;
+   max-height: 90vh`) so the viewer sees the photo in its native
+   aspect ratio at the largest size that fits. Backdrop click closes
+   (cursor: zoom-out hints at the affordance); the image stops click
+   propagation so accidentally clicking the photo itself doesn't
+   dismiss the modal. */
+/* Backdrop covers the ENTIRE viewport edge-to-edge with zero
+   padding — the image inside fills the screen as on the live YP
+   reference SS. Background is a near-solid dark wash so any letter
+   bars left by `object-fit: contain` (when the source photo's
+   aspect doesn't match the viewport's) read as smooth dark frames
+   rather than gaps. */
+.previewBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.96);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: zoom-out;
+  animation: previewFadeIn 0.18s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Image sized to ~92vw × 92vh — slightly inset from the viewport
+   edges so the photo doesn't get UPSCALED beyond its natural
+   resolution (which is what was making the preview look hazy on
+   the previous 100vw setting). Combined with the full-resolution
+   src (set in page.tsx — `thumb_` prefix stripped from the URL),
+   the image now renders at very close to its native pixel grid,
+   reading crisp and sharp instead of blurry.
+   `object-fit: contain` preserves natural aspect — no crop, no
+   distortion. `image-rendering` hints ask the browser to use its
+   higher-quality scaling algorithm (Lanczos / bilinear) rather
+   than the cheaper nearest-neighbour, which further reduces any
+   residual haze when the browser does need to scale. */
+.previewImage {
+  display: block;
+  width: 92vw;
+  height: 92vh;
+  object-fit: contain;
+  border-radius: 0;
+  cursor: default;
+  user-select: none;
+  animation: previewZoomIn 0.22s ease;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: high-quality;
+  image-rendering: auto;
+}
+
+@keyframes previewZoomIn {
+  from { transform: scale(0.96); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+/* No-image fallback for the preview modal — same dark gradient as the
+   listing card + mid tile + banner. Fills nearly the full viewport so
+   the modal still feels like the talk's hero, with the title centred
+   at large display weight. Uses the same zoom-in animation as
+   `.previewImage` so the entrance feels consistent regardless of
+   whether an image or fallback is shown. */
+.previewFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 92vw;
+  height: 92vh;
+  padding: 40px 60px;
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e293b 100%);
+  border-radius: 0;
+  user-select: none;
+  animation: previewZoomIn 0.22s ease;
+}
+
+.previewFallbackTitle {
+  margin: 0;
+  max-width: 1080px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 48px;
+  line-height: 1.15;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+}
+
+.previewClose {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.previewClose:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: scale(1.05);
+}
+
+@keyframes previewFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Event Video section ── */
+.videoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 6px;
+}
+
+/* Heading row: filled video glyph + "Event Video" label + a thin
+   horizontal divider that fills the remaining width to the right of
+   the label. Previously the divider was a full-width border-bottom
+   UNDER the whole row — the SS shows it should sit INLINE with the
+   label, hence the flex-1 spacer span. */
+.videoHeading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #fff;
+}
+
+.videoHeadingIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.videoHeadingIcon svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* Font Awesome <i> glyph variant — the icon now uses `fas fa-video`
+   (Font Awesome) instead of an inline SVG. FA icons are font-based,
+   so size is controlled by `font-size`, not `width / height`. */
+.videoHeadingIcon i {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.videoHeadingText {
+  white-space: nowrap;
+}
+
+.videoHeadingLine {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-left: 6px;
+}
+
+/* Light-mode override — same reasoning as `.metaDivider` above. */
+[data-theme="light"] .videoHeadingLine {
+  background: rgba(15, 23, 42, 0.12);
+}
+
+/* Video card — matches the live Apprenticeships.co.uk reference
+   SS: a compact 16:9 video tile anchored to the LEFT side of the
+   body column (NOT full-width). `max-width: 580px` caps the card
+   at roughly half the body width so it reads as a small thumbnail
+   rather than a hero banner. `margin-right: auto` keeps it
+   left-aligned inside `.videoSection`'s flex column. The source
+   image fills the card edge-to-edge via `background-size: cover`,
+   and the brightness filter is at 1.0 so the image shows at full
+   clarity under the play-button overlay. */
+.videoCard {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  margin-right: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0a1424;
+  cursor: pointer;
+}
+
+/* Light-mode override — the hardcoded dark `#0a1424` fill is the
+   video tile's placeholder colour before the thumbnail loads AND
+   the colour read through `.videoCard.skeleton` (the details-page
+   skeleton state). On the light page that dark fill overrides the
+   skeleton's low-alpha light wash, so the placeholder reads as a
+   solid dark rectangle. Flipping to a soft light wash keeps the
+   skeleton + pre-load placeholder visually consistent with the
+   surrounding light surface. The loaded `.videoThumb` covers
+   this entirely, so the change is invisible in the real-data state. */
+[data-theme="light"] .videoCard {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.videoThumb {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(1);
+  transition: transform 0.5s ease;
+}
+
+.videoCard:hover .videoThumb {
+  transform: scale(1.04);
+}
+
+.videoOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.25) 100%
+  );
+}
+
+.videoPlayBtn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.videoPlayBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.videoPlayBtn i {
+  font-size: 22px;
+  margin-left: 3px;
+}
+
+/* Real <video> element shown after the play button is clicked.
+   Fills the same 16:9 card slot as the thumbnail so the layout
+   doesn't shift when the player mounts. Native browser controls
+   (controls bar, play/pause, scrubber, volume, fullscreen) are
+   used as-is — they ship the exact same affordances the live YP
+   reference SS shows at the bottom of its event-video player. */
+.videoPlayer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #000;
+  object-fit: cover;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .main {
+    padding: 21px 40px 30px;
+  }
+  .bannerTitle {
+    left: 36px;
+    right: 36px;
+    font-size: 30px;
+  }
+  .bannerBadge {
+    left: 28px;
+  }
+}
+
+@media (max-width: 900px) {
+  .main {
+    padding: 16px 22px 24px;
+  }
+  .title {
+    font-size: 20px;
+  }
+  .banner {
+    height: 280px;
+  }
+  /* Banner box on tablet — same shape as the mobile (600px) breakpoint:
+     TOP corners square, BOTTOM corners keep the 16px radius. */
+  .bannerInner {
+    border-radius: 0 0 16px 16px;
+  }
+  .bannerTitle {
+    left: 24px;
+    right: 24px;
+    font-size: 24px;
+  }
+  /* Chip on tablet — position AND size both match desktop exactly per
+     user spec ("chip height and width need exactly same as desktop").
+     Inherits desktop's `padding: 15px 37px` and `font-size: 21px` by
+     not overriding them; only the position keys are restated here so
+     this rule still anchors the chip at the left edge (same as
+     desktop) instead of falling through to whatever the cascade
+     would otherwise apply at this breakpoint. */
+  .bannerBadge {
+    left: 40px;
+    transform: translateY(-30px);
+    padding: 15px 37px;
+    font-size: 21px;
+  }
+  .body {
+    margin-top: 50px;
+  }
+  .card {
+    padding: 20px 22px;
+  }
+  /* "Event Video" heading text bumped LARGER on tablet per user spec
+     (was 19px → now 24px so the heading reads as a prominent
+     section title on smaller viewports). */
+  .videoHeading {
+    font-size: 21px;
+    font-weight: 900;
+  }
+  .videoHeadingIcon svg {
+    width: 28px;
+    height: 28px;
+  }
+  .videoHeadingIcon i {
+    font-size: 24px;
+  }
+  /* Tablet sizing per user spec — matches the reference SS exactly:
+       1. Mid-image showcase bumped 180 → 240px so it reads as a
+          slightly bigger thumbnail strip (user said the 180px size
+          was too zoomed-in).
+       2. The Event Video card OPENS UP to the full body column
+          width (`max-width: 100%`).
+       3. Card aspect-ratio switched from 16/9 → 21/9 (wider /
+          shorter), matching the LLOYDS banking image's natural
+          landscape aspect. With this match + `background-size:
+          cover` (inherited), the image fills the card EDGE TO
+          EDGE with NO cropping at the top/bottom AND no blank space
+          on any side — exactly what the live YP reference SS shows. */
+  .midImageWrap {
+    max-width: 250px;
+  }
+  .videoCard {
+    max-width: 100%;
+    aspect-ratio: 21 / 9;
+  }
+}
+
+@media (max-width: 600px) {
+  .main {
+    padding: 14px 16px 20px;
+  }
+  .title {
+    font-size: 18px;
+  }
+  .banner {
+    height: 220px;
+  }
+  /* Banner box on phones — TOP corners square, BOTTOM corners keep
+     the desktop's 16px radius per user spec. So the banner reads as
+     a slab attached to the viewport top (no upper rounding) while
+     the bottom edge still curves softly into the chip / body below. */
+  .bannerInner {
+    border-radius: 0 0 16px 16px;
+  }
+  .bannerTitle {
+    font-size: 20px;
+  }
+  /* Chip on phones — centered position is KEPT, but `padding` and
+     `font-size` now match desktop EXACTLY per user spec ("chip
+     height and width need exactly same as desktop"). So the chip
+     reads at the same intrinsic size across desktop / tablet /
+     mobile — only its position on-screen differs. `font-weight`,
+     `white-space` and the asymmetric mobile `border-radius` are
+     kept as previously dialled in. */
+  .bannerBadge {
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px 37px;
+    font-size: 21px;
+    font-weight: 700;
+    white-space: nowrap;
+    border-radius: 4px 4px 0 0;
+  }
+  /* Video card on phones — keep the default 16:9 aspect ratio
+     (inherited from the base rule). With `background-size: cover`
+     (also inherited) the image fills the card edge-to-edge with no
+     bars on any side, exactly like the live YP "Event Video"
+     reference SS. */
+  .body {
+    margin-top: 44px;
+  }
+  .metaIcon svg {
+    width: 19px;
+    height: 19px;
+  }
+  .videoPlayBtn {
+    width: 56px;
+    height: 56px;
+  }
+  .videoPlayBtn i {
+    font-size: 18px;
+  }
+  /* "Event Video" heading text bumped LARGER on phones per user
+     spec (was inheriting the tablet 24px or smaller — now explicitly
+     22px so the heading reads as prominent on small viewports too). */
+  .videoHeading {
+    font-size: 22px;
+  }
+  .videoHeadingIcon i {
+    font-size: 22px;
+  }
+}

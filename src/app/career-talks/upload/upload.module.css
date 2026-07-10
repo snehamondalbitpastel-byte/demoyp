@@ -1,0 +1,502 @@
+/* ⚠️  TEMPORARY FILE — DELETE ON HANDOFF.
+   Styles for the spreadsheet-upload page that lets the user
+   populate the listing with real-looking data before the real
+   backend API ships. Senior deletes the whole `upload/` folder
+   along with this file when the real API is wired up. */
+
+/* Page chrome is shared with the rest of the app — the JSX now
+   uses `homeStyles.page` (the same class /home, /jobs, /company,
+   /events, /career-talks render) so the upload page inherits the
+   identical background gradient, dark-glass surface tokens, and
+   `height: 100vh + overflow: hidden` viewport lock for free.
+   No local `.page` class is needed here. */
+
+/* `.main` is the SCROLL container now (was just a max-width
+   wrapper). Spans the full viewport width so the scrollbar sits
+   flush at the right edge of the screen, not 200px inside it.
+   The actual centered content lives in `.mainInner` below. */
+.main {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar — same slim ghost-thumb look as the listing
+   page's `.talksGridWrap` so the two scrollbars feel like one
+   design system. */
+.main::-webkit-scrollbar {
+  width: 6px;
+}
+.main::-webkit-scrollbar-track {
+  background: transparent;
+}
+.main::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.main::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Light-mode override — soft dark thumb on the white surface
+   instead of the white-on-dark default above. */
+[data-theme="light"] .main::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.18);
+}
+[data-theme="light"] .main::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.32);
+}
+
+/* Inner content wrapper — owns the max-width + centering +
+   padding that used to live on `.main`. Visual layout is
+   unchanged; only the scroll container has moved up one level. */
+.mainInner {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.2;
+  color: var(--text-primary, #fff);
+}
+
+.subtitle {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+/* "Warning" strip at the top so future code-readers immediately
+   see this page is scaffolding, not production. */
+.tempBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 10px;
+  color: #fbbf24;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.tempBanner strong {
+  color: #fcd34d;
+  font-weight: 700;
+}
+
+/* ── File picker card ── */
+.uploadCard {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dropArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 36px 20px;
+  /* Default state — BLUE DASHED border, transparent surface so
+     the page background gradient flows through cleanly. */
+  border: 1.5px dashed #20bdff;
+  border-radius: 12px;
+  background: transparent;
+  /* `border-color` is animatable, `border-style` is not — so the
+     dash → solid swap happens instantly while the colour holds
+     steady through the swap. The blue tint fades in smoothly
+     thanks to the `background` transition added below. */
+  transition: border-color 0.2s ease, background 0.2s ease;
+  text-align: center;
+}
+
+.dropArea:hover {
+  /* Hover state — SOLID blue line in the same colour PLUS a soft
+     transparent blue tint behind it. The tint uses `#20bdff1a`
+     (≈10% opacity) — exactly the same hex value as the listing-
+     page `.talkCard:hover` so every "hoverable card surface" in
+     the app shares one visual hover signature. The dashed pattern
+     collapses into a continuous border the moment the cursor
+     enters. */
+  border: 1.5px solid #20bdff;
+  background: #20bdff1a;
+}
+
+.dropIcon {
+  width: 40px;
+  height: 40px;
+  color: #20bdff;
+  flex-shrink: 0;
+}
+
+.dropText {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+  margin: 0;
+}
+
+.fileInput {
+  /* Visually hidden — clicked via the wrapping <label>. */
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pickBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.pickBtn:hover {
+  opacity: 0.92;
+}
+
+/* ── Current-state summary row ── */
+.statusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(160, 174, 192, 0.25);
+  border-radius: 10px;
+  flex-wrap: wrap;
+}
+
+.statusText {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  color: var(--text-primary, #fff);
+}
+
+.statusCount {
+  font-weight: 700;
+  color: #20bdff;
+}
+
+/* ── Clickable "Currently saved: N talks" toggle ──
+   When at least one talk is saved, the status text becomes a
+   button. Clicking it RE-OPENS the same Preview panel below
+   (the one that appears after a fresh upload), but populated
+   with the currently-saved talks so the viewer can re-inspect
+   what's stored. The toggle itself looks identical to plain
+   text — only the cursor + hover brighten signal that it's
+   clickable. */
+.statusToggle {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: opacity 0.15s ease;
+}
+
+.statusToggle:disabled {
+  cursor: default;
+}
+
+.statusToggle:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.statusActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.viewLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: 1px solid rgba(32, 189, 255, 0.6);
+  border-radius: 50px;
+  background: transparent;
+  color: #20bdff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.viewLink:hover {
+  background: rgba(32, 189, 255, 0.08);
+}
+
+.clearBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: 50px;
+  background: transparent;
+  color: #ef4444;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.clearBtn:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* ── Errors list (rows that failed to parse) ── */
+.errors {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 10px;
+  color: #fca5a5;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+}
+
+.errors strong {
+  color: #fecaca;
+  font-weight: 700;
+}
+
+.errorsList {
+  margin: 6px 0 0;
+  padding-left: 20px;
+}
+
+/* ── Preview table ── */
+.previewCard {
+  margin-top: 24px;
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.previewTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text-primary, #fff);
+}
+
+.previewActions {
+  display: flex;
+  gap: 10px;
+}
+
+.saveBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.saveBtn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.saveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.discardBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  background: transparent;
+  color: var(--text-primary, #fff);
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.discardBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(160, 174, 192, 0.25);
+}
+
+/* Style the horizontal scrollbar that appears at the bottom of
+   the preview table — slim ghost thumb, transparent track, with
+   a subtle brighten on hover. Same look as `.main` so the page
+   reads as one consistent design system. */
+.tableWrap::-webkit-scrollbar {
+  height: 6px;
+}
+.tableWrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+.tableWrap::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.tableWrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="light"] .tableWrap::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.18);
+}
+[data-theme="light"] .tableWrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.32);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  color: var(--text-primary, #fff);
+}
+
+.table thead {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  border-bottom: 1px solid rgba(160, 174, 192, 0.25);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(160, 174, 192, 0.12);
+  vertical-align: top;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.cellTruncate {
+  display: block;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.keywordChip {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
+  padding: 2px 8px;
+  background: rgba(32, 189, 255, 0.12);
+  border: 1px solid rgba(32, 189, 255, 0.4);
+  border-radius: 20px;
+  font-size: 11px;
+  color: #20bdff;
+  white-space: nowrap;
+}
+
+/* Saved-confirmation toast — small inline strip, not the global
+   sonner toast, so the upload page is self-contained. */
+.savedToast {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 10px;
+  color: #6ee7b7;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+}
+
+.savedToast strong {
+  color: #34d399;
+  font-weight: 700;
+}

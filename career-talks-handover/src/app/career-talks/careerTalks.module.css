@@ -1,0 +1,2858 @@
+/* Career Talks page — only the styles unique to this page live here.
+   Page chrome, grid layout, mini-profile card, and the search-bar pill
+   are reused from `home/home.module.css` via the homeStyles import in
+   page.tsx, the same way /jobs, /company, /events compose their
+   layouts. */
+
+/* ── Career-Talks-ONLY: left-edge → left panel gap knob ──
+   `.talksContent` is the page-specific class applied to the same
+   `<main>` element that carries `homeStyles.content`. Both classes
+   land on the same DOM node, so rules here override the home chrome
+   only on /career-talks — every other listing page stays untouched.
+
+   The knob is the `--left-edge-shift` custom property below. Increase
+   it to push the LEFT panel rightward (more gap from the viewport's
+   left edge) WITHOUT moving the right panel at all.
+
+   How it stays right-panel-safe:
+     • `padding-left` grows by  +X  → left panel shifts right by X.
+     • `grid-template-columns` left value shrinks by  −X  → the right
+       column slot's left edge stays at the SAME viewport X position.
+     • Net effect on right panel: position unchanged, width unchanged,
+       gap from right edge unchanged.
+
+   Default value -1 = current layout. Try `20px`, `40px`, etc. to dial
+   in the look that matches the reference site.
+
+   IMPORTANT — DESKTOP ONLY: this rule is wrapped in `@media (min-width:
+   901px)` so the !important grid-template-columns + padding-left only
+   apply on desktop. On mobile/tablet (≤ 900px), `_chrome.module.css`'s
+   `.content` rule takes over with single-column grid and tighter
+   padding — same behaviour as /jobs, /events, /home, /company. */
+@media (min-width: 901px) {
+  .talksContent {
+    --left-edge-shift: -1px;
+    padding-left: calc(205px + var(--left-edge-shift)) !important;
+    grid-template-columns:
+      calc(384px - var(--left-edge-shift)) 1fr !important;
+  }
+}
+
+/* ── Stats box (left column, below the mini-profile) ──
+   Same dark-glass surface as the other left cards on /jobs and
+   /company so the column reads as one cohesive group of boxes.
+   Each row inside switches the right-panel view mode. */
+.statsBox {
+  background: var(--bg-surface, rgba(2, 12, 25, 0.33));
+  border: 1px solid var(--border-soft, rgba(160, 174, 192, 0.5));
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+ padding: 16px 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  /* Vertical gap between rows (All Talks / Saved Talks / Watched).
+     Bumped 8 → 14px to match the reference SS spacing where each
+     stats row sits with visible breathing room from the next.
+     ── KNOB: increase to spread rows further apart, decrease to
+     pack them tighter. */
+  gap: 18px;
+}
+
+/* Light-mode: stats box is FULLY transparent (no sub-bg) — same as
+   the right outer panel. Only the hairline border defines the card. */
+[data-theme="light"] .statsBox {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* On tablet / mobile (≤ 900px, where the right panel stacks below the
+   left column), move the stats box to the END of the left flex
+   column so the visual order becomes:
+     mini-profile → stats box → right panel
+   matching the SS for the other listing pages. Desktop layout is
+   untouched. */
+@media (max-width: 900px) {
+  .statsBox {
+    order: 2;
+  }
+}
+
+.statsRow {
+  /* Stats row — styled per YP spec verbatim. Both ACTIVE and INACTIVE
+     view modes share these exact values (font-family / weight / size /
+     colour are identical across states per user spec). */
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-plus-jakarta-sans), 'Plus Jakarta Sans', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 100%;
+  letter-spacing: 0;
+  color: #a0aec0;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Only the rows that actually switch the right panel get the pointer
+   affordance + hover brighten. */
+.statsClickable {
+  cursor: pointer;
+}
+
+.statsClickable:hover {
+  color: var(--text-primary, #fff);
+}
+
+/* Active row — same font-family / weight / size as `.statsRow`
+   (NO font-weight change per user spec — both states stay at
+   weight 400). Only the colour differs: the active row brightens
+   to white (`#fff`) so the currently-selected view mode reads as
+   visually highlighted against the muted `#a0aec0` of inactive
+   rows. Matches the reference SS where "All Jobs (20)" appears
+   white while "Saved / Recommended / Applied" stay muted. */
+.statsActive {
+  font-weight: 400;
+  color: #fff;
+}
+
+/* Light-mode: the active stats row inverts from white → dark navy so
+   it stays visible on the light surface (white-on-white was invisible
+   per user feedback). Inactive rows already use a mid-gray (#a0aec0)
+   which reads acceptably in both themes, so only the active state
+   needs a per-theme tweak. */
+[data-theme="light"] .statsActive {
+  color: #0f172a;
+}
+
+/* ── Right column wrapper — single rounded dark-glass card holding
+   the heading, search/filter row and (later) the video card grid.
+   Matches the visual surface of `.rightOuter` on /jobs, /company,
+   /events so all four listing pages read as one design system. */
+.rightOuter {
+  background: var(--bg-surface, rgba(2, 12, 25, 0.33));
+  border: 1px solid var(--border-soft, rgba(160, 174, 192, 0.5));
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  /* 4-value padding shorthand: top right bottom left.
+     Bottom padding 20px = clean empty buffer between the cards
+     scroll-area and the panel's rounded bottom corners, matching
+     the `/jobs` panel where the last card row never butts against
+     the bottom rounded edge. Tune this number to control how big
+     that bottom empty space looks (larger = more breathing room). */
+  padding: 16px 17.8px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+   max-height: 80.8vh;
+}
+
+/* Light-mode: right outer panel is FULLY transparent — no sub-bg, no
+   blur, no fill. Only the hairline border (`var(--border-soft)` from
+   the base rule) defines the panel edge. The page's blue glow flows
+   straight through into the right side. */
+[data-theme="light"] .rightOuter {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Top row of the right card — title on the left, search bar on the
+   right. Same flex layout used on /jobs and /company so the header
+   stays visually in sync across pages. */
+.rightHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  /* ── LEFT-EDGE knob for the "All Talks" heading row ──
+     Tune this number to slide the heading row left/right WITHOUT
+     touching the right outer panel's padding (so cards underneath
+     stay at their original left edge).
+       • 0   = default position
+       • negative (e.g. -8px) = pulls heading row LEFT, closer to
+         the panel's left edge
+       • positive (e.g. 8px) = pushes heading row RIGHT, away from
+         the edge
+     The matching `.compactBar` rule below has its own twin knob
+     for the chip row — they're independent. */
+  margin-left: 15x;
+}
+
+.rightTitle {
+  margin: 0;
+  /* ── LEFT-EDGE knob for the "All Talks" heading ONLY ──
+     Pushes JUST the heading text rightward (away from the panel's
+     left edge) WITHOUT affecting anything else on the row.
+
+     Why nothing else moves:
+       • The parent `.rightHeader` is `display: flex; justify-content:
+         space-between`. The heading sits on the left, the search box +
+         Clear All sit inside `.searchClearWrap` on the right.
+       • `.searchClearWrap` is `flex: 1; justify-content: flex-end` —
+         its content is anchored to the row's RIGHT edge regardless of
+         what the heading does on the LEFT.
+       • Therefore adding margin-left here only shifts the heading; the
+         right-side cluster stays exactly where it was.
+
+     Tune values:
+       • 0       = default (heading hugs the panel's left edge)
+       • 8px     = small nudge right
+       • 16px    = ~card-padding-aligned with cards below
+       • 24px+   = larger gap from left edge */
+  margin-left: 7;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--text-primary, #fff);
+}
+
+/* Wrapper aligning the search pill (and any future "Clear All" button)
+   to the right edge of the header. Mirrors the structure on /jobs.
+
+   ── Three knobs live on this wrapper as CSS custom properties ──
+   They drive the layout when Clear All is visible. The search pill's
+   left-edge X position is kept anchored automatically (via `calc()`
+   below) — change any single knob and the math re-balances. The total
+   reserved area (352px) stays the same in both states, so the pill's
+   left edge sits at the same X whether Clear All shows or not.
+
+     --search-pill-max:        full width of the search pill at rest         (default 352px)
+     --search-clear-gap:       flex gap between search pill and Clear All     (default 14px)
+     --clear-all-margin-left:  extra left margin on Clear All (YP spec)       (default 5px)
+     --clear-all-width:        fixed width of the Clear All button            (default 100px — per YP spec)
+     --clear-all-right-gap:    gap between Clear All and the right edge       (default 12px)
+
+   To push Clear All away from the right corner, bump `--clear-all-right-gap`.
+   To widen the gap between the search pill and Clear All, bump `--search-clear-gap`.
+   Both will automatically shrink the search pill from the right (left edge
+   stays put). */
+.searchClearWrap {
+  --search-pill-max: 352px;
+  --search-clear-gap: 17.9px;
+  --clear-all-margin-left: 5px;
+  --clear-all-width: 62px;
+  --clear-all-right-gap: 12.5px;
+
+  display: flex;
+  align-items: center;
+  gap: var(--search-clear-gap);
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Constrain the search pill so it doesn't stretch the full row width.
+   `--search-pill-max` is the value the search pill takes when Clear All
+   is hidden — and the total reserved width when Clear All is visible. */
+.searchWrap {
+  flex: 1;
+  max-width: var(--search-pill-max);
+  min-width: 220px;
+}
+
+/* Shrink the search pill ONLY when the "Clear All" button is rendered
+   next to it. Uses the `:has(+ .clearAllBtn)` selector so the rule only
+   matches when a `.clearAllBtn` is the immediate next sibling — the
+   default layout (no Clear All) keeps its full `--search-pill-max` and
+   is not affected.
+
+   Width math — keeps the search pill's LEFT edge anchored at the same
+   X position whether Clear All is visible or not. The four pieces below
+   add up to exactly `--search-pill-max`, so the right-packed flex layout
+   places the pill's left edge at (R − search-pill-max) in both states:
+       searchWrap + search-clear-gap + clear-all-margin-left
+         + clear-all-width = --search-pill-max
+   So ONLY the right edge of the pill shrinks inward to make room for
+   the Clear All button — the left edge does not move.
+
+   Note: `--clear-all-right-gap` is intentionally NOT subtracted here.
+   It moves Clear All visually only (via `position: relative; right` on
+   `.clearAllBtn`), so changing that knob does NOT affect the search
+   pill's width or position at all. */
+.searchWrap:has(+ .clearAllBtn) {
+  max-width: calc(
+    var(--search-pill-max)
+      - var(--search-clear-gap)
+      - var(--clear-all-margin-left)
+      - var(--clear-all-width)
+  );
+
+  /* ── Search bar INTERNAL padding overrides — shrunk state only ──
+     When Clear All is visible (and the search pill is at its shrunk
+     width), these two CSS variables override the defaults set in
+     `home.module.css .searchBar`. They cascade down to the descendant
+     `.searchBar` element automatically.
+
+     When Clear All is HIDDEN, this rule does not match → the variables
+     are not set → `.searchBar` falls back to its defaults (14.5px / 11px)
+     → normal-state layout is completely unaffected. The same defaults
+     also keep every OTHER page using `.searchBar` (home, jobs, events,
+     company, etc.) untouched.
+
+       --search-bar-pad-left:   gap from the LEFT edge of the search box
+                                to the search 🔍 icon (when shrunk)
+       --search-bar-pad-right:  gap from the RIGHT edge of the search box
+                                to the sort ⇅ icon (when shrunk) */
+  --search-bar-pad-left: 14.5px;
+  --search-bar-pad-right: 10px;
+}
+
+/* Slider/filter glyph on the right side of the search pill. Glyph
+   stays plain white at all times — the open/closed state is
+   communicated by the dropdown below the search bar, not by recolor. */
+.searchSliders {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  /* Default is the existing near-white in dark mode; the
+     `[data-theme="light"]` override below flips both filter + sort
+     glyphs to the brand blue (#3960fb) when the user is on a
+     light-mode Career Talks page. */
+  color: #f1eeee;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+/* Hover-circle background removed per user spec — both the filter
+   glyph and the sort glyph share this class, so neither gets the
+   light circle on hover/click any more. Only the cursor change
+   communicates the affordance. */
+.searchSliders:hover {
+  background: transparent;
+}
+
+.searchSliders svg {
+  /* 20×20 per user spec — matches the source SVG's intrinsic
+     attributes (width="20" height="20"). Previously the CSS forced
+     it down to 18×18, which made the icon visibly smaller than the
+     reference. */
+  width: 20px;
+  height: 22px;
+}
+
+/* Light-mode override — both filter glyph and sort glyph share the
+   .searchSliders class, so this single rule re-colours both at once.
+   Filter + sort icons render BLACK on the light surface so they pop
+   as functional controls (rather than disappearing into the brand
+   blue used elsewhere). */
+[data-theme="light"] .searchSliders,
+[data-theme="light"] .searchSliders svg {
+  color: #0f172a;
+}
+
+/* ── Filter row (Employers / Industry chips) ──
+   Flex row, left-aligned. Each chip is capped at 200px so the row
+   reads as discrete pill-shaped chips with visible breathing room
+   rather than stretched-to-the-edges columns. Ported verbatim from
+   /jobs so the two pages stay pixel-identical. */
+/* ── Animated open/close — closed by default ──
+   The OUTER wrapper uses the modern CSS Grid `grid-template-rows:
+   0fr ↔ 1fr` trick which interpolates from 0 to the inner
+   `.filters` flex container's ACTUAL natural height — no max-
+   height guesswork (the earlier `max-height: 100px` approach
+   wasted 60%+ of the duration animating invisible empty space,
+   which is what made the close feel jolty and the open feel
+   "too quick to register"). With this trick:
+     • Open and close both animate over the FULL 0.4s window
+       because the height being animated equals the visible
+       content. The motion is perfectly proportional.
+     • Smooth `cubic-bezier(0.4, 0, 0.2, 1)` ease curve (Material
+       standard) — no overshoot, gentle acceleration AND
+       deceleration both directions.
+     • opacity is on the same window so the fade and slide
+       complete together.
+     • `overflow: hidden` on the inner during the animation
+       keeps the chip row crisply clipped as the wrapper grows /
+       shrinks; the open state flips overflow to `visible` AFTER
+       the slide completes (via 0.4s-delayed `overflow 0s` step)
+       so the chip dropdowns can still pop out below their chips
+       once the row is fully revealed.
+   Theme-agnostic — works identically in light and dark mode. */
+.filtersOuter {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  margin-top: 0;
+  /* `margin-bottom: 0` when closed — this means the cards row sits
+     at its normal `.talksGridWrap { margin-top: 35px }` distance
+     from the search bar (untouched). When the panel OPENS, the
+     `.filtersOuterOpen` rule below adds a `margin-bottom`, which
+     is the ONLY knob that controls the gap between the pills and
+     the cards. Closed-state spacing isn't affected at all. */
+  margin-bottom: 0;
+  transition:
+    grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    margin-top 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    margin-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filtersOuterOpen {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  /* ── CHIP ROW POSITION knobs (cards stay fixed) ──
+     These two values MUST sum to -1 to keep the card row in
+     its original position. Increase margin-top to slide chips
+     DOWN toward cards; the matching margin-bottom must become
+     equally more negative to compensate.
+       12 + (-13) = -1   ← previous
+       30 + (-31) = -1   ← now: chips moved 18px DOWN toward cards
+     If you want to tune again, just keep: margin-top + margin-bottom = -1 */
+  margin-top: 30px;
+  margin-bottom: -30.5px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  /* Note: `min-height: 0; overflow: hidden` (required for the
+     grid-row collapse trick) now lives on `.panelInner`, which is
+     the actual grid-row item. `.filters` is a child of the panel
+     and only needs the flex-row layout for the chip wraps. */
+}
+
+/* The inner panel is the grid-row item that owns the animated
+   height (via the grid trick on `.filtersOuter` above). It must
+   have `min-height: 0` for the grid row to collapse to 0 and
+   `overflow: hidden` so its contents are crisply clipped during
+   the slide. On open, the overflow is delayed-flipped to
+   `visible` so the chip dropdowns (absolute children deep inside)
+   can pop out below the panel without being clipped. The flex
+   COLUMN layout stacks the Sort By section, divider, and Filter
+   By section vertically. */
+.panelInner {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.filtersOuterOpen > .panelInner {
+  overflow: visible;
+  transition: overflow 0s 0.4s;
+}
+
+/* ── Compact bar — the new Filter + Sort pill buttons ──
+   Matches the live YP /jobs and /company spec: two compact ghost
+   pills rendered in a horizontal row directly under the search
+   bar. Each pill has its OWN dropdown panel that opens directly
+   beneath it. */
+.compactBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10.5px;
+  /* ── LEFT-EDGE knob for the Filter + Sort chip row ──
+     Twin of the `.rightHeader` knob above — tune this to slide
+     the chip row left/right WITHOUT touching `.rightOuter` padding
+     (so cards underneath stay at their original left edge).
+       • 0   = default position
+       • negative (e.g. -8px) = pulls chip row LEFT
+       • positive (e.g. 8px) = pushes chip row RIGHT
+     Independent of `.rightHeader { margin-left }`, so heading
+     and chips can be moved separately. */
+  margin-left: 8px;
+}
+
+/* Wrapper holds ONE pill + its absolutely-positioned dropdown.
+   `position: relative` anchors the dropdown to the pill below.
+   `data-compact-menu` lets the click-outside handler tell whether
+   a click landed inside the compact UI. */
+.compactWrap {
+  position: relative;
+}
+
+/* The compact button — square-ish rounded rectangle (matching the
+   live YP /company spec), thin border, icon + label (+ chevron on
+   sort). Default is a "ghost" surface with subtle border. */
+.compactBtn {
+  display: inline-flex;
+  align-items: center;
+  /* Icon ↔ text gap reduced 7 → 4 so the "Filter" label sits
+     closer to the icon. Right padding bumped 13 → 16 to absorb
+     the 3px we just saved, so the chip's total width stays
+     exactly the same. Icon position (left padding 13.2px),
+     chip height, and chip border are all untouched. */
+  gap: 6px;
+  padding: 8px 14px 8px 13.5px;
+  min-height: 35px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  /* Was `50px` (full pill). Switched to `8px` so the buttons
+     read as rounded SQUARES rather than rounded pills — matches
+     the live YP reference SS. */
+  border-radius: 8px;
+  color: var(--text-primary, #fff);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s ease, background 0.2s ease,
+    color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Active state — exact CSS per user spec. Triggered when the
+   viewer has ticked at least one Industry / Employer option AND
+   closed the filter modal (via Apply or the X). The chip flips
+   from the neutral resting look to a blue-tinted pill so it's
+   obvious at a glance that filters are currently applied. */
+.compactBtnActive {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 0.8px solid rgba(53, 111, 238, 0.55);
+  background: rgba(53, 111, 238, 0.1);
+  color: rgb(53, 111, 238);
+  font-family: var(--font-dm-sans);
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+
+/* Dark-mode active-chip HOVER lock — keeps the blue active styling
+   intact when the cursor moves over an already-active chip. Same
+   reason as the light-mode `.compactBtnActive:hover` rule below:
+   `:hover` outranks plain class selectors so we need an explicit
+   pseudo-class rule of our own to re-assert the active look. */
+.compactBtnActive:hover {
+  border-color: rgba(53, 111, 238, 0.55);
+  background: rgba(53, 111, 238, 0.1);
+  color: rgb(53, 111, 238);
+}
+
+/* Count badge inside the active Filter chip — the small dark-blue
+   circle holding "1" / "2" / etc. next to the "Filter" label. Mirrors
+   the live YP reference SS. Sized to sit cleanly inside the 35px
+   chip without pushing its height up. */
+.compactBtnCountBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: rgb(53, 111, 238);
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.compactBtn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   STANDALONE Sort chip — totally independent of `.compactBtn`.
+   Filter chip uses `.compactBtn` only; Sort chip uses
+   `.compactSortBtn` only. Changing one rule will never affect
+   the other. Visual spec is provided exactly by the user: very
+   faint white-on-dark ghost surface, slim border, square corners. */
+.compactSortBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgb(255, 255, 255);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s;
+}
+
+/* Sort chip has NO hover style per spec — the pill stays
+   exactly as it looks at rest. Only the `.compactSortBtnActive`
+   state below (dropdown open OR sort key picked) changes its
+   appearance. */
+
+/* Sort chip has NO active style per user spec — the pill stays
+   identical whether the dropdown is open or a sort is picked.
+   No border change, no shadow. The JSX still applies the
+   `.compactSortBtnActive` class conditionally; the rule below
+   is a visual no-op (matches the resting background). */
+.compactSortBtnActive {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.compactSortBtn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Light-mode override for the Sort chip — kept independent of
+   `.compactBtn`'s light overrides. */
+[data-theme="light"] .compactSortBtn {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.18);
+  color: #0f172a;
+}
+
+/* Light-mode: Sort chip has NO hover and NO active style per
+   user spec. Match the resting state so there's no visual change. */
+[data-theme="light"] .compactSortBtn:hover {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.18);
+}
+
+[data-theme="light"] .compactSortBtnActive {
+  background: #ffffff;
+}
+
+/* Chevron on the Sort pill — rotates 180° on open. */
+.compactChevron {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.compactChevronOpen {
+  transform: rotate(180deg);
+}
+
+/* The dropdown panel that opens directly beneath a compact pill.
+   Absolutely positioned so it overlays the cards grid below
+   instead of pushing it down. */
+.compactDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  /* Exact CSS per user spec (`min-width: 220`, bg `rgb(29, 47, 71)`,
+     1px hairline border at 8% white, 12px radius, deeper drop
+     shadow, max-height + overflow). Positioning is still
+     `absolute` (anchored to the chip), not `fixed` — the `top: X;
+     left: Y` from the spec were runtime instance values. */
+  min-width: 221px;
+  background: rgb(29, 47, 71);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 8px 24px;
+  /* ── HEIGHT KNOBS ──
+     `min-height` FORCES the dropdown to be AT LEAST this tall —
+     even when the option list has fewer rows than would fill it
+     (creates empty bottom space). Bump this to make the dropdown
+     visibly taller. `max-height` is the SAFETY ceiling — if more
+     options ever get added, the panel stops growing at this value
+     and the internal scrollbar (`overflow-y: auto` below) takes
+     over.
+     PREVIOUSLY ONLY `max-height: 320px` WAS HERE — that's why
+     setting it to 330 did nothing: the content (180px) was already
+     under the ceiling, so the ceiling never engaged. */
+  min-height: 130px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 6px;
+  font-family: var(--font-dm-sans);
+  /* CLOSED-state defaults so both OPEN and CLOSE animate smoothly:
+     dropdown is always rendered (never unmounted), and toggling the
+     `.compactDropdownOpen` modifier just transitions opacity +
+     transform. `visibility` delay matches the transition duration on
+     close so the panel stays interactive throughout the fade-out,
+     then becomes non-interactive once invisible. */
+  transform-origin: top left;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 0.18s;
+}
+
+/* Open-state — added to the same element when `compactSortOpen`
+   is true. Reverses the visibility delay so the panel is interactive
+   immediately as it begins fading in. */
+.compactDropdownOpen {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  visibility: visible;
+  transition:
+    opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 0s;
+}
+
+/* Filter dropdown is wider — has to fit Employers + Industry
+   chips side by side. */
+.compactDropdownFilter {
+  min-width: 460px;
+  padding: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .compactDropdownFilter {
+    min-width: 280px;
+    flex-direction: column;
+  }
+}
+
+/* Small uppercase group label ("RELEVANCE" / "TITLE") inside
+   the Sort dropdown. Font-weight 600 per user spec — applies ONLY
+   to the heading TEXT, NOT to the SVG icons next to each option
+   (those keep their default stroke width).
+   ── Padding shorthand `top  horizontal  bottom`:
+     • TOP    12px → breathing room between the dropdown's top
+                     edge and the "RELEVANCE" heading. Bigger value
+                     pushes the heading further DOWN.
+     • H/Z    10px → unchanged.
+     • BOTTOM 8px  → gap between the heading and the first option
+                     row below it ("Recently Added" / "A to Z").
+                     Bigger value pushes the first option DOWN. */
+.compactSortGroupLabel {
+  /* Exact CSS per user spec — `font-family` is inherited from the
+     parent `.compactDropdown` (DM Sans), so it doesn't need to be
+     re-declared here. */
+  padding: 6px 10px 4px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  color: rgb(160, 174, 192);
+  text-transform: uppercase;
+}
+
+/* Gap between sort-option GROUPS (RELEVANCE block ↔ TITLE block).
+   Uses the adjacent-sibling selector so only the SECOND group
+   div picks up the extra top margin — the first group (RELEVANCE
+   + "Recently Added") stays exactly where it is.
+   Bigger value = more breathing room between "Recently Added"
+   and the "TITLE" heading. Smaller = tighter. */
+.compactDropdown [role="group"] + [role="group"] {
+  margin-top: 7px;
+}
+
+/* Each sort-option row inside the Sort dropdown — icon-left,
+   label, and (when active) a right-aligned cyan checkmark.
+   `border-radius: 8px` lets the hover/active cyan-tint bg show
+   as a pill, made visible by the parent dropdown's 6px padding
+   inset (see `.compactDropdown` above). */
+.compactSortItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  /* 400 per user spec — only the option labels (Recently Added /
+     A to Z / Z to A) use 400. The RELEVANCE / TITLE group headings
+     above stay at their own 600 weight via `.compactSortGroupLabel`. */
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+/* Hover state — SAME bg as the filter modal options (per user spec
+   so both option lists feel like one family). Cyan is reserved for
+   the ACTIVE row only, so hovering doesn't pre-emptively look like
+   "this row is now selected". */
+.compactSortItem:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+
+/* Active state — KEEP cyan (this is the only place cyan appears
+   in the dropdown). Pairs with the right-aligned cyan checkmark. */
+.compactSortItemActive {
+  background: rgba(32, 189, 255, 0.08);
+  color: rgb(32, 189, 255);
+}
+
+/* Already-active row HOVER — locks the active styling so hovering
+   doesn't swap in the unchecked-row hover preview. Pseudo-class
+   `:hover` outranks the plain `.compactSortItemActive` class on its
+   own, so we need this explicit rule to keep the cyan bg + text. */
+.compactSortItemActive:hover {
+  background: rgba(32, 189, 255, 0.08);
+  color: rgb(32, 189, 255);
+}
+
+/* SVG icons inside the sort options (clock for Recently Added,
+   arrow-down for A→Z, arrow-up for Z→A) — same COLOR as the
+   `.compactSortGroupLabel` heading text per user spec (so the
+   icons + the RELEVANCE / TITLE labels read as one muted family),
+   while the option labels themselves keep their original text colour
+   (white in dark, dark in light). Size + weight unchanged. */
+.compactSortItem svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Light-mode counterpart — matches `[data-theme="light"]
+   .compactSortGroupLabel` color exactly. */
+[data-theme="light"] .compactSortItem svg {
+  color: rgba(15, 23, 42, 0.5);
+}
+
+/* Active-row SVG override — now matches the active TEXT color in
+   both themes per the latest user spec, so the entire row reads as
+   one solid coloured unit when selected:
+     • DARK MODE  → cyan `rgb(32, 189, 255)`
+     • LIGHT MODE → brand blue `rgb(53, 111, 238)` (override below) */
+.compactSortItemActive svg {
+  color: rgb(32, 189, 255);
+}
+
+/* Light-mode active row — entire row blue (text + SVG + check) */
+[data-theme="light"] .compactSortItemActive svg {
+  color: rgb(53, 111, 238);
+}
+
+[data-theme="light"] .compactSortItemActive .compactSortItemCheck {
+  color: rgb(53, 111, 238);
+}
+
+/* Right-aligned checkmark — pushes to the far right via the
+   leftover space (the label uses `flex: 1` below). */
+.compactSortItemCheck {
+  margin-left: auto;
+  color: #20bdff;
+}
+
+/* The label sits between the leading icon and the trailing
+   check, filling the remaining space so the check always lands
+   on the right edge of the row. */
+.compactSortItemLabel {
+  flex: 1;
+}
+
+/* Light-mode overrides — per user spec the Filter chip is now
+   FULLY TRANSPARENT in light mode (was `#ffffff`). The hairline
+   border + deep-navy text/icon (`rgb(4, 15, 31)`) define the chip
+   shape so it still reads as a button against the page surface. */
+[data-theme="light"] .compactBtn {
+  background: transparent;
+  border-color: rgba(15, 23, 42, 0.2);
+  color: rgb(4, 15, 31);
+}
+
+/* Light-mode hover — also transparent so hover doesn't re-introduce
+   the white fill we just removed. */
+[data-theme="light"] .compactBtn:hover {
+  background: transparent;
+  border-color: rgba(15, 23, 42, 0.2);
+  color: rgb(4, 15, 31);
+}
+
+/* Active-chip HOVER lock — re-asserts the blue active styling so
+   that hovering an already-active chip doesn't strip its blue tint
+   back to the resting white. `.compactBtn:hover` outranks plain
+   `.compactBtnActive` on its own (pseudo-class adds specificity),
+   which was making the blue colour "turn off" mid-hover. This rule
+   (also a pseudo-class) wins again because it specifies both. */
+[data-theme="light"] .compactBtnActive:hover {
+  background: rgba(53, 111, 238, 0.1);
+  border-color: rgba(53, 111, 238, 0.55);
+  color: rgb(53, 111, 238);
+}
+
+/* Active state in light mode — exact CSS per user spec. Same
+   blue-tint pill as dark mode so the "filters are applied" affordance
+   reads identically in both themes. Triggered when the viewer has
+   committed at least one Industry / Employer selection via Apply. */
+[data-theme="light"] .compactBtnActive {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 0.8px solid rgba(53, 111, 238, 0.55);
+  background: rgba(53, 111, 238, 0.1);
+  color: rgb(53, 111, 238);
+  font-family: var(--font-dm-sans);
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+
+[data-theme="light"] .compactSortGroupLabel {
+  color: rgba(15, 23, 42, 0.5);
+  /* Explicit `font-weight: 600` in light mode per user spec — the
+     base rule already sets 600, but re-asserting it here makes the
+     intent obvious and protects against any future override that
+     might land between this rule and the base. */
+  font-weight: 600;
+}
+
+[data-theme="light"] .compactSortItemActive {
+  background: rgba(57, 96, 251, 0.08);
+  color: #3960fb;
+}
+
+[data-theme="light"] .compactSortItemCheck {
+  color: #3960fb;
+}
+
+[data-theme="light"] .compactDropdown {
+  /* Exact CSS per user spec — light blue-tinted bg with a stronger
+     border (40% gray) and a deeper shadow that lifts the panel
+     off the page. `position` / `top` / `left` / `z-index` from the
+     spec are NOT applied here because positioning is owned by the
+     base `.compactDropdown` rule (absolutely positioned relative
+     to its trigger). All other properties match the spec exactly. */
+  min-width: 220px;
+  background: rgb(244, 246, 255);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 12px;
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 8px 24px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 6px;
+  font-family: var(--font-dm-sans);
+}
+
+[data-theme="light"] .compactSortItem {
+  /* Exact color per user spec — deep near-black navy `#040F1F`
+     matching the reference SS. Font family (DM Sans) and size
+     (13px) are inherited from the base `.compactSortItem` rule
+     above, which already has them at the requested values, so
+     this override only changes the color. */
+  color: #040F1F;
+}
+
+/* Light-mode hover — SAME soft blue tint as the filter modal options
+   per user spec. NO `color` change here per user spec — the text
+   stays at whatever its resting color is (the option's default
+   `[data-theme="light"] .compactSortItem` color above), so hovering
+   only tints the BG, never the text. Previously the hover bumped
+   text to a darker `#0f172a` which read as "going black on hover";
+   removing that keeps the text identical at rest and on hover. */
+[data-theme="light"] .compactSortItem:hover {
+  background: rgba(53, 111, 238, 0.05);
+}
+
+[data-theme="light"] .compactSortItemActive {
+  background: rgba(57, 96, 251, 0.08);
+  color: #3960fb;
+}
+
+/* Light-mode active-row HOVER lock — same explicit-class trick as
+   dark mode above, keeps the brand-blue styling on the active row
+   even when the cursor is over it. */
+[data-theme="light"] .compactSortItemActive:hover {
+  background: rgba(57, 96, 251, 0.08);
+  color: #3960fb;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   FILTER MODAL — opens when the user clicks the Filter pill.
+   Replaces the old inline dropdown with a full-screen, centered
+   modal matching the live YP /company filter spec: dimmed
+   backdrop + dark card holding one section per filter category,
+   each with its own search + scrollable checkbox list, and a
+   sticky footer with "Clear All" + "Apply" actions.
+   ────────────────────────────────────────────────────────────── */
+.filterModalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  /* Slightly lighter dim (0.55 → 0.45) so the strong blur shows
+     through clearly — at 0.55 the heavy dark overlay was masking
+     the frosted blur effect underneath. */
+  background: rgba(0, 0, 0, 0.45);
+  /* Strong frosted-glass blur on whatever sits behind the modal
+     (navbar, mini-profile, listing cards). Bumped 2 → 12px per
+     user spec — at 2px the blur was barely visible; 12px gives the
+     clearly-frosted look from the reference SS. Applies on every
+     breakpoint (desktop / tablet / mobile) since this is the base
+     rule with no @media wrapper. */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: filterModalFadeIn 0.18s ease;
+}
+
+@keyframes filterModalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.filterModal {
+  /* ── SIZE KNOBS ── all live on this single rule ──
+       • `max-width`   = horizontal cap. Bump to make wider, drop
+                          to make narrower (the modal is centred in
+                          the viewport so it shrinks evenly from
+                          both sides).
+       • `max-height`  = vertical cap as % of viewport height. Bump
+                          for taller modal. Capped by 100vh.
+       • `border-radius` = corner roundness. Bigger = more rounded.
+       • `width: 100%` keeps the modal responsive within the
+         backdrop's padding (~20px each side from `.filterModalBackdrop`),
+         so on smaller screens it adapts gracefully. */
+  width: 100%;
+  max-width: 920px;
+  max-height: 70.1vh;
+  background: #0d1a32;
+  border: 1px solid rgba(160, 174, 192, 0.3);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  animation: filterModalPop 0.18s ease;
+}
+
+@keyframes filterModalPop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Header — "Filter" title on the left, close X on the right. */
+.filterModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* ── BOTTOM-DIVIDER POSITION KNOB ──
+     `min-height` LOCKS the header's total height → the divider
+     (border-bottom below) sits at exactly this Y from the modal's
+     top edge. Bump to push the divider DOWN; reduce to pull UP.
+     Heading position is now margin-top anchored on
+     `.filterModalTitle`, so it stays put even when this changes.
+     Close X stays vertically centered in whatever min-height
+     value you pick. Buttons in the footer are unaffected (footer
+     lives at the modal's bottom edge independently). */
+  min-height: 68.5px;
+  /* Split into independent left/right knobs so the close X can
+     sit closer to the right edge than the heading does to the
+     left edge (per spec). */
+  padding-left: 24px;   /* gap modal-left-edge → "Filter" heading */
+  padding-right: 22px;  /* gap close-X icon → modal-right-edge */
+  border-bottom: 1px solid rgba(160, 174, 192, 0.15);
+}
+
+.filterModalTitle {
+  /* ── HEADING TOP-GAP KNOB ──
+     `align-self: flex-start` opts this h2 out of the header's
+     center alignment (close X still centers). `margin-top` is
+     then a CLEAN "gap from modal top edge → heading text"
+     knob — totally independent of `min-height` above, so
+     pushing the divider down no longer drags the heading. */
+  align-self: flex-start;
+  margin: 20px 0 0 0;
+  /* `!important` because the modal container's inline `style`
+     sets `font-family: var(--font-dm-sans)`, which inherits onto
+     this h2 and was beating the class rule in devtools. Forcing
+     Plus Jakarta here matches the live YP /jobs "Filter" heading. */
+  font-family: var(--font-plus-jakarta-sans), sans-serif !important;
+  font-weight: 700;
+  font-size: 17px;
+  /* ── LETTER-SPACING KNOB ──
+     Live YP renders the "Filter" heading slightly stretched — same
+     font size but with extra space between letters. 0.4px–0.8px is
+     the typical range for this stretched headline look. */
+  letter-spacing: 0.5px;
+  color: var(--text-primary, #fff);
+}
+
+.filterModalClose {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  /* Full white per spec — was rgba(...,0.75) which read as dim gray. */
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.filterModalClose:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.filterModalClose svg {
+  width: 19px;
+  height: 20px;
+}
+
+/* Body — HORIZONTAL flex row of section CARDS (Industry | Employer),
+   matching the live YP /jobs filter SS pixel-for-pixel. Each
+   section is its OWN rounded sub-container with a slightly lighter
+   background than the modal, separated by a gap (NOT a hairline
+   divider). Padding around the row gives the cards breathing room
+   from the modal's outer edge. On screens < 720px the row stacks
+   back to a column so each section card is full-width. */
+.filterModalBody {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+   padding: 24px 23px 23px 23px;   
+  overflow-y: auto;
+}
+
+.filterModalBody::-webkit-scrollbar {
+  width: 6px;
+}
+.filterModalBody::-webkit-scrollbar-track {
+  background: transparent;
+}
+.filterModalBody::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+
+/* One filter category card — its own distinct sub-container.
+   Lighter than the modal background (`#040f1f`) so the section
+   pops as a card-within-a-card. Rounded corners + subtle border
+   match the live YP reference SS. Internal layout is a flex column
+   (header → search → list) so the list can flex-fill the rest of
+   the column and scroll independently. */
+.filterModalSection {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px 23px 23px 23px;
+  display: flex;
+  flex-direction: column;
+  background: rgb(22, 35, 58);
+  border: 1px solid rgba(160, 174, 192, 0.12);
+  border-radius: 12px;
+}
+
+@media (max-width: 720px) {
+  /* Stack vertically on small screens — each card is full-width,
+     with the gap between them now vertical. */
+  .filterModalBody {
+    flex-direction: column;
+  }
+}
+
+.filterModalSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+/* Section heading ("Industry" / "Employer") — exact CSS per
+   user spec. Smaller weight + size than before so it sits on
+   the section card more like a column header than a page title. */
+.filterModalSectionTitle {
+  margin: 0;
+  flex: 1 1 0%;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(255, 255, 255);
+}
+
+/* The little cyan count chip shown next to the section title
+   when at least one item is selected (e.g. "2"). */
+/* Count chip next to the section title — exact CSS per user
+   spec. 20×20 cyan pill, 11/600 white text. `margin-left: auto`
+   keeps it right-aligned next to the heading. */
+.filterModalCountBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0px 6px;
+  border-radius: 10px;
+  background: rgb(32, 189, 255);
+  color: rgb(255, 255, 255);
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+/* Per-section search input. */
+.filterModalSearchWrap {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.filterModalSearch {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(160, 174, 192, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px 10px 38px;
+  color: var(--text-primary, #fff);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.filterModalSearch:focus {
+  border-color: #20bdff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.filterModalSearch::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.filterModalSearchIcon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+
+/* Scrollable checkbox list — fills the rest of the column so each
+   section gets equal vertical space. Internal scroll kicks in once
+   the option list exceeds the available height. */
+.filterModalOptionsList {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 360px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  /* No gap between rows so adjacent checked items merge into a
+     single continuous cyan block (matches the reference SS where
+     Engineering + Civil Service touch without a hairline between).
+     Unchecked rows are transparent so removing the gap doesn't
+     change their visual at all. */
+  gap: 0;
+  padding-right: 6px;
+}
+
+.filterModalOptionsList::-webkit-scrollbar {
+  width: 4px;
+}
+.filterModalOptionsList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+}
+
+/* Mobile-only option list height — placed AFTER the base
+   `.filterModalOptionsList` rule so this override actually wins
+   (CSS source order matters when specificity ties — the earlier
+   media-query placement was getting overridden by the base
+   `max-height: 360px` declared further down).
+   Caps the visible area at roughly FIVE option rows (each row
+   ≈ 33px, 5 × 33 + breathing room ≈ 180px). Anything past the
+   fifth option remains accessible via the inner scroll thumb that
+   `overflow-y: auto` already provides. Desktop keeps the wider
+   `max-height: 360px` from the base rule.
+
+   Modal cap (`.filterModal max-height`) also bumped to 92vh on
+   mobile so both Industry + Employer category cards fit vertically
+   inside the viewport — at the desktop 70vh, the second section
+   would be clipped below the fold on a typical phone height. */
+@media (max-width: 720px) {
+  .filterModalOptionsList {
+    max-height: 180px;
+  }
+
+  .filterModal {
+    max-height: 92vh;
+  }
+}
+
+/* ── Tablet (721–900px) — modal AND option list both capped ──
+   Two paired knobs:
+     1. `.filterModalOptionsList { max-height: 180px }` — caps the
+        scrollable option list so ~5-6 rows show at once (each row
+        ≈ 33px). The 7th option onward is reachable via the inner
+        scroll thumb that `overflow-y: auto` already provides.
+     2. `.filterModal { max-height: 510px }` — caps the OVERALL
+        modal height. Required because `.filterModalBody { flex: 1 }`
+        and `.filterModalSection { flex: 1 1 0 }` both stretch to
+        fill the modal's max-height (= desktop's 70.1vh by default).
+        So shortening only the option list leaves empty space inside
+        each section card and the modal doesn't visibly shrink. The
+        510px figure ≈ content height with a 180px option list:
+        header 68.5 + body padding 47 + section padding 31 +
+        section header 44 + search 52 + option list 180 + footer 71. */
+@media (min-width: 721px) and (max-width: 900px) {
+  .filterModalOptionsList {
+    max-height: 240px;
+  }
+
+  .filterModal {
+    max-height: 520px;
+  }
+}
+
+/* Resting state — exact CSS per user spec. */
+.filterModalOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+  color: rgb(255, 255, 255);
+  font-size: 13px;
+  transition: background 0.15s;
+}
+
+/* Hover-only background preview — keeps the cyan reserved for the
+   "checked" state below per the existing dropdown convention. */
+.filterModalOption:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Checked state — exact CSS per user spec. Cyan tint + cyan text,
+   confirming the row is now selected. Overrides the resting bg
+   and color from `.filterModalOption` above. */
+.filterModalOptionChecked {
+  background: rgba(32, 189, 255, 0.08);
+  color: rgb(32, 189, 255);
+}
+
+/* SUPPRESS the white-tint hover on rows that are already checked.
+   Without this, hovering an active row swaps the cyan bg for the
+   `.filterModalOption:hover` white tint, which incorrectly signals
+   "you can select this" on a row that's ALREADY selected. Locking
+   the checked styling on hover keeps the row visually stable; the
+   hover affordance only previews on rows that are NOT yet selected. */
+.filterModalOptionChecked:hover {
+  background: rgba(32, 189, 255, 0.08);
+  color: rgb(32, 189, 255);
+}
+
+/* Visible square checkbox that mirrors the real <input> state. */
+/* Visible square checkbox that mirrors the real <input> state —
+   exact CSS per user spec. 16×16, 1.5px white-30% border. */
+.filterModalCheckbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.filterModalCheckboxChecked {
+  background: #20bdff;
+  border-color: #20bdff;
+}
+
+.filterModalCheckboxChecked::after {
+  content: "";
+  width: 10px;
+  height: 5px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg);
+  margin-top: -2px;
+}
+
+.filterModalCheckboxInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+.filterModalEmpty {
+  padding: 14px 10px;
+  text-align: center;
+  font-style: italic;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Sticky footer — Clear All link on the left, Apply button on the
+   right. Stays visible no matter how far the user scrolls inside
+   the body. */
+.filterModalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* ── BOTTOM-DIVIDER POSITION KNOB ──
+     Same locking pattern as `.filterModalHeader min-height` (which
+     owns the TOP divider). `min-height` LOCKS the footer's total
+     height → the bottom divider (border-top below) sits exactly
+     this many pixels above the modal's bottom edge. Bigger value
+     pushes the divider UP (further from buttons); smaller value
+     pulls it DOWN (closer to buttons). Buttons stay vertically
+     centered automatically because `align-items: center` is set
+     above. The TOP divider is unaffected — it lives on the header
+     with its own independent `min-height`. */
+  min-height: 71px;
+  /* Split into independent left/right knobs so Apply (right side)
+     can sit closer to the right edge than Clear All (left side).
+       • padding-left  (28px) = gap modal-left-edge → Clear All
+       • padding-right (16px) = gap Apply button → modal-right-edge
+     Shrink padding-right to pull Apply closer to the right edge. */
+  padding-left: 24px;
+  padding-right: 24px;
+  border-top: 1px solid rgba(160, 174, 192, 0.15);
+  /* Same bg as the modal itself so the footer reads as part of
+     the same surface — no contrast strip across the bottom. */
+  background: #0d1a32;
+}
+
+.filterModalClearAll {
+  /* Exact CSS per user spec — softer muted-gray text, 13px / 500,
+     wider horizontal hit-area (10px) so the link feels more like
+     a button without changing its visual weight. */
+  background: transparent;
+  border-width: medium;
+  border-style: none;
+  border-color: currentcolor;
+  border-image: initial;
+  color: rgb(160, 174, 192);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 10px;
+  font-family: var(--font-dm-sans);
+  transition: opacity 0.15s ease;
+}
+
+.filterModalClearAll:hover {
+  opacity: 0.8;
+}
+
+/* Apply button — exact CSS per user spec. Brand cyan filled
+   pill, 10×18 padding, 13/600 DM Sans for a tighter look than
+   the previous 14/700 Plus Jakarta version. */
+.filterModalApply {
+  background: rgb(32, 189, 255);
+  border-width: medium;
+  border-style: none;
+  border-color: currentcolor;
+  border-image: initial;
+  color: rgb(255, 255, 255);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-family: var(--font-dm-sans);
+  opacity: 1;
+  transition: 0.2s;
+}
+
+.filterModalApply:hover {
+  opacity: 0.9;
+}
+
+.filterModalApply:active {
+  transform: scale(0.98);
+}
+
+/* Muted state — applied via the `.filterModalApplyMuted` modifier
+   class (NOT via `disabled` attribute) so the button stays
+   clickable. Triggered when the DRAFT has no Industry / Employer
+   selections. Visually says "not yet ready" with a muted white-10%
+   bg; functionally still closes the modal so the viewer can commit
+   a freshly-cleared state after hitting Clear All. As soon as the
+   draft picks up a tick, the class drops and the bright cyan
+   active style above takes over. */
+.filterModalApplyMuted {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgb(255, 255, 255);
+  opacity: 0.7;
+}
+
+.filterModalApplyMuted:hover {
+  opacity: 0.7;
+}
+
+.filterModalApplyMuted:active {
+  transform: none;
+}
+
+/* Light-mode overrides — white modal, dark text, brand-blue accents. */
+[data-theme="light"] .filterModalBackdrop {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+[data-theme="light"] .filterModal {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+}
+
+[data-theme="light"] .filterModalHeader {
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .filterModalTitle {
+  color: #0f172a;
+}
+
+[data-theme="light"] .filterModalClose {
+  color: rgba(15, 23, 42, 0.6);
+}
+
+[data-theme="light"] .filterModalClose:hover {
+  background: rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+}
+
+[data-theme="light"] .filterModalSection {
+  /* Light mode — exact CSS per user spec. Soft blue-tinted card
+     (rgb(244, 246, 255)) on white modal so the "card-within-a-card"
+     depth reads on the white palette without the cards washing out. */
+  border: 1px solid rgba(160, 174, 192, 0.3);
+  border-radius: 12px;
+  background: rgb(244, 246, 255);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0px;
+}
+
+[data-theme="light"] .filterModalSectionTitle {
+  color: #0f172a;
+}
+
+[data-theme="light"] .filterModalCountBadge {
+  background: #3960fb;
+}
+
+[data-theme="light"] .filterModalSearch {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.18);
+  color: #0f172a;
+}
+
+[data-theme="light"] .filterModalSearch:focus {
+  border-color: #3960fb;
+}
+
+[data-theme="light"] .filterModalSearch::placeholder {
+  color: rgba(15, 23, 42, 0.45);
+}
+
+[data-theme="light"] .filterModalSearchIcon {
+  color: rgba(15, 23, 42, 0.45);
+}
+
+[data-theme="light"] .filterModalOption {
+  color: rgba(15, 23, 42, 0.85);
+}
+
+/* Hover (unchecked rows only) — soft BLUE tint matching the live
+   SS. Sits between two anchors so the hover reads as a halfway
+   preview of the selected state:
+     • box container bg = rgb(244, 246, 255)        (lightest)
+     • hover bg         = rgba(53, 111, 238, 0.05)  (slightly darker)
+     • checked bg       = rgba(53, 111, 238, 0.08)  (darkest blue tint)
+   Text stays dark on hover since the row isn't selected yet. */
+[data-theme="light"] .filterModalOption:hover {
+  background: rgba(53, 111, 238, 0.05);
+  color: #0f172a;
+}
+
+/* Checked state — exact CSS per user spec. Light-blue tint bg + blue
+   text confirming the row is selected. Cyan-on-dark in dark mode,
+   blue-on-light here. */
+[data-theme="light"] .filterModalOptionChecked {
+  background: rgba(53, 111, 238, 0.08);
+  color: rgb(53, 111, 238);
+}
+
+/* SUPPRESS hover on already-checked rows in light mode — same pattern
+   as dark mode. Locks the blue tint so hovering an already-selected
+   row doesn't swap in the gray-tint preview that's meant for
+   unchecked rows only. */
+[data-theme="light"] .filterModalOptionChecked:hover {
+  background: rgba(53, 111, 238, 0.08);
+  color: rgb(53, 111, 238);
+}
+
+[data-theme="light"] .filterModalCheckbox {
+  border-color: rgba(15, 23, 42, 0.35);
+}
+
+[data-theme="light"] .filterModalCheckboxChecked {
+  background: #3960fb;
+  border-color: #3960fb;
+}
+
+[data-theme="light"] .filterModalEmpty {
+  color: rgba(15, 23, 42, 0.55);
+}
+
+[data-theme="light"] .filterModalFooter {
+  /* Match the modal bg exactly so the footer reads as part of the
+     same surface — no contrast strip across the bottom (mirrors
+     the dark-mode pairing where footer bg = `#0d1a32` = modal bg). */
+  background: #ffffff;
+  border-top-color: rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .filterModalClearAll {
+  /* Exact light-mode CSS per user spec — slightly darker muted gray
+     (`rgb(122, 132, 153)`) than the dark-mode token so the Clear All
+     link stays legible against the white modal footer. All other
+     properties (transparent bg, no border, 13/500 DM Sans, 6×10
+     padding) inherit cleanly from the base `.filterModalClearAll`. */
+  color: rgb(122, 132, 153);
+}
+
+[data-theme="light"] .filterModalApply {
+  background: #3960fb;
+}
+
+/* Apply MUTED state in light mode — soft gray pill with white text,
+   mirroring the dark-mode muted look (white-10% on dark surface).
+   White-10% would be invisible on the light-mode white modal, so
+   we use a navy-tinted gray that gives the same visual weight. */
+[data-theme="light"] .filterModalApplyMuted {
+  background: rgba(15, 23, 42, 0.2);
+  color: #ffffff;
+  opacity: 0.7;
+}
+
+[data-theme="light"] .filterModalApplyMuted:hover {
+  opacity: 0.7;
+}
+
+/* ── Combined Sort + Filter panel pieces ──
+   Header row of either section ("Sort By" / "Filter By") — a
+   thin vertical brand-gradient bar to the left of bold heading
+   text. Matches the live YP reference SS pixel-for-pixel. */
+.panelSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panelHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panelHeadingBar {
+  width: 3px;
+  height: 16px;
+  background: linear-gradient(180deg, #5433FF 0%, #20BDFF 100%);
+  border-radius: 1.5px;
+  flex-shrink: 0;
+}
+
+.panelHeadingText {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-primary, #fff);
+  line-height: 1;
+}
+
+/* Sub-group inside the Sort By section (RELEVANCE / TITLE) —
+   uppercase mini-label above a horizontal row of pills. The
+   groups themselves sit side-by-side inside `.panelGroupsRow`. */
+.panelGroupsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.panelGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panelGroupLabel {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.panelPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Pill button — rounded full corners, thin border, optional icon
+   on the left. Default state is ghost (transparent surface, soft
+   border, muted label). */
+.panelPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 50px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease,
+    color 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.panelPill:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #fff;
+}
+
+.panelPill svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Active state — selected sort key. Uses the brand cyan border +
+   soft halo + cyan label, matching the live YP reference SS. */
+.panelPillActive {
+  background: rgba(32, 189, 255, 0.12);
+  border-color: #20bdff;
+  color: #20bdff;
+  box-shadow: 0 0 0 1px rgba(32, 189, 255, 0.35);
+}
+
+.panelPillActive:hover {
+  border-color: #20bdff;
+  color: #20bdff;
+}
+
+/* Horizontal divider line between Sort By and Filter By sections. */
+.panelDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  width: 100%;
+}
+
+/* ── Light-mode overrides for the combined panel ──
+   Triggered when an ancestor sets `data-theme="light"` (the
+   pre-hydration script in layout.tsx stamps this on `<html>`
+   for /career-talks paths). Dark mode is preserved by the base
+   rules above. */
+[data-theme="light"] .panelHeadingText {
+  color: #0f172a;
+}
+
+[data-theme="light"] .panelGroupLabel {
+  color: rgba(15, 23, 42, 0.55);
+}
+
+[data-theme="light"] .panelPill {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.2);
+  color: rgba(15, 23, 42, 0.7);
+}
+
+[data-theme="light"] .panelPill:hover {
+  border-color: rgba(15, 23, 42, 0.55);
+  color: #0f172a;
+}
+
+[data-theme="light"] .panelPillActive {
+  background: rgba(57, 96, 251, 0.08);
+  border-color: #3960fb;
+  color: #3960fb;
+  box-shadow: 0 0 0 1px rgba(57, 96, 251, 0.25);
+}
+
+[data-theme="light"] .panelPillActive:hover {
+  border-color: #3960fb;
+  color: #3960fb;
+}
+
+[data-theme="light"] .panelDivider {
+  background: rgba(15, 23, 42, 0.1);
+}
+
+/* Pill-shaped filter dropdown trigger — fully rounded ends with the
+   chevron snug against the right edge. Same dark-glass surface as
+   /jobs. */
+.filterBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 16px;
+  min-height: 38px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 0.66px solid rgba(255, 255, 255, 0.23);
+  border-radius: 83px;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background 0.2s ease,
+    color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filterBtn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Active state — chip has a value selected OR dropdown open. Solid
+   cyan border + subtle cyan glow to match /jobs exactly. */
+.filterBtnActive {
+  border: 0.66px solid #20bdff;
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(32, 189, 255, 0.35);
+}
+
+/* The chip itself is the text-search input — typing live-narrows the
+   dropdown options. */
+.filterBtnInput {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1;
+}
+
+.filterBtnInput::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+  opacity: 1;
+}
+
+.filterChevronBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.filterChevronBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.filterBtn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Light-mode overrides for the filter / sort chips + their dropdowns.
+   Per user spec — matches the live YP MUI chip style exactly:
+     color:       rgb(136, 136, 136)        (medium gray label)
+     background:  rgb(255, 255, 255)         (white pill)
+     border:      0.88px solid rgb(160, 174, 192)
+     radius:      83px                       (pill)
+     padding:     8px 16px !important
+     font-size:   12px
+     transition:  0.2s
+   Hover: border darkens to a near-black for affordance feedback.
+   Active (chip selected / dropdown open): border uses the LAB-space
+   accent colour lab(30.372% -13.1853 -18.7887) — a dark teal that
+   reads as "selected" without competing with the brand blue. */
+[data-theme="light"] .filterBtn {
+  color: rgb(136, 136, 136);
+  background-color: rgb(255, 255, 255);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 83px;
+  border: 0.88px solid rgb(160, 174, 192);
+  transition: 0.2s;
+  font-size: 12px;
+  padding: 8px 16px !important;
+}
+
+/* HOVER: border flips to pure black so the affordance is obvious. */
+[data-theme="light"] .filterBtn:hover {
+  border-color: rgb(0, 0, 0);
+  background-color: rgb(255, 255, 255);
+}
+
+/* ACTIVE (chip selected OR dropdown open): border flips to dark navy
+   `rgb(4, 15, 31)` per user spec — different from the hover black so
+   the viewer can tell "currently-selected" apart from "just hovering".
+   Border width also bumped to 1.5px so the active state visually
+   pops over the default 0.88px / hover 0.88px. Box-shadow removed so
+   the border colour is the only signal of selection. */
+[data-theme="light"] .filterBtnActive {
+  border: 1.5px solid rgb(4, 15, 31);
+  color: rgb(136, 136, 136);
+  box-shadow: none;
+}
+
+[data-theme="light"] .filterBtnInput {
+  color: rgb(136, 136, 136);
+}
+
+[data-theme="light"] .filterBtnInput::placeholder {
+  color: rgb(136, 136, 136);
+}
+
+[data-theme="light"] .filterChevronBtn,
+[data-theme="light"] .filterBtn svg {
+  color: rgb(136, 136, 136);
+}
+
+/* Small X button rendered inside a filter chip after the viewer
+   picks a value. Clears just this category (text first, then the
+   selection on a second click). */
+.filterClearX {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.filterClearX:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.filterClearX svg {
+  width: 11px;
+  height: 11px;
+  color: inherit;
+}
+
+/* Wrapper around each filter chip — `position: relative` anchors the
+   absolutely-positioned dropdown panel below it. `data-filter-menu`
+   attr (set on the JSX node) is used by the click-outside handler. */
+.filterWrap {
+  position: relative;
+  min-width: 0;
+  flex: 1 1 0;
+  max-width: 200px;
+}
+
+/* Dropdown panel with the multi-select checkbox list. Anchored
+   flush against the bottom of the trigger button (zero gap) so the
+   dropdown reads as a continuation of the chip. Internal scroll
+   because the employers list has 19 entries. Visuals match
+   /jobs exactly. */
+.filterDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 0;
+  opacity: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  pointer-events: none;
+  background: #06162e;
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 12px;
+  padding: 0;
+  clip-path: inset(0 round 12px);
+  outline: 1px solid color-mix(in oklab, var(--ring) 50%, transparent);
+  outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+  box-shadow:
+    0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  transition:
+    max-height 0.3s ease-in-out,
+    opacity 0.3s ease-in-out,
+    padding 0.3s ease-in-out;
+}
+
+/* Open modifier — toggled on the same element when its filter chip
+   is the currently-active one (`openFilterDropdown === "..."`).
+   Restores the previously-static `max-height: 240px` + `padding:
+   6px 0` and flips opacity / pointer-events on. The transition
+   declared on the base rule drives the motion both directions. */
+.filterDropdownOpen {
+  max-height: 240px;
+  opacity: 1;
+  padding: 6px 0;
+  pointer-events: auto;
+}
+
+.filterDropdown::-webkit-scrollbar { width: 6px; }
+.filterDropdown::-webkit-scrollbar-track { background: transparent; }
+.filterDropdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.filterDropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Light-mode dropdown panel — white surface with a tight `2px` corner
+   radius per user spec (was inheriting the dark-mode `12px`). Soft
+   border + drop shadow keep the panel visually lifted above the
+   chip. The `clip-path: inset(0 round 2px)` is also reset so the
+   inner scroll area follows the new tighter corner shape. */
+[data-theme="light"] .filterDropdown {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 2px;
+  clip-path: inset(0 round 2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .filterDropdown::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.18);
+}
+
+[data-theme="light"] .filterDropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.32);
+}
+
+[data-theme="light"] .filterOption {
+  color: rgba(15, 23, 42, 0.85);
+}
+
+[data-theme="light"] .filterOption:hover {
+  background: rgba(57, 96, 251, 0.08);
+}
+
+[data-theme="light"] .filterCheckbox {
+  border-color: rgba(15, 23, 42, 0.35);
+}
+
+[data-theme="light"] .filterCheckboxChecked {
+  background: #3960fb;
+  border-color: #3960fb;
+}
+
+[data-theme="light"] .filterEmpty {
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.filterEmpty {
+  margin: 0;
+  padding: 14px 16px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  font-style: italic;
+}
+
+/* Option row — visible square checkbox + label. Hidden real <input>
+   keeps keyboard / accessibility behaviour while the visible
+   `.filterCheckbox` is the source of truth for visual state. */
+.filterOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.filterOption:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.filterCheckbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgba(160, 174, 192, 0.6);
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.filterCheckboxChecked {
+  background: #20bdff;
+  border-color: #20bdff;
+}
+
+.filterCheckboxChecked::after {
+  content: "";
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg);
+  margin-top: -2px;
+}
+
+.filterCheckboxInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+/* "Clear All" reset button next to the search pill — appears only
+   when there is at least one active filter selection or non-default
+   sort option. Styling mirrors the live YP `.clear_filters_button`
+   class spec verbatim: Plus Jakarta Sans 600 / 14px / centred / pill-
+   shaped (80px radius) / `all .3s ease-in-out` transition so the
+   hover scale animates smoothly. */
+.clearAllBtn {
+  /* ── Visual styling per YP spec ── */
+  font-family: var(--font-plus-jakarta-sans), 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 100%;
+  letter-spacing: 0;
+  text-align: center;
+  color: #fff;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: 80px;
+  outline: none;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  /* `margin-left` reads from `--clear-all-margin-left` so the
+     search-pill width calc above can subtract this exact value and
+     keep the pill's left edge anchored. YP spec value: 5px. */
+  margin-left: var(--clear-all-margin-left, 5px);
+  /* `all 0.3s ease-in-out` per spec — covers the hover/active scale
+     transforms below (and any future colour / background changes). */
+  transition: all 0.3s ease-in-out;
+
+  /* ── Functional layout properties (not visual; required for the
+     search-pill ↔ Clear All flex layout to stay balanced) ── */
+  flex-shrink: 0;
+  white-space: nowrap;
+  /* Width is read from the `--clear-all-width` custom property defined
+     on `.searchClearWrap` above (spec value 100px). The
+     `.searchWrap:has(+ .clearAllBtn)` rule uses the same variable, so
+     editing it auto-rebalances the search-pill shrink. */
+  width: var(--clear-all-width, 100px);
+  /* Visual right-edge gap — uses `position: relative; right` to shift
+     Clear All LEFTWARD off its natural flex position WITHOUT changing
+     the flex layout. The search pill stays exactly where it is (same
+     width, same position); only Clear All moves toward the search box.
+     Tune `--clear-all-right-gap` on `.searchClearWrap` to control how
+     far Clear All sits from the right corner. */
+  position: relative;
+  right: var(--clear-all-right-gap, 0px);
+  transform-origin: center;
+}
+
+.clearAllBtn:hover {
+  /* Pure scale, no colour change — the label stays white throughout.
+     1.12 is enough to read as a deliberate zoom without making the
+     button feel unstable next to the search pill. */
+  transform: scale(1.10);
+}
+
+.clearAllBtn:active {
+  /* Tiny press-back so the click registers visually. */
+  transform: scale(1.05);
+}
+
+/* ── Sort menu — sits flush next to the filter sliders button inside
+   the search pill. `position: relative` anchors the absolutely-
+   positioned `.sortDropdown` below it. Negative left margin pulls
+   the sort button 4px closer to the filter button (the parent
+   `.searchBar` ships a 4px flex `gap`, so a -4px margin collapses
+   the gap to roughly 0). */
+.sortMenuWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: -11px;
+}
+
+/* Floating sort menu, anchored to the bottom-right of the sort button.
+   Visuals (background, radius, shadow) mirror `.filterDropdown` on
+   /jobs and /company so the sort menu reads as the same component
+   family as the filter chips' dropdowns. The outline color uses the
+   Tailwind v4 `--ring` token mixed to 50% transparency so the focus
+   ring colour matches the rest of the design tokens. */
+.sortDropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 30;
+  min-width: 200px;
+  background: #06162e;
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 12px;
+  padding: 6px 0;
+  clip-path: inset(0 round 12px);
+  outline: 1px solid color-mix(in oklab, var(--ring) 50%, transparent);
+  outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+  box-shadow:
+    0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+}
+
+/* Each sort row — square checkbox + label text. Real <input> is
+   visually hidden offscreen so the visible `.sortCheckbox` square is
+   the source of truth for visual state while the input still owns
+   keyboard / accessibility behaviour. Mirrors `.filterOption` on
+   /jobs exactly. */
+.sortOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.sortOption:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sortCheckbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgba(160, 174, 192, 0.6);
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Light-mode overrides for the sort dropdown — same tight `2px`
+   corner spec as the filter dropdown so both menus read as one
+   consistent component family. */
+[data-theme="light"] .sortDropdown {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 2px;
+  clip-path: inset(0 round 2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .sortOption {
+  color: rgba(15, 23, 42, 0.85);
+}
+
+[data-theme="light"] .sortOption:hover {
+  background: rgba(57, 96, 251, 0.08);
+}
+
+[data-theme="light"] .sortCheckbox {
+  border-color: rgba(15, 23, 42, 0.35);
+}
+
+.sortCheckboxChecked {
+  background: #20bdff;
+  border-color: #20bdff;
+}
+
+[data-theme="light"] .sortCheckboxChecked {
+  background: #3960fb;
+  border-color: #3960fb;
+}
+
+.sortCheckboxChecked::after {
+  content: "";
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg);
+  margin-top: -2px;
+}
+
+/* Visually hide the real checkbox input but keep it keyboard-
+   accessible — it still receives focus, fires onChange, and screen
+   readers can read its state. */
+.sortCheckboxInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+/* ── Tablet (641–900px) — header stays HORIZONTAL ──
+   Mirrors the /events tablet pattern exactly so the career-talks
+   "All Talks" heading sits on the LEFT and the search pill sits on
+   the RIGHT of the SAME row (matches the reference SS the user
+   pasted). Search pill is compressed to 280px max so it shares
+   the row with the heading without pushing it off-screen.
+
+   The chained-class `.searchWrap.searchWrap` selector wins (0,2,0)
+   over desktop's single-class rule (0,1,0) without `!important`. */
+@media (min-width: 641px) and (max-width: 900px) {
+  .rightHeader {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .searchWrap.searchWrap {
+    max-width: 380px;
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+/* ── Mobile (≤640px) — heading + search stack vertically ──
+   The search pill widens to full container width since the
+   heading is on its own row above it. */
+@media (max-width: 640px) {
+  .rightHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchWrap {
+    max-width: 100%;
+  }
+}
+
+/* ── Career-talk cards grid (3×3 static layout) ──
+   The grid lives inside `.rightOuter` so it scrolls together with the
+   filter chips above. `talksGridWrap` adds the internal scroll so the
+   right column wrapper itself stays flush against `.rightHeader`.
+   `talksGrid` is the actual 3-column grid; on tablet it collapses to
+   2 columns, on small mobile to 1. */
+.talksGridWrap {
+ 
+  margin-top: 45px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+
+  margin-right: -12px;
+ 
+  padding-right: 6px;
+  padding-bottom: 20px;
+}
+
+.talksGridWrap::-webkit-scrollbar { width: 6px; }
+.talksGridWrap::-webkit-scrollbar-track { background: transparent; }
+.talksGridWrap::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.talksGridWrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Empty-state placeholder shown when no career talks have been
+   uploaded yet (and the static fallback is intentionally disabled
+   per spec). Spans the full grid width so the message sits centred
+   inside the right-panel area. Theme-aware via the text-secondary
+   token — light mode picks up dark text on white automatically. */
+.talksEmptyState {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 20px 0px;
+  min-height: 60vh;
+  width: 100%;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+  text-align: center;
+}
+
+.talksEmptyIcon {
+  width: 32px;
+  height: 32px;
+  opacity: 0.6;
+}
+
+[data-theme="light"] .talksEmptyIcon {
+  filter: brightness(0) saturate(100%) invert(28%) sepia(88%)
+    saturate(3617%) hue-rotate(231deg) brightness(100%) contrast(98%);
+  opacity: 0.7;
+}
+
+.talksGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  /* Trimmed 9.5 → 4px on BOTH axes. The horizontal pixels freed
+     from the column gap are reclaimed by each card (with 3 columns,
+     every card gains roughly +3px width). Row gap drops by the same
+     5.5px so stacked rows read tighter as well. The panel's outer
+     width is completely unchanged — the widening comes entirely
+     from the smaller inter-card gap. */
+  gap: 16px 10px;    /* ← 20px between rows, 10px between columns (unchanged) */
+
+}
+
+/* Single card — dark-glass surface, soft border, hover cyan tint.
+   Visuals lifted from `.eventCard` on /events so all four listing
+   pages share the same look. */
+.talkCard {
+  /* Background per YP `jobListing_job_item` spec: `#020c1954`
+     (= rgba(2, 12, 25, 0.329) — visually identical to the prior
+     `rgba(2, 12, 25, 0.33)` fallback). Kept theme-aware via
+     `var(--bg-surface)` so light mode still resolves to transparent
+     (per globals.css), keeping the page's blue glow visible through
+     the card in light mode. */
+  background: var(--bg-surface, #020c1954);
+  border: 1px solid var(--border-soft, rgba(160, 174, 192, 0.5));
+  /* Trimmed 16 → 10px so the corners read as a tighter, more modern
+     rectangle rather than a softly pillowed card. The smaller radius
+     also makes the dense grid feel more like a video gallery. */
+  border-radius: 15px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.3s ease, border-color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.talkCard:hover {
+  background-color: #20bdff1a;
+  border-color: #20bdff;
+  /* `transform: translateY(-2px)` removed — the card no longer
+     lifts on hover. Per the user's spec, ONLY the inner image
+     banner (`.talkImageInner` below) zooms; the card's outer
+     position, border, and content stay pixel-locked. */
+}
+
+.talkCard:focus-visible {
+  outline: 2px solid #20bdff;
+  outline-offset: 2px;
+}
+
+/* Thumbnail block — full card width on top. Acts as the clipping +
+   positioning container for the inner zooming visual + the play
+   icon overlay. `overflow: hidden` clips the inner image when it
+   scales past 1.0 on hover so the zoom never bleeds past the card's
+   rounded corners. */
+.talkImage {
+  position: relative;
+  width: 100%;
+  /* Aspect ratio flattened 16/10 → 16/9 so the banner is shorter
+     and the card overall takes less vertical space. The image
+     still fills the box via `cover`; what changes is the box's
+     own height-to-width ratio. */
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #0a1424;
+}
+
+/* Light-mode override — the dark `#0a1424` placeholder fill above
+   is read as the card's "loading" surface (when a real photo hasn't
+   loaded yet OR when the .talkImageInner has the `.skeleton` class
+   applied for the listing-page skeleton state). On a near-white
+   page that dark fill blasts through the skeleton's very low-alpha
+   light wash (`rgba(15, 23, 42, 0.08)`), so each card reads as a
+   DARK rectangle instead of a soft light placeholder. Flipping the
+   parent fill to the same light wash as the skeleton's own base
+   colour keeps the skeleton state visually consistent with the
+   rest of the light-mode surface. Real loaded images cover this
+   bg via `background-image` on `.talkImageInner`, so the change
+   only affects placeholder + skeleton states. Dark mode untouched. */
+[data-theme="light"] .talkImage {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Light-mode SKELETON-CARD override — `.talkCard[aria-hidden="true"]`
+   matches ONLY the skeleton-state article (the real-data <article>
+   has no `aria-hidden`). This gives skeleton cards a soft light-gray
+   surface that reads as a clean placeholder on the white page —
+   matching the live YP events-page skeleton reference exactly (a
+   uniform light-gray rectangle with subtle bars inside). Real
+   cards are untouched: they keep `background: var(--bg-surface)`
+   (transparent in light mode) and the page bg flows through.
+   Dark mode is untouched as well — only the `[data-theme="light"]`
+   branch fires here. */
+[data-theme="light"] .talkCard[aria-hidden="true"] {
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+/* Inside the skeleton card, the `.talkImage` placeholder block
+   should sit at a SLIGHTLY darker wash than the card surface so
+   the image region reads as a distinct rectangle within the card
+   (same visual hierarchy as the live YP reference: card surface
+   ≈ 6% wash, image block ≈ 10% wash). Without this bump the
+   image and the surrounding card surface would merge into one
+   flat block. Scoped by the parent `[aria-hidden="true"]` so real
+   cards are unaffected. */
+[data-theme="light"] .talkCard[aria-hidden="true"] .talkImage {
+  background: rgba(15, 23, 42, 0.1);
+}
+
+/* The actual visual layer — real photo when the card has an
+   `imageUrl` (rendered as a CSS background), gradient placeholder
+   otherwise. Lives in its own div so the hover zoom can scale ONLY
+   the picture without dragging the play icon along with it.
+
+   • `background-size: cover` FILLS the banner with the photo (per
+     the user's spec — "make the card image banner filler like
+     before"). Any aspect-ratio mismatch is cropped at the edges
+     rather than letterboxed, so the banner always reads as one
+     solid filled image with no empty top / bottom.
+   • `filter: brightness(0.7)` dulls the photo slightly so the white
+     play glyph + ring overlay stays clearly visible on bright /
+     light thumbnails. The filter only affects this inner layer —
+     the play button on top stays at full brightness. */
+.talkImageInner {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.7);
+  transition: transform 0.55s ease, filter 0.3s ease;
+  will-change: transform;
+}
+
+.talkCard:hover .talkImageInner {
+  /* Zoom-in on hover; the card returns to scale(1) when the cursor
+     leaves so the same transition plays in reverse — the spec's
+     "zoom in zoom out" behaviour. */
+  transform: scale(1.08);
+}
+
+/* No-image fallback title — sits centred inside `.talkImage` when
+   the talk has no `imageUrl`, mirroring the visual treatment of the
+   details-page `.bannerTitle` (white bold sans-serif text over a
+   dark gradient). Behind the play button (`z-index: 1` vs the
+   button's `z-index: 2`) so the play affordance stays the dominant
+   click cue on top of the title. `pointer-events: none` so the title
+   never intercepts hover / click. `-webkit-line-clamp: 3` caps very
+   long titles to 3 lines with an ellipsis so the text can never
+   overflow the 16:9 thumbnail box. */
+.talkImageFallbackTitle {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.25;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+  z-index: 1;
+  pointer-events: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Play glyph overlay — Font Awesome `fas fa-play` glyph centred
+   inside a circular WHITE OUTLINE (transparent fill, no white pill
+   underneath the icon). Absolutely centered inside `.talkImage` so
+   the zooming inner layer underneath doesn't shift its position.
+   `z-index: 2` keeps it above the inner image. */
+.talkPlayBtn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  background: transparent;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.talkPlayBtn i {
+  font-size: 18px;
+  line-height: 1;
+  margin-left: 2px;
+}
+
+/* Card body — title + date stacked under the thumbnail. */
+.talkContent {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.talkTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--text-primary, #fff);
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.talkDate {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+
+  max-width: 100%;
+  min-width: 0;
+}
+
+.talkDate svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Date string truncation — long dates like "Wednesday, February 18,
+   2026" used to wrap onto two lines and push the card taller than
+   its siblings. `min-width: 0` lets this flex child shrink below
+   its content size; `overflow: hidden` + `white-space: nowrap` +
+   `text-overflow: ellipsis` clip the overflow and add `…` at the
+   cut point. Full text stays in the DOM (no truncation in data),
+   so the value is still accessible to screen readers if you ever
+   add a `title` tooltip. */
+.talkDateText {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Responsive — 3 cols → 2 cols on tablet, 1 col on small mobile.
+   The card-to-card gap also opens up from desktop's 9.5px → 12px on
+   tablet / mobile so the bigger touch targets read better with a
+   little extra breathing room. */
+@media (max-width: 1100px) {
+  .talksGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .talksGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Tablet / mobile (≤ 900px) — career-talks-page-specific overrides
+   for the shared `.page` + `.content` chrome from `home.module.css`.
+
+   Borrows the exact pattern `company.module.css` uses to escape the
+   home grid's tight viewport-locked layout on small screens:
+
+   1. `.talksPage` releases the outer 100vh + overflow:hidden cage
+      so the page can scroll naturally top-to-bottom on mobile.
+   2. `.talksContent.talksContent` doubles class specificity so it
+      reliably beats home's `.content` rules at the same breakpoint
+      (CSS module load order isn't enough on its own).
+   3. The grid rows are flattened to `auto auto` so each cell sizes
+      to its content — the leftCol no longer takes 1.2fr of viewport
+      height, which was the actual cause of the huge empty gap
+      between the stats box and the cards below.
+   4. `.rightOuter` is capped at 80vh so the cards panel still fills
+      a generous portion of the viewport (matching the company
+      page's mobile behaviour) without pinning to a rigid grid cell. */
+/* `.talksPage` has no desktop styles — it exists only so the
+   @media block below can override the shared home `.page` element
+   on tablet / mobile. */
+
+/* ── Mobile / tablet — viewport-locked layout with internal scroll ──
+   Matches the EXACT density pattern used by /jobs, /events, /company,
+   adapted for career-talks's shorter left column (which only has the
+   mini-profile + stats box, not a scrolling jobs/events card):
+
+     1. `.talksPage` inherits `.page` from `_chrome.module.css`
+        (height: 100vh; overflow: hidden) → page does NOT scroll.
+     2. `.talksContent.talksContent` OVERRIDES the chrome's 1.2fr/1fr
+        grid to `auto 1fr` — the left column sizes to its mini-profile
+        + stats content (no empty space below the stats box), and the
+        right column fills whatever viewport height remains.
+     3. `.rightOuter` is constrained to fill its grid row with internal
+        scrolling — the cards grid (`.talksGridWrap`) scrolls inside
+        the panel instead of the whole page scrolling.
+     4. `gap` trimmed from chrome's 20px → 12px (10px on small phones)
+        so the stats box and right panel sit closer together — matches
+        the /jobs left↔right density.
+
+   On /jobs and /events, the left column fills its row because the
+   jobs/events card flexes to absorb extra space. Career-talks's stats
+   box doesn't flex, so we use `auto 1fr` to avoid the empty gap. */
+@media (max-width: 900px) {
+  .talksContent.talksContent {
+    grid-template-rows: auto 1fr;
+  
+    gap: 20px;
+  }
+
+  /* Gap INSIDE the leftCol between the mini-profile card and the stats
+     box. Overrides chrome's 12px. Reduced 20 → 18px per user feedback. */
+  .talksContent.talksContent > :first-child {
+    gap: 18px;
+  }
+
+  .rightOuter {
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 640px) {
+  .talksContent.talksContent {
+    /* Smaller phones — slightly tighter than tablet but still with the
+       widened breathing room the user requested. */
+    grid-template-rows: auto 1fr;
+    gap: 18px;
+  }
+
+  .talksContent.talksContent > :first-child {
+    gap: 16px;
+  }
+
+  .rightOuter {
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 640px) {
+  .talksPage.talksPage {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .talksContent.talksContent {
+    grid-template-rows: auto auto;
+    overflow: visible;
+    min-height: 0;
+    height: auto;
+  }
+  .rightOuter {
+    max-height: 80vh;
+    min-height: 0;
+    overflow: hidden;
+    height: auto;
+  }
+}
+
+/* iPad Pro 11" landscape / iPad Pro 12.9" portrait (901–1024px) —
+   override the desktop `min-width: 901px` 2-column rule at the top of
+   this file so iPad Pro falls into the same single-column treatment
+   iPad Mini (768) and iPad Air (820) already get at ≤900px. Doubled-
+   class + !important match the original rule's specificity so this
+   wins for this width range without affecting any other breakpoint. */
+@media (min-width: 901px) and (max-width: 1024px) {
+  .talksContent.talksContent {
+    padding-left: 16px !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+  }
+  .searchWrap.searchWrap {
+    max-width: 480px;
+  }
+}

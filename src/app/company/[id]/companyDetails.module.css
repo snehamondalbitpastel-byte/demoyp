@@ -1,0 +1,522 @@
+/* Company details page — only the styles unique to this page live
+   here. Page chrome (background, navbar offset, scrollbar styling)
+   reuses `home/home.module.css` via the second style import in
+   page.tsx. The horizontal sizing — max-width, side padding,
+   responsive breakpoints — is restated explicitly so this page
+   matches the /jobs/[id] outer width pixel-for-pixel (and NOT the
+   /events/[id] sizing). */
+
+/* ── Page chrome — outer <main>. Same max-width / padding /
+   breakpoints / scrollbar as `jobDetails.module.css` so the
+   detail pages sit at byte-identical horizontal positioning on
+   every viewport. */
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: 1590px;
+  margin: 0 auto;
+  padding: 21px 202px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.main::-webkit-scrollbar { width: 6.1px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.main::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+
+/* ── Page title row — back arrow + "Company Details" heading. */
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  transition: background 0.15s ease;
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.backBtn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: #fff;
+}
+
+/* ── Banner image — full-width photo with rounded corners. Same
+   dimensions / radius as the jobs-detail banner so the detail
+   pages line up vertically. */
+.banner {
+  width: 100%;
+  /* Matched to the jobs-detail banner exactly so the two detail
+     pages line up vertically (jobs-detail's `.banner` is also
+     318px tall after the user's earlier height tweak). */
+  height: 318px;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.banner img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Static gradient placeholder used while no `bannerUrl` is set
+   (or while the real image is loading). Matches the placeholder
+   pattern the events-detail and jobs-detail banners use. */
+.bannerPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  padding: 0 24px;
+}
+
+/* ── Hero card — logo on the left, info column in the middle,
+   action buttons on the far right. Same dark-glass surface as
+   the jobs-detail hero. */
+.hero {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "logo info actions";
+  gap: 22px;
+  align-items: center;
+  /* Vertical padding bumped from 18px → 28px so the card stands
+     taller per the SS — gives the logo + name + meta column more
+     breathing room above and below their content. Horizontal
+     padding unchanged. */
+  padding: 28px 22px;
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  flex-shrink: 0;
+}
+
+/* Logo tile — white background so brand-coloured marks land cleanly
+   on it. Slightly smaller than the jobs-detail hero logo (80px vs
+   130px) per the SS proportion. */
+.heroLogo {
+  grid-area: logo;
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  background: #fff;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.heroLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Initials placeholder used when the static / API logo URL is empty.
+   Inline `style={{ background, color }}` on the wrapper element
+   sets the brand colours. */
+.heroLogoInitials {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 800;
+  font-size: 32px;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+/* Info column — company name on top + two label/value rows
+   (Location / Industry) underneath, side by side per the SS. */
+.heroInfo {
+  grid-area: info;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #fff;
+  word-break: break-word;
+}
+
+/* Two-up row holding the Location and Industry blocks. Each block
+   has its own small label + value pair, side by side. */
+.heroMetaRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 36px;
+  flex-wrap: wrap;
+}
+
+.heroMetaBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.heroMetaLabel {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.heroMetaValue {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+}
+
+/* Actions column — three buttons in a row (Website / Opportunities
+   / Follow). Vertically centred against the info column. */
+.heroActions {
+  grid-area: actions;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Outline pill ("Website") — cyan border, transparent fill,
+   WHITE label. The border still anchors it as the cyan-ringed
+   sibling of the gradient Follow button next to it; the label
+   itself stays white for contrast against the dark card surface
+   (per the user's preference — cyan border was fine, cyan-on-dark
+   text was reading as muted). */
+.btnWebsite {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  min-width: 110px;
+  padding: 0 22px;
+  border: 1px solid #20bdff;
+  border-radius: 50px;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.btnWebsite:hover {
+  background: rgba(32, 189, 255, 0.08);
+}
+
+/* Gradient pills (Opportunities + Follow) — same purple→cyan
+   gradient the jobs Apply / events View buttons use, so the
+   brand-button language stays consistent app-wide. */
+.btnGradient {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  min-width: 130px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btnGradient:hover {
+  opacity: 0.92;
+}
+
+/* "Following" state for the Follow pill — cyan ring + soft cyan
+   tint + cyan label, matching the listing page's `.btnFollowing`
+   and the jobs-page Applied pill. `!important` is used here to
+   override the gradient fill / `border: none` of `.btnGradient`
+   above. The button stays clickable (the company-details page is
+   the only place a viewer can unfollow), but `:hover` does not
+   dim the button — the cyan-confirmed state should look as crisp
+   on hover as it does at rest. */
+.btnFollowing {
+  color: #20bdff !important;
+  background: #20bdff1a !important;
+  border: 1px solid #20bdff !important;
+}
+
+.btnFollowing:hover {
+  opacity: 1 !important;
+  background: #20bdff26 !important;
+}
+
+.btnFollowing:disabled {
+  opacity: 1 !important;
+  cursor: default;
+}
+
+/* ── Loading-state placeholders for the banner + hero card. The
+   banner skeleton fills the rounded banner box with a shimmer; the
+   hero skeleton mirrors the loaded grid (logo column + info
+   column) so the layout doesn't shift when live data lands. ── */
+.bannerSkeleton {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.heroSkeleton {
+  /* Same minimum height as the loaded card so the skeleton state
+     occupies the same vertical space — prevents a layout snap
+     when the API resolves. */
+  min-height: 124px;
+}
+
+.heroSkeleton .heroLogo {
+  /* During skeleton the logo tile reads as a neutral grey
+     placeholder, NOT the gradient/initials look it has in the
+     loaded state. */
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Error-state card — same dark surface as the other cards on
+   this page so the error reads as part of the layout rather than
+   a stray banner. */
+.errorState {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  padding: 28px 24px;
+  text-align: center;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.errorState p {
+  margin: 0;
+}
+
+/* ── About the Company card — full-width single panel under the
+   hero, NOT split into two columns like the jobs-detail body.
+   Heading on top, description body underneath. */
+.aboutCompany {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  padding: 18px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.aboutHeading {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #fff;
+}
+
+/* Description body text — the API returns HTML (`<p>…</p>` etc),
+   which we render with `dangerouslySetInnerHTML`. Default styling
+   covers plain text and the inline tags the API actually emits
+   (paragraphs, line breaks, bold). */
+.aboutBody {
+  margin: 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.88);
+  word-break: break-word;
+}
+
+.aboutBody p {
+  margin: 0 0 12px;
+}
+
+.aboutBody p:last-child {
+  margin-bottom: 0;
+}
+
+/* Strip any inline backgrounds / colours / opacity / text-shadow
+   that the API's HTML may carry (Word / Outlook / Google Docs
+   paste artifacts) so the description always renders as clean
+   white text on the dark card surface. The font-family from the
+   API HTML is intentionally NOT reset here — keep the original
+   typography per the user's preference. */
+.aboutBody *,
+.aboutBody *::before,
+.aboutBody *::after {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: inherit !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* ── Tablet (≤1200px) — slightly tighter side gutters, smaller
+   banner, matching the jobs-detail responsive rules. ── */
+@media (max-width: 1200px) {
+  .main {
+    padding: 16px 32px 24px;
+  }
+
+  .banner {
+    height: 320px;
+  }
+}
+
+/* ── Tablet portrait (≤900px) — hero collapses so the action
+   buttons sit on their own row below the logo + info, and a long
+   company name doesn't get crushed by the action column width. ── */
+@media (max-width: 900px) {
+  .banner {
+    height: 280px;
+  }
+
+  .hero {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "logo info"
+      "actions actions";
+    row-gap: 14px;
+  }
+
+  .heroActions {
+    grid-area: actions;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .aboutCompany {
+    padding: 16px 18px 20px;
+  }
+}
+
+/* ── Mobile (≤640px) — tighter overall, banner short, and buttons
+   stretch to fill the row so they're tappable. ── */
+@media (max-width: 640px) {
+  .main {
+    padding: 14px 16px 24px;
+    gap: 14px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .banner {
+    height: 220px;
+    border-radius: 14px;
+  }
+
+  .heroLogo {
+    width: 64px;
+    height: 64px;
+  }
+
+  .heroName {
+    font-size: 18px;
+  }
+
+  .heroMetaRow {
+    gap: 22px;
+  }
+
+  .btnWebsite,
+  .btnGradient {
+    flex: 1;
+    min-width: 0;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+}
+
+/* ── Small mobile (≤420px) — buttons wrap, smaller card padding. ── */
+@media (max-width: 420px) {
+  .main {
+    padding: 12px 12px 24px;
+  }
+
+  .banner {
+    height: 180px;
+  }
+
+  .hero {
+    padding: 14px 16px;
+    gap: 14px;
+  }
+
+  .aboutCompany {
+    padding: 14px 16px 18px;
+  }
+
+  .btnWebsite,
+  .btnGradient {
+    height: 36px;
+  }
+}

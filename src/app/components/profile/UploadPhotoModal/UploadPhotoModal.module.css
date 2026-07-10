@@ -1,0 +1,133 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 15, 31, 0.78);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background-color: #020c19e6 !important;
+  border: 1px solid #1d2f47 !important;
+  border-radius: 14px;
+  padding: 12px 14px 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  animation: pop 0.18s ease;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.cropContainer {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.zoomSlider {
+  padding: 10px 6px 4px;
+  display: flex;
+  align-items: center;
+}
+
+.slider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #5433ff, #20bdff);
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #5433ff, #20bdff);
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 4px 0 0;
+}
+
+.cancelBtn {
+  padding: 8px 28px;
+  border: 1.5px solid rgba(84, 51, 255, 0.7);
+  border-radius: 50px;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: rgba(84, 51, 255, 0.15);
+}
+
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.uploadBtn {
+  padding: 8px 24px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.uploadBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.uploadBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .cropContainer {
+    height: 300px;
+  }
+}

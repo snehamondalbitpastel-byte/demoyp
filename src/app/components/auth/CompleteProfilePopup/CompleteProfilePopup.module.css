@@ -1,0 +1,179 @@
+/* ── "Are you sure?" Popup — matches Figma node 1622:47 exactly ── */
+
+.popup {
+  position: relative;
+  z-index: 1;
+  width: 661px;
+  height: 284px;
+  border-radius: 20px;
+  background: rgba(4, 15, 31, 0.2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid #5433ff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+/* ── Heading ── */
+.heading {
+  font-family: var(--font-plus-jakarta-sans), "Plus Jakarta Sans", sans-serif;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 40px;
+  letter-spacing: -0.4px;
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  width: 337px;
+}
+
+/* ── Button row ── */
+.buttonRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 17px;
+  margin-top: 53px;
+}
+
+/* ── Shared button base ── */
+.yesBtn,
+.noBtn {
+  width: 215px;
+  height: 48px;
+  border-radius: 87.618px;
+  font-family: var(--font-plus-jakarta-sans), "Plus Jakarta Sans", sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+}
+
+/* ── Yes button — gradient fill ── */
+.yesBtn {
+  background: linear-gradient(96.13deg, #5433ff 3.68%, #20bdff 95.65%);
+  border: 0.876px solid #5433ff;
+}
+
+.yesBtn:hover {
+  transform: translateY(-1px);
+}
+
+.yesBtn:active {
+  transform: translateY(0);
+}
+
+/* ── No button — transparent with border ── */
+.noBtn {
+  background: transparent;
+  border: 1px solid #5433ff;
+}
+
+.noBtn:hover {
+  transform: translateY(-1px);
+  background: rgba(84, 51, 255, 0.08);
+}
+
+.noBtn:active {
+  transform: translateY(0);
+}
+
+/* ── Tablet (max-width: 800px) ── */
+@media (max-width: 800px) {
+  .popup {
+    width: 560px;
+    height: 252px;
+  }
+
+  .heading {
+    font-size: 34px;
+    line-height: 36px;
+    width: 300px;
+  }
+
+  .buttonRow {
+    margin-top: 44px;
+    gap: 14px;
+  }
+
+  .yesBtn,
+  .noBtn {
+    width: 190px;
+    height: 44px;
+    font-size: 15px;
+  }
+}
+
+/* ── iPad Mini (720–800px) ── */
+@media (min-width: 720px) and (max-width: 800px) {
+  .popup {
+    width: 520px;
+    height: 248px;
+  }
+}
+
+/* ── Mobile (max-width: 480px) ── */
+@media (max-width: 480px) {
+  .popup {
+    width: calc(100vw - 72px);
+    max-width: 400px;
+    height: 240px;
+    border-radius: 16px;
+  }
+
+  .heading {
+    font-size: 28px;
+    line-height: 32px;
+    width: auto;
+    padding: 0 24px;
+  }
+
+  .buttonRow {
+    margin-top: 36px;
+    gap: 12px;
+  }
+
+  .yesBtn,
+  .noBtn {
+    width: 140px;
+    height: 44px;
+    font-size: 15px;
+  }
+}
+
+/* ── iPhone SE (max-width: 380px) ── */
+@media (max-width: 380px) {
+  .popup {
+    width: calc(100vw - 48px);
+    max-width: 340px;
+    height: 220px;
+    border-radius: 14px;
+  }
+
+  .heading {
+    font-size: 24px;
+    line-height: 28px;
+  }
+
+  .buttonRow {
+    margin-top: 30px;
+    gap: 10px;
+  }
+
+  .yesBtn,
+  .noBtn {
+    width: 125px;
+    height: 42px;
+    font-size: 14px;
+  }
+}

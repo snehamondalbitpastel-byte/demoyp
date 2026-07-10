@@ -1,0 +1,1068 @@
+/* Events page — only the styles unique to this page live here.
+   Page chrome, grid layout, mini-profile card, and the search-bar
+   pill are reused from `home/home.module.css` via the second style
+   import in page.tsx. The structure intentionally mirrors
+   `company.module.css` so /events, /company and /jobs share
+   identical column widths, right-card chrome, search pill behaviour,
+   stats-box look and responsive breakpoints. Anything that already
+   looks right on those pages is NOT redeclared here so the four
+   pages can never visually drift. */
+
+/* ── Stats box (left column, between mini-profile and the bottom
+   edge). Same dark-glass card surface as the home / company pages
+   so the boxes read as one column visually. ── */
+.statsBox {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statsRow {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: default;
+  transition: color 0.15s ease;
+}
+
+.statsClickable {
+  cursor: pointer;
+}
+
+.statsClickable:hover {
+  color: #fff;
+}
+
+.statsActive {
+  color: #fff;
+}
+
+/* ── Right column wrapper — single rounded card holding the heading,
+   search, filter row, and event listings, sized identically to the
+   /jobs and /company right panels so all three pages line up
+   pixel-for-pixel. ── */
+.rightOuter {
+  background: rgba(2, 12, 25, 0.33);
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(6.177px);
+  -webkit-backdrop-filter: blur(6.177px);
+  padding: 14px 16px 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.rightHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.rightTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #fff;
+}
+
+/* Wrapper that holds the search pill + the conditional Clear All
+   button beside it. Same flex shell as the jobs page so the two
+   pages render identically. The Clear All button only appears
+   when at least one filter chip has selections. */
+.searchClearWrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Block-level wrap — NO flex/justify-content on the wrap itself.
+   The inner `.searchBar` (homeStyles, `display:flex`) fills the
+   wrap's full 380px max-width naturally as a block child. If the
+   wrap is itself a flex container with `justify-content:flex-end`,
+   the inner search-bar shrinks to its content width, which makes
+   the pill grow/shrink as the input text length changes — exactly
+   the "search bar resizes when I type / clear" bug we're fixing
+   here. Mirrors the jobs-page treatment so all three listing
+   pages now behave identically. */
+.searchWrap {
+  flex: 1;
+  max-width: 380px;
+  min-width: 220px;
+}
+
+/* Plain text-button beside the search pill. Resets all filter
+   chips on click; matches the jobs-page styling so the three
+   listing pages share one visual treatment. */
+.clearAllBtn {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.clearAllBtn:hover {
+  color: #20bdff;
+  opacity: 0.92;
+}
+
+.searchSliders {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: background 0.15s ease;
+}
+
+.searchSliders:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.searchSliders svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Filter row — three chips (Company / Event Type / Price). Same
+   flex-with-cap layout the jobs page uses so the three chips read
+   as discrete pills with breathing room rather than a stretched
+   grid. ── */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 16px;
+  /* No `justify-content: center` and no per-chip `max-width` cap
+     (see `.filterWrap` below) — combined with `flex: 1 1 0` on
+     each chip, the three chips grow equally and fill the panel's
+     full inner width. That makes the chip row's left edge align
+     with the search bar's left edge and the chip row's right edge
+     align with the search bar's right edge, exactly matching the
+     left/right padding the rest of the panel content uses. */
+}
+
+.filterBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 16px;
+  min-height: 38px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 0.66px solid rgba(255, 255, 255, 0.23);
+  border-radius: 83px;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background 0.2s ease,
+    color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filterBtn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.filterBtnActive {
+  border: 0.66px solid #20bdff;
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(32, 189, 255, 0.35);
+}
+
+.filterBtnInput {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1;
+}
+
+.filterBtnInput::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+  opacity: 1;
+}
+
+.filterChevronBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.filterChevronBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.filterBtn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.filterClearX {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.filterClearX:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.filterClearX svg {
+  width: 11px;
+  height: 11px;
+  color: inherit;
+}
+
+.filterWrap {
+  position: relative;
+  min-width: 0;
+  /* `flex: 1 1 0` makes each chip take an equal share of the row
+     and grow into any available horizontal space. The previous
+     `max-width: 200px` cap made the chips collectively narrower
+     than the search bar / cards above and below them, leaving an
+     uneven gap from the panel's left/right edges. Removing the
+     cap lets the row stretch to the same inner width as every
+     other section of the right panel. */
+  flex: 1 1 0;
+}
+
+.filterDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 240px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #06162e;
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 12px;
+  padding: 6px 0;
+  clip-path: inset(0 round 12px);
+  box-shadow:
+    0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+}
+
+.filterDropdown::-webkit-scrollbar { width: 6px; }
+.filterDropdown::-webkit-scrollbar-track { background: transparent; }
+.filterDropdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.filterDropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.filterEmpty {
+  margin: 0;
+  padding: 14px 16px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  font-style: italic;
+}
+
+.filterOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.filterOption:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.filterCheckbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgba(160, 174, 192, 0.6);
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.filterCheckboxChecked {
+  background: #20bdff;
+  border-color: #20bdff;
+}
+
+.filterCheckboxChecked::after {
+  content: "";
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg);
+  margin-top: -2px;
+}
+
+.filterCheckboxInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+/* ── Listings empty state ── briefcase-style outline glyph stacked
+   above a short caption, centered horizontally. Used both for "no
+   search match" under All view and for the "no bookings yet" state
+   under My Bookings view. */
+.listingsEmpty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 40px 16px;
+  min-height: 220px;
+}
+
+.listingsEmptyIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.listingsEmptyIcon svg {
+  width: 44px;
+  height: 44px;
+}
+
+.listingsEmptyText {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.listings {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  /* Wider gap from the "All Events" header row down to the first
+     event card. Applies when the filter chips are CLOSED — the
+     adjacent-sibling rule below tightens it to 14px when the
+     filter chips row is visible directly above the listings, so
+     an open dropdown state doesn't double-up the spacing. */
+  margin-top: 38px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  padding-bottom: 18px;
+}
+
+/* When the filter chips row is rendered (filtersOpen=true in
+   page.tsx), it sits between `.rightHeader` and `.listings`. The
+   default `.listings { margin-top: 38px }` would then stack on
+   TOP of the chip row's own gap, leaving a giant gap between the
+   chips and the first event card. This adjacent-sibling rule
+   shrinks the listings' top margin to 14px in that state, so the
+   chips sit close to the cards below them. When filters are
+   closed, `.filters` isn't in the DOM, this selector doesn't
+   match, and the listings keep the larger 38px gap from the
+   search-bar header. */
+.filters + .listings {
+  margin-top: 20px;
+}
+
+.listings::-webkit-scrollbar {
+  width: 6.1px;
+}
+
+.listings::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.listings::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+
+.listings::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Event card (right column) — square-image left, info middle,
+   View button right. Default border + cyan-tint hover come from the
+   shared "card-hover" spec the user defined for the company /
+   recommended cards, so the whole app's "tap a card" affordance
+   reads identically. ── */
+.eventCard {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: stretch;
+  background: transparent;
+  border: 1px solid rgba(160, 174, 192, 0.5);
+  border-radius: 16px;
+  /* Vertical padding bumped to 16px (was 10px) so there's a
+     visible gap between the avatar's top/bottom edges and the
+     card's top/bottom edges, per the SS. The shorter avatar
+     (height 100px below) keeps the overall card a bit shorter
+     than before despite the larger padding. Horizontal padding
+     stays at 12px. */
+  padding: 10px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+.eventCard:hover {
+  background-color: #20bdff1a;
+  border: 1px solid #20bdff;
+}
+
+/* Square thumbnail on the left. The static step uses a coloured
+   gradient placeholder with a centred initials/label. The dynamic
+   step swaps `.eventImage` for an <img> with `object-fit: cover`. */
+.eventImage {
+  /* Avatar shortened (140 → 100px) and corners more rounded
+     (12 → 18px) per the SS — the wider 180px footprint stays so
+     the thumbnail still dominates the left side. With the shorter
+     avatar + larger top/bottom card padding, the card overall is
+     a bit more compact while leaving visible breathing room above
+     and below the image. */
+  width: 170px;
+  height: 128px;
+  border-radius: 18px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.eventImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.eventImageLabel {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  padding: 0 12px;
+}
+
+.eventInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  justify-content: flex-start;
+  /* NEW — pulls the right-side text 8px closer to both the card's
+     top and bottom edges. Card padding stays 16px, so the avatar
+     keeps its 16px gap; the avatar height is unchanged so the
+     overall card height stays the same. */
+  margin: 7px 0;
+}
+
+
+/* Cyan all-caps label that announces the event mode — "PHYSICAL
+   EVENT" / "VIRTUAL EVENT" — matching the SS. Weight dropped from
+   700 → 400 per the user's request so the badge reads softer
+   against the bold title underneath. */
+.eventType {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: #20bdff;
+  text-transform: uppercase;
+}
+
+.eventTitle {
+  margin: 0;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  /* Toned down 18 → 16 so the title sits in better proportion
+     with the smaller event-type label above and the new price
+     size below. */
+  font-size: 16px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventDate {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  /* Negative margin-top tightens ONLY the title→date gap (parent
+     `.eventInfo` keeps its 8px gap for the other rows, so the
+     PHYSICAL EVENT→title gap and the date→price gap are
+     untouched per the user's instructions). 8 - 4 = 4px effective
+     gap above the date. */
+  margin: -4px 0 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.eventDate svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.eventPrice {
+  /* `margin-top: auto` pushes the price to the bottom of the
+     info column. `margin-bottom: 8px` lifts it 8px back up so
+     it sits 8px above the card's lower padding edge — the View
+     pill on the right uses the same `margin-bottom: 8px` so
+     the two stay perfectly aligned at this new "raised" bottom
+     position. Card height + card padding are unchanged. */
+  margin: auto 0 8px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #20bdff;
+}
+
+.eventActions {
+  flex-shrink: 0;
+  display: flex;
+  /* `flex-end` pushes the View pill to the BOTTOM of the row so
+     it sits at the same vertical level as the price line in the
+     info column to its left — per the SS reference where View and
+     £2300 share the bottom edge of the card. */
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+/* Gradient "View" pill on the right of each card — same gradient
+   the home / jobs Apply button uses so the brand-button language
+   stays consistent across the app. */
+.btnView {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50px;
+  /* Shorter (less vertical padding) + wider (more horizontal
+     padding + bigger min-width) per the SS — the pill now reads
+     as a low-profile wide button, level with the price line on
+     the bottom-left of the card. */
+  padding: 6px 32px;
+  /* `margin-bottom: 8px` matches the price line's new bottom
+     margin — both lift 8px above the card's lower padding edge
+     so there's a visible gap between the View button and the
+     bottom edge of the card. Nothing else (card height, card
+     padding, avatar position, top-side gaps) is altered. */
+  margin-bottom: 8px;
+  color: #fff;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  min-width: 140px;
+}
+
+.btnView:hover {
+  opacity: 0.92;
+}
+
+/* ── Status chip ── pinned to the top-right of each My Bookings
+   card. Square-ish corners (4px radius), NO border — just a soft
+   tinted background with bright text — matching the live YP SS.
+   The chip's tone (red / green / neutral) comes from the modifier
+   class applied alongside this base by `statusChipClass`. */
+.statusChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 16px;
+  /* Pill-rounded corners (100px collapses to a full pill at this
+     size) — the chip reads as a soft rounded badge, not a square
+     tile. NO border on any tone modifier; the tinted background +
+     bright text alone provide the affordance. */
+  border-radius: 100px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  align-self: flex-end;
+}
+
+.statusChipDanger {
+  color: #ff6b6e;
+  background: rgba(255, 77, 79, 0.18);
+  border: none;
+}
+
+/* Wrapper around the PHYSICAL/VIRTUAL EVENT label inside
+   .eventInfo — exists so the mobile-only inline chip can sit on
+   the SAME row as the type label, right-aligned. On desktop and
+   tablet this is just a plain row with one child (the label),
+   the chip is hidden. */
+.eventTypeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Mobile-only status chip rendered inline next to the EVENT type
+   label. Hidden by default — only shown by the ≤640px media
+   query below. Same tone modifiers (`statusChipDanger`, etc.)
+   apply to it because the JSX composes the same modifier class. */
+.statusChipInline {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 14px;
+  border-radius: 100px;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.statusChipSuccess {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.18);
+  border: none;
+}
+
+.statusChipNeutral {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+}
+
+/* When a status chip is present, the action column stacks
+   vertically with the chip at the top-right and the View pill
+   at the bottom-right (matches the live YP /events My Bookings
+   card layout). Without a chip the row keeps its default flex-
+   row layout for paid / All-Events cards (View pill alone). */
+.eventActions:has(.statusChip) {
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0;
+}
+
+/* ── Outer page wrapper override — same desktop / tablet split as
+   the company / jobs pages. DESKTOP stays viewport-locked so the
+   right panel uses an internal scroll. TABLET / MOBILE flips to a
+   page-level scroll so the viewer can sweep through profile →
+   stats → events vertically using the native right-side scrollbar. ── */
+.pageEvents {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .pageEvents {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+/* ── Tablet / mobile grid override — same idea as
+   `.contentCompanyPage`. The home grid's ≤900px rule sets two
+   flexible rows, but the events page needs each row to size to its
+   content so the page-level scroller drives navigation. */
+@media (max-width: 900px) {
+  /* Chained-class selector (`.x.x`) doubles specificity to 0,2,0
+     so this rule reliably wins over the home grid's `.content
+     { gap: 20px }` at the same breakpoint, regardless of CSS
+     module load order. Visual gap below the stats box on tablet
+     now matches the company-page tablet treatment exactly
+     (12px) — the previous 6px sat too tight and made the All
+     Events / My Bookings card visually fuse with the events
+     panel below it. */
+  .contentEventsPage.contentEventsPage {
+    grid-template-rows: auto auto;
+    min-height: 0;
+    overflow: visible;
+    height: auto;
+    gap: 12px;
+  }
+
+  /* Right-side events panel is now sized in viewport units so it
+     extends much further down on tablet — matches the SS where
+     the panel reaches almost the full viewport height. */
+  .rightOuter {
+    max-height: 80vh;
+  }
+
+  /* Stable listings top margin on tablet/mobile — matches the
+     company-page treatment exactly. The desktop default (38px)
+     gives a roomy gap below the search row but on tablet the
+     adjacent-sibling rule below (which shrinks margin to 20px
+     when chips open) caused the panel's upper region to grow by
+     ~36px when toggling the filter slider — the cards visibly
+     jumped down each time. Pinning both the closed and open
+     states to 18px keeps the layout stable so opening the filter
+     chips only adds the chip row itself, no extra reflow.
+     Chained-class selector wins over both the desktop default
+     and the adjacent-sibling rule via specificity (0,2,0 vs
+     0,1,0). */
+  .listings.listings {
+    margin-top: 18px;
+  }
+
+  .filters + .listings.listings {
+    margin-top: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Increased gap on mobile so the stats card and the events
+     panel below it sit with clear visual breathing room (per the
+     SS reference). Tablet keeps the tighter 6px to match the
+     company-page treatment; mobile gets more room because the
+     stats card and panel both span full width and the gap
+     between them needs to read as a real divider. */
+  .contentEventsPage.contentEventsPage {
+    gap: 14px;
+  }
+
+  .rightOuter {
+    max-height: 78vh;
+  }
+}
+
+/* ── Tablet (≤1200px) — slightly tighter padding on the right card,
+   matching the company / jobs pages. ── */
+@media (max-width: 1200px) {
+  .rightOuter {
+    padding: 16px 14px 0;
+  }
+}
+
+/* ── Tablet portrait (641–900px) — keep the desktop 3-column grid
+   (image | info | actions) but pin the status chip to the top-right
+   of the card via absolute positioning (out of the action column).
+   View button stays in the action column on the right. The header
+   row keeps the desktop horizontal layout so "All Events" and the
+   search bar sit on the same line — only the search pill itself
+   compresses to fit the narrower viewport. ── */
+@media (min-width: 641px) and (max-width: 900px) {
+  /* On tablet only, expand the stats box vertically so the All
+     Events / My Bookings card has more visual presence next to
+     the wider events panel — matches the SS where the stats card
+     reads as a substantial sibling block, not a thin strip. */
+  .statsBox {
+    padding: 22px 22px;
+    gap: 14px;
+  }
+
+  .statsRow {
+    font-size: 15px;
+    padding: 4px 0;
+  }
+
+  /* Header stays horizontal — heading on the left, search +
+     Clear All on the right (same row, compressed). */
+  .rightHeader {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Search pill compresses on tablet so it shares the row with
+     the heading without overflowing. The chained-class selector
+     (specificity 0,2,0) wins over the desktop rule's 0,1,0
+     without needing !important. */
+  .searchWrap.searchWrap {
+    max-width: 280px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .filterBtn {
+    max-width: 100%;
+  }
+
+  .eventCard {
+    position: relative;
+  }
+
+  .eventImage {
+    width: 110px;
+    height: 110px;
+  }
+
+  /* Right-pad the info column so the floating chip doesn't
+     overlap the title / type label. */
+  .eventInfo {
+    padding-right: 90px;
+  }
+
+  /* Float the chip to the card's top-right corner. `align-self`
+     and `margin-bottom: auto` from the desktop rule are reset
+     because the chip no longer participates in the flex column. */
+  .statusChip {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    align-self: auto;
+    margin-bottom: 0;
+    z-index: 2;
+  }
+
+  /* Action column reverts to flex-row when the chip is out of it,
+     so View sits comfortably aligned to the card's bottom-right. */
+  .eventActions:has(.statusChip) {
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+}
+
+/* ── Mobile (≤640px) — full vertical layout matching the live SS:
+   image FULL-WIDTH on top, info below (with the inline status
+   chip on the same row as the EVENT type label), then the View
+   button as a full-width pill at the bottom. The action-column
+   chip is hidden because the inline one in eventTypeRow takes
+   over. ── */
+@media (max-width: 640px) {
+  .rightHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  /* Mobile search row stretches to the full container width so
+     the pill spans edge-to-edge with equal padding on both sides
+     (the rightOuter container's own horizontal padding doubles
+     as the search bar's gap from the screen edge — same gap the
+     event cards use, so the search bar visually aligns with the
+     card edges). */
+  .searchClearWrap.searchClearWrap {
+    flex-direction: row;
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .searchWrap.searchWrap {
+    max-width: 100%;
+    min-width: 0;
+    width: 100%;
+    flex: 1;
+  }
+
+  /* Override the home `.searchBar`'s `margin-right: 10px` (which
+     exists for the desktop feed layout) so the pill ends flush
+     with the right edge of its mobile container. Without this,
+     there's an asymmetric 10px gap on the right that makes the
+     bar look misaligned against the event cards below. The
+     selector targets the direct-child div inside `.searchWrap`,
+     which is exactly the home `.searchBar` element regardless of
+     its hashed class name. */
+  .searchWrap > div {
+    margin-right: 0;
+    width: 100%;
+  }
+
+  .filterBtn {
+    max-width: 100%;
+  }
+
+  .eventCard {
+    position: relative;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "image"
+      "info"
+      "actions";
+    row-gap: 14px;
+    column-gap: 0;
+  }
+
+  /* Image fills the card's full width on top, fixed height matches
+     the SS proportions (banner-style). */
+  .eventImage {
+    grid-area: image;
+    width: 100%;
+    height: 200px;
+  }
+
+  /* Info gets back its full width — no chip overlap to dodge,
+     because the chip sits inline within `.eventTypeRow`. */
+  .eventInfo {
+    grid-area: info;
+    padding-right: 0;
+  }
+
+  /* Actions area is a single full-width row — just the View
+     button. Both `:has(.statusChip)` and base rules collapse to
+     this layout because the chip is absent from the actions
+     column on mobile. */
+  .eventActions,
+  .eventActions:has(.statusChip) {
+    grid-area: actions;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: stretch;
+    gap: 0;
+    width: 100%;
+  }
+
+  /* Hide the action-column chip on mobile — the inline chip in
+     eventTypeRow replaces it. */
+  .statusChip {
+    display: none;
+  }
+
+  /* Reveal the inline chip beside the EVENT type label. */
+  .statusChipInline {
+    display: inline-flex;
+  }
+
+  .btnView {
+    width: 100%;
+    flex: 1;
+    margin-bottom: 0;
+  }
+}
+
+/* ── Small mobile (≤420px) — tighter card padding and a slightly
+   smaller heading, matching the jobs / company small-mobile rules. ── */
+@media (max-width: 420px) {
+  .rightOuter {
+    padding: 14px 12px 0;
+    border-radius: 14px;
+  }
+
+  .rightTitle {
+    font-size: 19px;
+  }
+
+  .eventCard {
+    padding: 12px;
+    row-gap: 12px;
+  }
+
+  /* Slightly shorter banner image on tight mobile so the card
+     doesn't dominate the viewport height. */
+  .eventImage {
+    height: 170px;
+  }
+
+  .eventTitle {
+    font-size: 16px;
+    white-space: normal;
+  }
+
+  .btnView {
+    flex: 1;
+    padding: 9px 20px;
+    font-size: 13px;
+    min-width: 0;
+  }
+
+  .eventActions {
+    width: 100%;
+  }
+}

@@ -1,0 +1,1155 @@
+/* ================================================================
+ * HANDOVER PACKAGE — Career Talks Module
+ * File:    src/app/components/layout/Navbar/Navbar.module.css
+ * Role:    Full navbar styles — desktop rail, avatar dropdown,
+ *          hamburger drawer, light-mode overrides (icons tint to
+ *          brand-blue #3960fb, dropdown surface flips white, drawer
+ *          turns light with cyan-purple gradient active state).
+ * COPY?:   ❌ DO NOT copy — the target project has its own navbar
+ *          + styles. This file is included only so the demo renders
+ *          exactly as the integrated feature will look on a real
+ *          YP page.
+ * See README.md §2 (Light-mode navbar treatment).
+ * ================================================================ */
+
+.navbar {
+  width: 100%;
+  background: transparent;
+  /* `border-bottom` removed — the visible underline is now owned
+     entirely by the `.divider` element below `.inner`, so the navbar
+     no longer renders a duplicate faint white line at its very edge. */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.inner {
+  max-width: 1580px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Bumped from 197px → 220px so both the YOUNG PRO logo and the avatar
+     sit a touch further from the viewport edges. */
+  padding: 0 204px;
+  height: 73.5px;
+  position: relative;
+}
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.logoYoung {
+  font-family: var(--font-alumni-sans-sc), sans-serif;
+  /* Weight bumped 800 → 900 per user spec — applies to both dark
+     and light mode (no `[data-theme]` scoping). */
+  font-weight: 900;
+  font-size: 34.5px;
+  color: var(--text-primary, #fff);
+  letter-spacing: 0.6px;
+  line-height: 0.8;
+}
+
+.logoPro {
+  font-family: var(--font-alumni-sans-sc), sans-serif;
+  font-weight: 900;
+  font-size: 22.5px;
+  color: var(--text-primary, #fff);
+  letter-spacing: 0.2px;
+  line-height: 0.9;
+  margin-top: -2.8px;
+}
+
+.navItems {
+  position: absolute;
+  /* Anchored from the RIGHT side of .inner so the gap between Events
+     (last item) and the avatar is locked to `gap`, not dependent on
+     viewport width. Avatar sits at .inner's content-right edge with
+     .inner's padding-right (204px) + its own width (50px).
+     right offset = inner padding-right (204) + avatar width (50) + gap (14). */
+  right: calc(204px + 50px + 14px);
+  left: auto;
+  top: 0;
+  bottom: 0;
+  transform: none;
+  display: flex;
+  align-items: stretch;
+  /* Gap between each nav item — reduced 20px → 14px so the rail reads
+     tighter. Keep it in sync with the last +14 above (the
+     Events→avatar gap). E.g., if you change this to 16px, change
+     the calc to `calc(204px + 50px + 16px)`. */
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navItems > li {
+  display: flex;
+}
+
+.navBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Bumped from 4px → 7px so the icon glyph and its label aren't
+     visually fused at the rail's default zoom level. */
+  gap: 7px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  /* All nav items now render in the theme's primary text color at
+     all times — the inactive vs active distinction is ONLY
+     communicated by the icon glyph (outline vs filled) and label
+     font-weight. No hover color change, no opacity dimming. The
+     variable resolves to white in dark mode and dark-navy in light
+     mode (Career Talks pages) automatically. */
+  color: var(--text-primary, #fff);
+  position: relative;
+  min-width: 72px;
+  height: 100%;
+}
+
+/* Hover color change removed per spec — the icons / labels stay at
+   the same solid white in every state. Only cursor signals it's
+   clickable. */
+
+.navIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  /* Reserve fixed dimensions so the absolutely-positioned dual
+     icons (outline + filled stacked at this slot) don't collapse
+     the wrap to zero size. Matches the icon's intrinsic 24×24. */
+  width: 22px;
+  height: 22px;
+}
+
+.navIconWrap img {
+  display: block;
+}
+
+/* Both icon variants (outline + filled) live stacked in the same
+   slot — toggling the active route is purely an opacity flip on
+   each variant. Because both <img>s remain in the DOM, the
+   browser never re-fetches an asset on route change, so the
+   transition is instant + smooth (no loading flash, no layout
+   shift, no jump). */
+.navIconImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.18s ease;
+}
+
+.navIconImgVisible {
+  opacity: 1;
+}
+
+.navIconImgHidden {
+  opacity: 0;
+}
+
+/* Inactive icon dimming + hover-brighten rules removed per spec.
+   Both the inactive (outline) and active (filled) icons now render
+   at full opacity 1 → both read as solid #fff at all times. The
+   only state difference is the icon glyph itself (outline vs
+   filled) and the label's font-weight — no opacity, no colour
+   shift, no size change. */
+
+/* Light-mode override — tints the white PNG/SVG navbar icons to the
+   brand blue #3960fb so they read clearly on the light surface. The
+   filter chain converts pure white pixels to that exact blue:
+     `brightness(0)` → forces image to pure black
+     `invert(31%)`   → starts hue rotation from black
+     `sepia/saturate/hue-rotate/brightness/contrast` chain → lands on #3960fb
+   Both the outline (inactive) and filled (active) icon variants get
+   the tint, so the only state difference stays the glyph itself
+   (outline vs filled) + label font-weight — functionality unchanged.
+   Dark mode pages don't set `data-theme="light"`, so they fall back
+   to the icon's natural white. */
+[data-theme="light"] .navIconImg {
+  filter: brightness(0) saturate(100%) invert(28%) sepia(88%)
+    saturate(3617%) hue-rotate(231deg) brightness(100%) contrast(98%);
+}
+
+.navLabel {
+  font-family: var(--font-dm-sans), sans-serif;
+  /* Inactive weight trimmed 500 → 400 so non-active items read as a
+     light foil to the active item's bolder 600 (set below in
+     `.navBtnActive .navLabel`). The active state retains its
+     current weight + colour treatment. */
+  font-weight: 400;
+  font-size: 12.5px;
+  color: var(--text-primary, #fff);
+  line-height: 1;
+  
+  letter-spacing: 0;
+  /* `position: relative` anchors the phantom-bold pseudo-element
+     below so it sits in the same layout slot as the real text. */
+  position: relative;
+}
+
+/* "Phantom bold" pseudo-element — renders an invisible copy of the
+   label text in the BOLDER (600) weight that the active state will
+   use. `visibility: hidden` + `height: 0` keep it from being seen,
+   but its WIDTH still participates in layout, so the element always
+   reserves the bolder weight's wider footprint. Result: when the
+   active class flips `font-weight: 400 → 600`, the visible text
+   simply fills the already-reserved width — no reflow, no neighbour
+   shift, no icon "jump". Requires `data-label={item.label}` on the
+   span (added in Navbar.tsx so `attr()` can read it). */
+.navLabel::before {
+  content: attr(data-label);
+  display: block;
+  font-weight: 600;
+  height: 0;
+  visibility: hidden;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+
+
+.navBtnActive .navLabel {
+  /* IMPORTANT: do NOT change `font-size` here. The inactive `.navLabel`
+     above renders at 12.5px; any size change between the two states
+     forces the entire column to reflow when the active class flips,
+     which causes the icon glyph to "jump" by a pixel or two. The
+     active label is differentiated by `font-weight` ONLY — size stays
+     locked. Color flips with theme via `--text-primary` (white on
+     dark mode, dark navy in light mode). */
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+}
+
+/* The underline lives on EVERY `.navBtn` as a pseudo-element so it's
+   always present in the DOM — that's the only way CSS can transition
+   it (you can't transition the creation/destruction of a pseudo-
+   element). Inactive items keep it at `opacity: 0`; the active item
+   bumps it to `opacity: 1`. The transition is a soft 0.28s fade so
+   the bar smoothly appears/disappears as the route flips, rather
+   than snapping in instantly. */
+.navBtn::after {
+  content: "";
+  position: absolute;
+ 
+  left: 2px;
+  right: 2px;
+  bottom: -1px;
+  height: 2.1px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.navBtnActive::after {
+  opacity: 1;
+}
+
+.navBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #20bdff;
+  border: 1.5px solid #0a1424;
+}
+
+/* ── Avatar + Dropdown ── */
+.avatarWrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatarBtn {
+  /* Bumped from 46 → 52 so the avatar reads a bit larger without overpowering. */
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatarCircle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.avatarInitials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #5433ff, #20bdff);
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+/* Dropdown panel */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 280px;
+  background-color: var(--background);
+  color: var(--foreground);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  box-shadow: none;
+  z-index: 200;
+  padding: 8px 0 6px;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdownUser {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 20px 8px;
+}
+
+.dropdownAvatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
+.dropdownAvatarPlaceholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
+.dropdownAvatarInitials {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #5433ff, #20bdff);
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+}
+
+.dropdownName {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdownDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 4px 16px;
+}
+
+.dropdownSection {
+  padding: 4px 20px 2px;
+}
+
+.dropdownSectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 2px;
+}
+
+.themeOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 0 3px 28px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+
+.themeActive {
+  font-weight: 700;
+  color: #fff;
+}
+
+.checkMark {
+  margin-left: auto;
+  color: #fff;
+  font-size: 14px;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 20px;
+  background: none;
+  border: none;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+/* Destructive variant used on the "Delete Account" row — red label
+   text matching the trash icon stroke + reduced font-weight (500
+   instead of the base 700) so the action reads as "secondary, not
+   the primary CTA". Applies in both dark and light mode. */
+.dropdownItemDanger {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.dropdownItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Light-mode overrides for the avatar dropdown menu (Sneha Mondal /
+   Appearance / Delete Account / View Profile / Log Out).
+   Matches the live YP reference SS pixel-for-pixel: pure-white
+   surface, dark navy text on labels, mid-gray text on inactive
+   theme rows, brand-blue label inside the two action buttons.
+   Triggered when any ancestor sets `data-theme="light"` (the
+   pre-hydration script in layout.tsx stamps this on <html> for
+   /career-talks pages). All other pages stay on the dark
+   surface from the rules above. */
+[data-theme="light"] .dropdown {
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* Name at the top of the dropdown ("Sneha Mondal") → dark navy. */
+[data-theme="light"] .dropdownName {
+  color: #0f172a;
+}
+
+/* Hairline dividers between sections → soft dark line on white. */
+[data-theme="light"] .dropdownDivider {
+  background: rgba(15, 23, 42, 0.1);
+}
+
+/* "Appearance" section heading (with moon icon) → dark navy. */
+[data-theme="light"] .dropdownSectionTitle {
+  color: #0f172a;
+}
+
+/* Inactive theme rows ("Dark", "System" when not selected) →
+   mid-gray label so the active row pops by comparison. */
+[data-theme="light"] .themeOption {
+  color: rgba(15, 23, 42, 0.55);
+}
+
+/* The currently-selected theme row ("Light ✓") → dark navy + bold.
+   The base `.themeActive` rule already sets font-weight 700; this
+   override just swaps the white text colour for navy. */
+[data-theme="light"] .themeActive {
+  color: #0f172a;
+}
+
+/* Check-mark glyph next to the active theme row → dark navy. */
+[data-theme="light"] .checkMark {
+  color: #0f172a;
+}
+
+/* Generic dropdown item label (would apply to any non-danger row).
+   The Delete Account row keeps its red `.dropdownItemDanger`
+   override — that's already a single colour both modes share. */
+[data-theme="light"] .dropdownItem {
+  color: #0f172a;
+}
+
+/* Hover state on a dropdown row → very subtle dark wash so the
+   row visibly highlights against the white surface. */
+[data-theme="light"] .dropdownItem:hover {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+/* Action buttons at the bottom ("View Profile", "Log Out") — the
+   pill borders are already a purple→cyan gradient from the base
+   `::before` pseudo, which reads well against white too. Only the
+   label colour needs to flip from white to brand blue so the
+   buttons look like the reference SS. */
+[data-theme="light"] .actionBtn,
+[data-theme="light"] .actionBtnPrimary {
+  color: #3960fb;
+}
+
+.dropdownActions {
+  display: flex;
+  gap: 10px;
+  padding: 6px 20px 2px;
+}
+
+.actionBtn {
+  position: relative;
+  flex: 1;
+  height: 32px;
+  border: none;
+  border-radius: 50px;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.actionBtn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.actionBtn:hover {
+  opacity: 0.92;
+}
+
+.actionBtnPrimary {
+  position: relative;
+  flex: 1;
+  height: 32px;
+  border: none;
+  border-radius: 50px;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.actionBtnPrimary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.actionBtnPrimary:hover {
+  opacity: 0.92;
+}
+
+/* Bottom divider for the navbar — width is constrained to match the
+   inner content edges (`.inner` and the page-level `.content`), so the
+   line no longer runs viewport-edge to viewport-edge. The horizontal
+   padding mirrors `.inner` exactly (default 204px, responsive overrides
+   below) and `background-clip: content-box` causes the gradient to
+   render only inside the padding so the visible line stops at the left
+   and right panel edges.
+
+   `margin-bottom` adds the gap to the page content below WITHOUT
+   altering `.inner`'s 73.5px height — the navbar's interactive strip
+   (logo + nav items + avatar) stays at exactly the same vertical
+   position. */
+.divider {
+  width: 100%;
+  max-width: 1580px;
+  margin: 0 auto 3px;
+  padding: 0 204px;
+  box-sizing: border-box;
+  height: 1px;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 20%,
+    rgba(255, 255, 255, 0.08) 80%,
+    transparent 100%
+  );
+  background-clip: content-box;
+  -webkit-background-clip: content-box;
+}
+
+/* Light-mode override — the dark-mode rgba(255,255,255,0.08) is
+   invisible on a white page. Swap to a dark hairline gradient so
+   the line still reads as a soft separator between navbar and the
+   page content beneath. */
+[data-theme="light"] .divider {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(15, 23, 42, 0.12) 20%,
+    rgba(15, 23, 42, 0.12) 80%,
+    transparent 100%
+  );
+  background-clip: content-box;
+  -webkit-background-clip: content-box;
+}
+
+/* ── Hamburger button (mobile only) ── */
+.hamburgerBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+}
+
+.hamburgerBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Side drawer ── */
+.drawerOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 500;
+  animation: fadeIn 0.2s ease;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 72%;
+  max-width: 280px;
+  background: #0b1525;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 501;
+  display: flex;
+  flex-direction: column;
+  /* Top padding bumped 18 → 28px per user spec so the avatar row
+     sits a little further from the screen's top edge. Side + bottom
+     padding unchanged. */
+  padding: 28px 18px 22px;
+  animation: slideInRight 0.22s ease;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Padding-bottom + border-bottom together render the divider line
+     BETWEEN the avatar row and the nav list. Replaces the old
+     margin-bottom: 44px so the divider sits cleanly between the two
+     groups instead of in empty space. The remaining margin-bottom
+     adds the visual gap below the divider. */
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-faint, rgba(255, 255, 255, 0.1));
+  position: relative;
+}
+
+.drawerAvatarBtn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drawerDropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: auto;
+}
+
+.drawerAvatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+}
+
+.drawerAvatarInitials {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #5433ff, #20bdff);
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+}
+
+.drawerCloseBtn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+}
+
+.drawerCloseBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.drawerNav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.drawerNavItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 17px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.drawerNavItem:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.drawerNavItemActive {
+  background: linear-gradient(102.4deg, rgba(84, 51, 255, 0.9) 3.68%, rgba(32, 189, 255, 0.9) 95.65%);
+  color: #fff;
+  font-weight: 800;
+}
+
+.drawerNavItemActive:hover {
+  background: linear-gradient(102.4deg, rgba(84, 51, 255, 0.9) 3.68%, rgba(32, 189, 255, 0.9) 95.65%);
+}
+
+.drawerIconWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* Same fixed dimensions as the desktop rail wrap so the
+     stacked-dual-icon layout has a real slot to render into. */
+  width: 26px;
+  height: 26px;
+}
+
+.drawerIconWrap img {
+  display: block;
+  width: 26px;
+  height: 26px;
+}
+
+/* Drawer icons mirror the desktop dual-render setup — both
+   outline + filled live in the DOM, only opacity flips. */
+.drawerIconImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.18s ease;
+}
+
+.drawerIconImgVisible {
+  opacity: 1;
+}
+
+.drawerIconImgHidden {
+  opacity: 0;
+}
+
+.drawerBadge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #20bdff;
+  border: 1.5px solid #0b1525;
+}
+
+.drawerNavLabel {
+  line-height: 1;
+}
+
+.drawerFooter {
+  display: flex;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 12px;
+}
+
+.drawerFooterBtn {
+  flex: 1;
+  height: 38px;
+  border-radius: 50px;
+  border: 1.5px solid rgba(84, 51, 255, 0.7);
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.drawerFooterBtn:hover {
+  background: rgba(84, 51, 255, 0.15);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Light-mode overrides for the mobile / tablet hamburger button and
+   the side drawer menu. Triggered when any ancestor sets
+   `data-theme="light"` (Career Talks pages do this). The drawer
+   renders inline within the navbar so it inherits the same theme
+   context as the rest of the page.
+
+   Maps to the reference SS the user pasted: white drawer surface,
+   dark text on every menu item, soft cyan/blue tint on the active
+   item, black hamburger icon. */
+
+/* Drawer nav-link icons → tinted to brand blue (#3960fb) in light
+   mode, same calibrated filter chain used on the desktop navbar's
+   `.navIconImg`. Applies to BOTH the outline (inactive) and filled
+   (active) variants — so the only state difference inside the drawer
+   stays the glyph itself (outline vs filled) plus the active item's
+   gradient pill + bolder text. Without this filter the drawer icons
+   would render as their natural near-white asset colour, invisible
+   on the white drawer surface. */
+[data-theme="light"] .drawerIconImg {
+  filter: brightness(0) saturate(100%) invert(28%) sepia(88%)
+    saturate(3617%) hue-rotate(231deg) brightness(100%) contrast(98%);
+}
+
+/* Hamburger 3-line icon → black on light bg (was #fff). */
+[data-theme="light"] .hamburgerBtn {
+  color: #0f172a;
+}
+
+[data-theme="light"] .hamburgerBtn:hover {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+/* Side drawer surface → white with soft dark border. */
+[data-theme="light"] .drawer {
+  background: #ffffff;
+  border-left: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+/* Drawer close (X) button → dark icon. */
+[data-theme="light"] .drawerCloseBtn {
+  color: #0f172a;
+}
+
+[data-theme="light"] .drawerCloseBtn:hover {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+/* Drawer nav items (Home / Company / Notifications / Jobs / Events /
+   Profile / Settings) → dark text on the white drawer. */
+[data-theme="light"] .drawerNavItem {
+  color: #0f172a;
+}
+
+[data-theme="light"] .drawerNavItem:hover {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+/* Active drawer item — exact spec the user provided. Uses the
+   brand-purple → brand-cyan horizontal gradient at low opacity
+   (0.2) so the surface reads as a soft blue/violet wash on the
+   white drawer, with a subtle purple border ring. Padding /
+   border-radius match the spec; text colour stays dark navy so it
+   pops on the gradient. */
+[data-theme="light"] .drawerNavItemActive {
+  background: linear-gradient(
+    90deg,
+    rgba(84, 51, 255, 0.2) 0%,
+    rgba(32, 189, 255, 0.2) 100%
+  );
+  border: 1px solid rgba(84, 51, 255, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #0f172a;
+  font-weight: 700;
+  transition: 0.3s;
+}
+
+[data-theme="light"] .drawerNavItemActive:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(84, 51, 255, 0.28) 0%,
+    rgba(32, 189, 255, 0.28) 100%
+  );
+}
+
+/* Footer login/sign-up buttons → blue border, dark text. */
+[data-theme="light"] .drawerFooterBtn {
+  color: #0f172a;
+}
+
+[data-theme="light"] .drawerFooterBtn:hover {
+  background: rgba(57, 96, 251, 0.08);
+}
+
+/* ── Tablet landscape & small desktop (≤1200px) — match profile content padding ── */
+@media (max-width: 1200px) {
+  .inner {
+    padding: 0 40px;
+  }
+
+  /* Keep the divider visually aligned with `.inner` at this breakpoint
+     so the bottom rule still stops at the inner content edges. */
+  .divider {
+    padding: 0 40px;
+  }
+}
+
+/* ── Tablet (≤1024px) ── */
+@media (max-width: 1024px) {
+  .inner {
+    padding: 6px 22px 0 22px;
+    height: 72px;
+  }
+
+  .logo {
+    padding-top: 4px;
+    padding-left: 4px;
+  }
+
+  .logoYoung {
+    font-size: 34px;
+  }
+
+  .logoPro {
+    font-size: 24px;
+  }
+
+  .navItems {
+    gap: 0;
+  }
+
+  .navBtn {
+    min-width: 60px;
+    padding: 8px 10px;
+  }
+
+  .navLabel {
+    font-size: 12px;
+  }
+
+  .avatarBtn {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* ── Small tablet / large mobile (≤820px) — drop labels, icons only ── */
+@media (max-width: 1024px) {
+  .navLabel {
+    display: none;
+  }
+
+  .navBtn {
+    min-width: unset;
+    padding: 8px 8px;
+    height: 56px;
+  }
+
+  .navBtnActive::after {
+    left: -2px;
+    right: -2px;
+  }
+}
+
+/* ── Mobile/Tablet (≤1024px, covers iPad Pro) — show hamburger, hide inline nav + avatar ── */
+@media (max-width: 1024px) {
+  .navItems,
+  .avatarWrapper {
+    display: none;
+  }
+
+  .hamburgerBtn {
+    display: flex;
+  }
+
+  .inner {
+    justify-content: space-between;
+    height: 64px;
+    padding: 0 16px;
+  }
+
+  .divider {
+    padding: 0 16px;
+  }
+}
+
+/* ── Small mobile (≤480px) — tighter ── */
+@media (max-width: 480px) {
+  .inner {
+    padding: 0 12px;
+    height: 60px;
+  }
+
+  .divider {
+    padding: 0 12px;
+  }
+
+  .logoYoung {
+    font-size: 32px;
+  }
+
+  .logoPro {
+    font-size: 22px;
+  }
+
+  .hamburgerBtn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .drawer {
+    padding: 14px 14px 18px;
+  }
+
+  .drawerNavItem {
+    padding: 11px 12px;
+    font-size: 14px;
+  }
+}
+
+.avatarSkeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.avatarSkeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  animation: navShimmer 1.4s infinite;
+  transform: translateX(-100%);
+}
+
+@keyframes navShimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

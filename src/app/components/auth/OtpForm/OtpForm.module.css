@@ -1,0 +1,239 @@
+/* ───────────────────────────────────────────
+ * OTP form — Figma-exact vertical spacing
+ * Figma node 1145:884, card 755×962.
+ *
+ * Figma y-positions (relative to 962 card top):
+ *   Title "Verify Code":     y=344  (font 40)
+ *   Subtitle:                y=397  (font 18)
+ *   OTP input line:          y=629
+ *   Resend text:             y=669  (font 14)
+ *   Verify button top:       y=760  (440 × 48)
+ *
+ * Derived gaps:
+ *   Subtitle margin-top = 397-(344+40) = 13px
+ *   OTP   margin-top    = 629-(397+23) = ~209px (from subtitle bottom to line)
+ *                         (inputs start ~48px above line → ~165px from subtitle)
+ *   Resend margin-top   = 669-629 = 40px  (from OTP line)
+ *   Button margin-top   = 760-(669+18) = 73px
+ * ─────────────────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.subtitle {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #fff;
+  text-align: center;
+  margin: 30px 0 0;
+  line-height: 1.4;
+  max-width: 600px;
+}
+
+.otpGroup {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 109px;
+  width: 100%;
+  max-width: 588px;
+}
+
+.otpInput {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 90px;
+  height: 48px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 600;
+  font-size: 25px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s ease;
+  caret-color: #5433ff;
+}
+
+.otpInput:focus {
+  border-bottom-color: #5433ff;
+  border-bottom-width: 1px;
+}
+
+.otpInputError {
+  border-bottom-color: #ef4444;
+  border-bottom-width: 1px;
+}
+
+.errorText {
+  margin-top: 12px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  color: #ef4444;
+  text-align: center;
+}
+
+.resendText {
+  margin-top: 24.5px;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: #ede6e6;
+  text-align: center;
+}
+
+.resendBtn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.resendBtn:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.buttonWrapper {
+  width: 100%;
+  max-width: 440px;
+  margin-top: 75px;
+}
+
+/* Tablet landscape */
+@media (max-width: 1024px) {
+  .subtitle {
+    font-size: 14px;
+    margin-top: 22px;
+    max-width: 560px;
+  }
+
+  .otpGroup {
+    gap: 12px;
+    margin-top: 120px;
+    max-width: 560px;
+  }
+
+  .otpInput {
+    max-width: 82px;
+    height: 50px;
+    font-size: 26px;
+  }
+
+  .resendText {
+    margin-top: 34px;
+    font-size: 16px;
+  }
+
+  .buttonWrapper {
+    max-width: 360px;
+    margin-top: 86px;
+  }
+}
+
+/* Tablet portrait */
+@media (max-width: 820px) {
+  .subtitle {
+    font-size: 14px;
+    margin-top: 20px;
+    max-width: 480px;
+  }
+
+  .otpGroup {
+    gap: 10px;
+    margin-top: 110px;
+    max-width: 520px;
+  }
+
+  .otpInput {
+    max-width: 74px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  .resendText {
+    margin-top: 30px;
+    font-size: 15px;
+  }
+
+  .buttonWrapper {
+    max-width: 340px;
+    margin-top: 74px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .subtitle {
+    font-size: 12px;
+    margin-top: 28px;
+    max-width: 320px;
+  }
+
+  .otpGroup {
+    gap: 8px;
+    margin-top: 160px;
+    max-width: 320px;
+  }
+
+  .otpInput {
+    max-width: 48px;
+    height: 44px;
+    font-size: 19px;
+  }
+
+  .resendText {
+    margin-top: 26px;
+    font-size: 15px;
+  }
+
+  .buttonWrapper {
+    max-width: 100%;
+    margin-top: 78px;
+  }
+}
+
+/* iPhone SE */
+@media (max-width: 380px) {
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .otpGroup {
+    gap: 6px;
+    margin-top: 150px;
+    max-width: 280px;
+  }
+
+  .otpInput {
+    max-width: 42px;
+    height: 40px;
+    font-size: 17px;
+  }
+
+  .resendText {
+    margin-top: 20px;
+  }
+
+  .resendBtn {
+    display: block;
+    margin: 4px auto 0;
+  }
+
+  .buttonWrapper {
+    margin-top: 50px;
+  }
+}

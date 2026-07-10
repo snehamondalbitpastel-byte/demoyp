@@ -1,0 +1,179 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 15, 31, 0.78);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  padding: 20px 24px 18px;
+  background-image:
+    radial-gradient(ellipse at 10% 30%, rgba(32, 121, 255, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 30%, rgba(32, 189, 255, 0.10) 0%, transparent 55%),
+    linear-gradient(180deg, #050e20 0%, #071634 100%),
+    linear-gradient(180deg, #5433FF 0%, #20BDFF 100%);
+  background-origin: padding-box, padding-box, padding-box, border-box;
+  background-clip: padding-box, padding-box, padding-box, border-box;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  animation: pop 0.18s ease;
+
+  /* Force full-width inputs inside the modal — override SelectField defaults */
+  --input-max-width: 100%;
+}
+
+/* Attribute selector targets the hashed .fieldGroup class from SelectField's CSS module */
+.modal [class*="fieldGroup"] {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.title {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #fff;
+  margin: 0;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  /* Force nested SelectField inputs to span the full width inside the modal */
+  --input-max-width: 100%;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  --input-max-width: 100%;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.row .field {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: #fff;
+  padding-left: 2px;
+}
+
+.required {
+  color: #5433ff;
+  margin-left: 4px;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.cancelBtn {
+  padding: 7px 30px;
+  border: 1.5px solid rgba(84, 51, 255, 0.6);
+  border-radius: 50px;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.cancelBtn:hover {
+  background: rgba(84, 51, 255, 0.15);
+}
+
+.saveBtn {
+  padding: 7px 40px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(102.4deg, #5433ff 3.68%, #20bdff 95.65%);
+  color: #fff;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.saveBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.saveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 20px 18px 18px;
+    max-width: 100%;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,102 @@
+/* AboutForm — fits 420px content area, ~650px total card height */
+
+.form {
+  --input-height: 38px;
+  --input-max-width: 100%;
+  --input-font-size: 15.5px;
+  --input-blur: 10px;
+  --placeholder-opacity: 0.43;
+  --btn-height: 40px;
+  --btn-max-width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  flex: 1;
+  margin: 0 auto;
+}
+
+.title {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 32px;
+  letter-spacing: -0.4px;
+  color: #fff;
+  text-align: center;
+  margin: 7px 0 0;
+  flex-shrink: 0;
+}
+
+.subtitle {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 18px;
+  color: #ffffff;
+  text-align: center;
+  margin: 6px 0 0;
+  flex-shrink: 0;
+}
+
+.fieldWrapper {
+  width: 82%;
+  margin-top: 8px;
+}
+
+.fieldWrapper:first-of-type {
+  margin-top: 20px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  width: 82%;
+  margin-top: 8px;
+}
+
+.halfField {
+  flex: 1;
+  min-width: 0;
+}
+
+.buttonWrapper {
+  width: 82%;
+  margin-top: 14px;
+  padding-bottom: 4px;
+  flex-shrink: 0;
+}
+
+/* ── Tablet (601–800px) ── */
+@media (max-width: 800px) {
+  .title { font-size: 26px; line-height: 30px; margin-top: 12px; }
+  .subtitle { font-size: 13px; margin-top: 5px; }
+  .fieldWrapper { width: 86%; }
+  .fieldWrapper:first-of-type { margin-top: 16px; }
+  .row { width: 86%; }
+  .buttonWrapper { width: 86%; margin-top: 12px; padding-bottom: 10px; }
+}
+
+/* ── Mobile (≤480px) — full width fields, app-like ── */
+@media (max-width: 480px) {
+  .form { --input-height: 40px; --input-max-width: 96%; --btn-height: 42px; --btn-max-width: 96%; }
+  .title { font-size: 22px; line-height: 26px; margin-top: 22px; }
+  .subtitle { font-size: 13px; line-height: 17px; margin-top: 4px; }
+  .fieldWrapper { width: 100%; margin-top: 10px; }
+  .fieldWrapper:first-of-type { margin-top: 24px; }
+  .row { width: 100%; gap: 10px; margin-top: 10px; flex-direction: column; }
+  .buttonWrapper { width: 100%; margin-top: 22px; padding-bottom: 0; }
+}
+
+/* ── iPhone SE (≤380px) — same as 480px, page scrolls ── */
+@media (max-width: 380px) {
+  .form { --input-height: 40px; --input-max-width: 96%; --btn-height: 42px; --btn-max-width: 96%; }
+  .title { font-size: 22px; line-height: 26px; margin-top: 22px; }
+  .subtitle { font-size: 13px; line-height: 17px; margin-top: 4px; }
+  .fieldWrapper { width: 100%; margin-top: 10px; }
+  .fieldWrapper:first-of-type { margin-top: 24px; }
+  .row { width: 100%; gap: 10px; margin-top: 10px; flex-direction: column; }
+  .buttonWrapper { width: 100%; margin-top: 22px; padding-bottom: 0; }
+}
