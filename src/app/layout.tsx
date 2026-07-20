@@ -4,6 +4,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import SessionWrapper from "./components/providers/SessionWrapper";
 import ThemedToaster from "./components/providers/ThemedToaster";
+import ChatBot from "./components/chatbot/ChatBot";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./globals.css";
 
@@ -118,6 +119,10 @@ export default function RootLayout({
                   and feeds it to <Toaster> so toasts flip white/dark
                   in sync with the navbar's Light/Dark selector. */}
               <ThemedToaster />
+              {/* Floating FAQ chatbot — mounted once here so its bubble
+                  appears in the bottom-right of EVERY page. Rule-based,
+                  no API. Inside ThemeProvider so it reads light/dark. */}
+              <ChatBot />
             </ThemeProvider>
           </AuthProvider>
         </SessionWrapper>
