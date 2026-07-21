@@ -190,7 +190,7 @@ export default function EditEducationModal({
 
           <div className={styles.field}>
             <label className={styles.label}>
-              Education / Degree <span className={styles.required}>*</span>
+              Education <span className={styles.required}>*</span>
             </label>
             <SelectField
               label="Education / Degree"
