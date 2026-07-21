@@ -171,7 +171,7 @@ export default function EditEducationModal({
         <div className={styles.body}>
           <div className={styles.field}>
             <label className={styles.label}>
-              UK University <span className={styles.required}>*</span>
+              uk1 University <span className={styles.required}>*</span>
             </label>
             <SelectField
               label="Select University"
