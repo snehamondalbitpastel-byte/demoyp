@@ -1762,7 +1762,7 @@ export default function JobsPage() {
                 {openFilterDropdown === "company" && filterOptions ? (
                   <div className={styles.filterDropdown} role="listbox">
                     {filteredCompanies.length === 0 ? (
-                      <p className={styles.filterEmpty}>No options</p>
+                      <p className={styles.filterEmpty}>no options</p>
                     ) : (
                       filteredCompanies.map((c) => {
                         const checked = selectedCompanyNames.includes(c.name);
@@ -1854,7 +1854,7 @@ export default function JobsPage() {
                 {openFilterDropdown === "employment" && filterOptions ? (
                   <div className={styles.filterDropdown} role="listbox">
                     {filteredEmployment.length === 0 ? (
-                      <p className={styles.filterEmpty}>no options found </p>
+                      <p className={styles.filterEmpty}>no options</p>
                     ) : (
                       filteredEmployment.map((e) => {
                         const checked = selectedEmploymentTypes.includes(
