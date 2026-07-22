@@ -1854,7 +1854,7 @@ export default function JobsPage() {
                 {openFilterDropdown === "employment" && filterOptions ? (
                   <div className={styles.filterDropdown} role="listbox">
                     {filteredEmployment.length === 0 ? (
-                      <p className={styles.filterEmpty}>there is no options</p>
+                      <p className={styles.filterEmpty}>no options found </p>
                     ) : (
                       filteredEmployment.map((e) => {
                         const checked = selectedEmploymentTypes.includes(
