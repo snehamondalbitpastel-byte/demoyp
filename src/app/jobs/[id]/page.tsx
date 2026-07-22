@@ -925,7 +925,7 @@ export default function JobDetailsPage() {
                     </article>
                   </>
                 ) : similarJobs.length === 0 ? (
-                  <p className={styles.bodyText}>No similar jobs found.</p>
+                  <p className={styles.bodyText}> there is No similar jobs found.</p>
                 ) : (
                   similarJobs.map((sj) => {
                     const sjId = sj.id;
